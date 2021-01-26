@@ -1,1 +1,1 @@
-# spear-framework
+# Spear Framework
