@@ -163,6 +163,8 @@ only showing top 10 rows
 ```
 
 #### JSON to JDBC Connector
+Connector for reading json file applying transformations and storing it into postgres table using spear:\
+The input data is available in the data/data.json
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -236,6 +238,8 @@ jsonJdbcConnector.stop()
 ```
 
 #### XML to JDBC Connector
+Connector for reading xml file applying transformations and storing it into postgres table using spear:\
+The input data is available in the data/data.xml
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -251,7 +255,7 @@ xmlJdbcConnector.init("local[*]", "XMLtoJDBC")
         .target("pg_db.xml_to_jdbc", properties, SaveMode.Overwrite)
 xmlJdbcConnector.stop()
 ```
-##### output
+##### Output
 
 ```
 21/02/06 12:35:17 INFO FiletoJDBC: Data after reading from xml file in path : data/data.xml
@@ -298,7 +302,8 @@ xmlJdbcConnector.stop()
 ```
 
 #### TSV to JDBC Connector
-
+Connector for reading csv file applying transformations and storing it into postgres table using spear:\
+The input data is available in the data/product_data
 ```scala
 import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
@@ -315,7 +320,7 @@ connector.init("local[*]", "TSVtoJDBC")
 connector.stop()
 ```
 
-##### output
+##### Output
 ```
 21/02/06 12:43:54 INFO FiletoJDBC: Data after reading from tsv file in path : data/product_data
 +---+---+------+---------+
