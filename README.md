@@ -392,3 +392,145 @@ only showing top 10 rows
 +---+---+------+---------+
 only showing top 10 rows
 ```
+
+#### Avro to JDBC Connector
+Connector for reading avro file applying transformations and storing it into postgres table using spear:\
+The input data is available in the data/sample_data.avro
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.sql.SaveMode
+
+val avroJdbcConnector = new SpearConnector().sourceType("avro").targetType("jdbc").getConnector
+
+avroJdbcConnector.init("local[*]", "CSVtoJdbcConnector")
+      .source("data/sample_data.avro")
+      .saveAs("__tmp__")
+      .transformSql(
+        """select id,
+          |cast(concat(first_name ,' ', last_name) as VARCHAR(255)) as name,
+          |coalesce(gender,'NA') as gender,
+          |cast(country as VARCHAR(20)) as country,
+          |cast(salary as DOUBLE) as salary,email
+          |from __tmp__""".stripMargin)
+      .saveAs("__transformed_table__")
+      .transformSql("select id,name,country,email,salary from __transformed_table__ ")
+      .target("pg_db.company_data", properties, SaveMode.Overwrite)
+
+avroJdbcConnector.stop()
+```
+
+##### Output
+```
+21/02/07 08:35:25 INFO FiletoJDBC: Data after reading from avro file in path : data/sample_data.avro
++--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
+|registration_dttm   |id |first_name|last_name|email                   |gender|ip_address    |cc              |country               |birthdate |salary   |title                   |comments|
++--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
+|2016-02-03T07:55:29Z|1  |Amanda    |Jordan   |ajordan0@com.com        |Female|1.197.201.2   |6759521864920116|Indonesia             |3/8/1971  |49756.53 |Internal Auditor        |1E+02   |
+|2016-02-03T17:04:03Z|2  |Albert    |Freeman  |afreeman1@is.gd         |Male  |218.111.175.34|null            |Canada                |1/16/1968 |150280.17|Accountant IV           |        |
+|2016-02-03T01:09:31Z|3  |Evelyn    |Morgan   |emorgan2@altervista.org |Female|7.161.136.94  |6767119071901597|Russia                |2/1/1960  |144972.51|Structural Engineer     |        |
+|2016-02-03T12:36:21Z|4  |Denise    |Riley    |driley3@gmpg.org        |Female|140.35.109.83 |3576031598965625|China                 |4/8/1997  |90263.05 |Senior Cost Accountant  |        |
+|2016-02-03T05:05:31Z|5  |Carlos    |Burns    |cburns4@miitbeian.gov.cn|      |169.113.235.40|5602256255204850|South Africa          |          |null     |                        |        |
+|2016-02-03T07:22:34Z|6  |Kathryn   |White    |kwhite5@google.com      |Female|195.131.81.179|3583136326049310|Indonesia             |2/25/1983 |69227.11 |Account Executive       |        |
+|2016-02-03T08:33:08Z|7  |Samuel    |Holmes   |sholmes6@foxnews.com    |Male  |232.234.81.197|3582641366974690|Portugal              |12/18/1987|14247.62 |Senior Financial Analyst|        |
+|2016-02-03T06:47:06Z|8  |Harry     |Howell   |hhowell7@eepurl.com     |Male  |91.235.51.73  |null            |Bosnia and Herzegovina|3/1/1962  |186469.43|Web Developer IV        |        |
+|2016-02-03T03:52:53Z|9  |Jose      |Foster   |jfoster8@yelp.com       |Male  |132.31.53.61  |null            |South Korea           |3/27/1992 |231067.84|Software Test Engineer I|1E+02   |
+|2016-02-03T18:29:47Z|10 |Emily     |Stewart  |estewart9@opensource.org|Female|143.28.251.245|3574254110301671|Nigeria               |1/28/1997 |27234.28 |Health Coach IV         |        |
++--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
+only showing top 10 rows
+
+21/02/07 08:35:29 INFO FiletoJDBC: Data is saved as a temporary table by name: __tmp__
+21/02/07 08:35:29 INFO FiletoJDBC: showing saved data from temporary table with name: __tmp__
++--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
+|registration_dttm   |id |first_name|last_name|email                   |gender|ip_address    |cc              |country               |birthdate |salary   |title                   |comments|
++--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
+|2016-02-03T07:55:29Z|1  |Amanda    |Jordan   |ajordan0@com.com        |Female|1.197.201.2   |6759521864920116|Indonesia             |3/8/1971  |49756.53 |Internal Auditor        |1E+02   |
+|2016-02-03T17:04:03Z|2  |Albert    |Freeman  |afreeman1@is.gd         |Male  |218.111.175.34|null            |Canada                |1/16/1968 |150280.17|Accountant IV           |        |
+|2016-02-03T01:09:31Z|3  |Evelyn    |Morgan   |emorgan2@altervista.org |Female|7.161.136.94  |6767119071901597|Russia                |2/1/1960  |144972.51|Structural Engineer     |        |
+|2016-02-03T12:36:21Z|4  |Denise    |Riley    |driley3@gmpg.org        |Female|140.35.109.83 |3576031598965625|China                 |4/8/1997  |90263.05 |Senior Cost Accountant  |        |
+|2016-02-03T05:05:31Z|5  |Carlos    |Burns    |cburns4@miitbeian.gov.cn|      |169.113.235.40|5602256255204850|South Africa          |          |null     |                        |        |
+|2016-02-03T07:22:34Z|6  |Kathryn   |White    |kwhite5@google.com      |Female|195.131.81.179|3583136326049310|Indonesia             |2/25/1983 |69227.11 |Account Executive       |        |
+|2016-02-03T08:33:08Z|7  |Samuel    |Holmes   |sholmes6@foxnews.com    |Male  |232.234.81.197|3582641366974690|Portugal              |12/18/1987|14247.62 |Senior Financial Analyst|        |
+|2016-02-03T06:47:06Z|8  |Harry     |Howell   |hhowell7@eepurl.com     |Male  |91.235.51.73  |null            |Bosnia and Herzegovina|3/1/1962  |186469.43|Web Developer IV        |        |
+|2016-02-03T03:52:53Z|9  |Jose      |Foster   |jfoster8@yelp.com       |Male  |132.31.53.61  |null            |South Korea           |3/27/1992 |231067.84|Software Test Engineer I|1E+02   |
+|2016-02-03T18:29:47Z|10 |Emily     |Stewart  |estewart9@opensource.org|Female|143.28.251.245|3574254110301671|Nigeria               |1/28/1997 |27234.28 |Health Coach IV         |        |
++--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
+only showing top 10 rows
+
+21/02/07 08:35:29 INFO FiletoJDBC: Data after transformation using the SQL : select id,
+cast(concat(first_name ,' ', last_name) as VARCHAR(255)) as name,
+coalesce(gender,'NA') as gender,
+cast(country as VARCHAR(20)) as country,
+cast(salary as DOUBLE) as salary,email
+from __tmp__
++---+--------------+------+----------------------+---------+------------------------+
+|id |name          |gender|country               |salary   |email                   |
++---+--------------+------+----------------------+---------+------------------------+
+|1  |Amanda Jordan |Female|Indonesia             |49756.53 |ajordan0@com.com        |
+|2  |Albert Freeman|Male  |Canada                |150280.17|afreeman1@is.gd         |
+|3  |Evelyn Morgan |Female|Russia                |144972.51|emorgan2@altervista.org |
+|4  |Denise Riley  |Female|China                 |90263.05 |driley3@gmpg.org        |
+|5  |Carlos Burns  |      |South Africa          |null     |cburns4@miitbeian.gov.cn|
+|6  |Kathryn White |Female|Indonesia             |69227.11 |kwhite5@google.com      |
+|7  |Samuel Holmes |Male  |Portugal              |14247.62 |sholmes6@foxnews.com    |
+|8  |Harry Howell  |Male  |Bosnia and Herzegovina|186469.43|hhowell7@eepurl.com     |
+|9  |Jose Foster   |Male  |South Korea           |231067.84|jfoster8@yelp.com       |
+|10 |Emily Stewart |Female|Nigeria               |27234.28 |estewart9@opensource.org|
++---+--------------+------+----------------------+---------+------------------------+
+only showing top 10 rows
+
+21/02/07 08:35:30 INFO FiletoJDBC: Data is saved as a temporary table by name: __transformed_table__
+21/02/07 08:35:30 INFO FiletoJDBC: showing saved data from temporary table with name: __transformed_table__
++---+--------------+------+----------------------+---------+------------------------+
+|id |name          |gender|country               |salary   |email                   |
++---+--------------+------+----------------------+---------+------------------------+
+|1  |Amanda Jordan |Female|Indonesia             |49756.53 |ajordan0@com.com        |
+|2  |Albert Freeman|Male  |Canada                |150280.17|afreeman1@is.gd         |
+|3  |Evelyn Morgan |Female|Russia                |144972.51|emorgan2@altervista.org |
+|4  |Denise Riley  |Female|China                 |90263.05 |driley3@gmpg.org        |
+|5  |Carlos Burns  |      |South Africa          |null     |cburns4@miitbeian.gov.cn|
+|6  |Kathryn White |Female|Indonesia             |69227.11 |kwhite5@google.com      |
+|7  |Samuel Holmes |Male  |Portugal              |14247.62 |sholmes6@foxnews.com    |
+|8  |Harry Howell  |Male  |Bosnia and Herzegovina|186469.43|hhowell7@eepurl.com     |
+|9  |Jose Foster   |Male  |South Korea           |231067.84|jfoster8@yelp.com       |
+|10 |Emily Stewart |Female|Nigeria               |27234.28 |estewart9@opensource.org|
++---+--------------+------+----------------------+---------+------------------------+
+only showing top 10 rows
+
+21/02/07 08:35:30 INFO FiletoJDBC: Data after transformation using the SQL : select id,name,country,email,salary from __transformed_table__ 
++---+--------------+----------------------+------------------------+---------+
+|id |name          |country               |email                   |salary   |
++---+--------------+----------------------+------------------------+---------+
+|1  |Amanda Jordan |Indonesia             |ajordan0@com.com        |49756.53 |
+|2  |Albert Freeman|Canada                |afreeman1@is.gd         |150280.17|
+|3  |Evelyn Morgan |Russia                |emorgan2@altervista.org |144972.51|
+|4  |Denise Riley  |China                 |driley3@gmpg.org        |90263.05 |
+|5  |Carlos Burns  |South Africa          |cburns4@miitbeian.gov.cn|null     |
+|6  |Kathryn White |Indonesia             |kwhite5@google.com      |69227.11 |
+|7  |Samuel Holmes |Portugal              |sholmes6@foxnews.com    |14247.62 |
+|8  |Harry Howell  |Bosnia and Herzegovina|hhowell7@eepurl.com     |186469.43|
+|9  |Jose Foster   |South Korea           |jfoster8@yelp.com       |231067.84|
+|10 |Emily Stewart |Nigeria               |estewart9@opensource.org|27234.28 |
++---+--------------+----------------------+------------------------+---------+
+only showing top 10 rows
+
+21/02/07 08:35:31 INFO FiletoJDBC: Writing data to target table: pg_db.company_data
+21/02/07 08:35:32 INFO FiletoJDBC: Showing data for target : pg_db.company_data
++---+--------------+----------------------+------------------------+---------+
+|id |name          |country               |email                   |salary   |
++---+--------------+----------------------+------------------------+---------+
+|1  |Amanda Jordan |Indonesia             |ajordan0@com.com        |49756.53 |
+|2  |Albert Freeman|Canada                |afreeman1@is.gd         |150280.17|
+|3  |Evelyn Morgan |Russia                |emorgan2@altervista.org |144972.51|
+|4  |Denise Riley  |China                 |driley3@gmpg.org        |90263.05 |
+|5  |Carlos Burns  |South Africa          |cburns4@miitbeian.gov.cn|null     |
+|6  |Kathryn White |Indonesia             |kwhite5@google.com      |69227.11 |
+|7  |Samuel Holmes |Portugal              |sholmes6@foxnews.com    |14247.62 |
+|8  |Harry Howell  |Bosnia and Herzegovina|hhowell7@eepurl.com     |186469.43|
+|9  |Jose Foster   |South Korea           |jfoster8@yelp.com       |231067.84|
+|10 |Emily Stewart |Nigeria               |estewart9@opensource.org|27234.28 |
++---+--------------+----------------------+------------------------+---------+
+only showing top 10 rows
+
+```
