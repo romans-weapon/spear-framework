@@ -44,7 +44,7 @@ import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
 
-//target jdbc properties
+//target jdbc properties(can be any jdbc target postgres/mysql/sqlserver/oracle etc..)
 val properties = new Properties()
 properties.put("driver", "org.postgresql.Driver");
 properties.put("user", "postgres_user")
@@ -52,7 +52,7 @@ properties.put("password", "mysecretpassword")
 properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
 
 //connector logic 
-val csvJdbcConnector = new SpearConnector().source("csv").destination("jdbc").getConnector
+val csvJdbcConnector = new SpearConnector().sourceType("csv").targetType("jdbc").getConnector
 
 csvJdbcConnector.init("local[*]", "CSVtoJdbcConnector")
   .source("data/us-election-2012-results-by-county.csv  ", Map("header" -> "true", "inferSchema" -> "true"))
