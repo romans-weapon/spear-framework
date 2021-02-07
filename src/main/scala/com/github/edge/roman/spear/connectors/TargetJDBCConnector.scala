@@ -17,7 +17,7 @@ abstract class TargetJDBCConnector extends Connector {
 
   override def saveAs(alias: String): TargetJDBCConnector = {
     logger.info("Data is saved as a temporary table by name: " + alias)
-    logger.info("select * from " + alias)
+    logger.info("showing saved data from temporary table with name: " + alias)
     this.df.createOrReplaceTempView(alias)
     df.show(10,false)
     this

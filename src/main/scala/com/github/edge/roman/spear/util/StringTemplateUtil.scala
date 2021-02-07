@@ -42,6 +42,7 @@ class StringTemplateUtil {
     else {
       logger.error("Template name provided is empty")
     }
+    println("Aaaaaaaaaaaaaa")
     if (temp == null) {
       throw new NullPointerException("Template " + templateName + " is not defined in " + stfile.getFileName)
     }

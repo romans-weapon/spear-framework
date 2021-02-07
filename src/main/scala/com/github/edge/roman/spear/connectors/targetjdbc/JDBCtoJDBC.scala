@@ -27,7 +27,7 @@ class JDBCtoJDBC(sourceType: String, destType: String) extends TargetJDBCConnect
   }
 
   def showTargetData(tableName: String, props: Properties): Unit = {
-    logger.info("Showing data for target : " + tableName)
+    logger.info("Showing data in target table  : " + tableName)
     sparkSession.read.jdbc(props.get("url").toString, tableName, props).show(10,false)
   }
 

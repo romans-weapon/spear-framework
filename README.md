@@ -237,7 +237,7 @@ jsonJdbcConnector.stop()
 +-------+------------------------+
 
 21/02/06 09:29:32 INFO FiletoJDBC: Writing data to target table: pg_db.json_to_jdbc
-21/02/06 09:29:33 INFO FiletoJDBC: Showing data for target : pg_db.json_to_jdbc
+21/02/06 09:29:33 INFO FiletoJDBC: Showing data in target table  : pg_db.json_to_jdbc
 +-------+------------------------+
 |type_id|type                    |
 +-------+------------------------+
@@ -306,7 +306,7 @@ xmlJdbcConnector.stop()
 +--------+--------+---------+--------+----+---------+
 
 21/02/06 12:35:21 INFO FiletoJDBC: Writing data to target table: pg_db.xml_to_jdbc
-21/02/06 12:35:22 INFO FiletoJDBC: Showing data for target : pg_db.xml_to_jdbc
+21/02/06 12:35:22 INFO FiletoJDBC: Showing data in target table  : pg_db.xml_to_jdbc
 +--------+--------+---------+--------+----+---------+
 |building|division|firstname|lastname|room|title    |
 +--------+--------+---------+--------+----+---------+
@@ -394,7 +394,7 @@ only showing top 10 rows
 only showing top 10 rows
 
 21/02/06 12:43:56 INFO FiletoJDBC: Writing data to target table: pg_db.tsv_to_jdbc
-21/02/06 12:44:06 INFO FiletoJDBC: Showing data for target : pg_db.tsv_to_jdbc
+21/02/06 12:44:06 INFO FiletoJDBC: Showing data in target table  : pg_db.tsv_to_jdbc
 +---+---+------+---------+
 |id |num|rating|reviews  |
 +---+---+------+---------+
@@ -537,7 +537,7 @@ only showing top 10 rows
 only showing top 10 rows
 
 21/02/07 08:35:31 INFO FiletoJDBC: Writing data to target table: pg_db.company_data
-21/02/07 08:35:32 INFO FiletoJDBC: Showing data for target : pg_db.company_data
+21/02/07 08:35:32 INFO FiletoJDBC: Showing data in target table  : pg_db.company_data
 +---+--------------+----------------------+------------------------+---------+
 |id |name          |country               |email                   |salary   |
 +---+--------------+----------------------+------------------------+---------+
@@ -632,7 +632,7 @@ only showing top 10 rows
 only showing top 10 rows
 
 21/02/07 09:11:33 INFO FiletoJDBC: Writing data to target table: pg_db.user_data
-21/02/07 09:11:34 INFO FiletoJDBC: Showing data for target : pg_db.user_data
+21/02/07 09:11:34 INFO FiletoJDBC: Showing data in target table  : pg_db.user_data
 +-----+----------+------+
 |flow1|occupancy1|speed1|
 +-----+----------+------+

@@ -22,6 +22,7 @@ class SpearConnector() {
       case ("xml","jdbc")=>new FiletoJDBC("xml","jdbc")
       case ("json","jdbc")=>new FiletoJDBC("json","jdbc")
       case ("avro","jdbc")=>new FiletoJDBC("avro","jdbc")
+      case ("parquet","jdbc")=>new FiletoJDBC("parquet","jdbc")
       case ("jdbc","jdbc")=>new JDBCtoJDBC("jdbc","jdbc")
     }
   }

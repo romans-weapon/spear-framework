@@ -20,6 +20,11 @@ class FiletoJDBC(sourceType: String, destType: String) extends TargetJDBCConnect
         this.df = df
         logger.info("Data after reading from avro file in path : " + sourcePath)
         df.show(10, false)
+      case "parquet" =>
+        val df = this.sparkSession.read.format("parquet").load(sourcePath)
+        this.df = df
+        logger.info("Data after reading from parquet file in path : " + sourcePath)
+        df.show(10, false)
       case "json" =>
         val df = this.sparkSession.read.json(sourcePath)
         this.df = df
@@ -46,6 +51,16 @@ class FiletoJDBC(sourceType: String, destType: String) extends TargetJDBCConnect
         this.df = df
         logger.info("Data after reading from csv in path : " + sourcePath)
         df.show(10, false)
+      case "avro" =>
+        val df = this.sparkSession.read.format("avro").options(params).load(sourcePath)
+        this.df = df
+        logger.info("Data after reading from avro file in path : " + sourcePath)
+        df.show(10, false)
+      case "parquet" =>
+        val df = this.sparkSession.read.format("parquet").options(params).load(sourcePath)
+        this.df = df
+        logger.info("Data after reading from parquet file in path : " + sourcePath)
+        df.show(10, false)
       case "json" =>
         val df = this.sparkSession.read.options(params).json(sourcePath)
         this.df = df
@@ -61,17 +76,11 @@ class FiletoJDBC(sourceType: String, destType: String) extends TargetJDBCConnect
         this.df = df
         logger.info("Data after reading from xml file in path : " + sourcePath)
         df.show(10, false)
-      case "avro" =>
-        val df = this.sparkSession.read.format("avro").options(params).load(sourcePath)
-        this.df = df
-        logger.info("Data after reading from avro file in path : " + sourcePath)
-        df.show(10, false)
       case _ =>
         throw new Exception("Invalid source type provided.")
     }
     this
   }
-
 
   override def target(tableName: String, props: Properties, saveMode: SaveMode): Unit = {
     logger.info("Writing data to target table: " + tableName)
@@ -80,8 +89,8 @@ class FiletoJDBC(sourceType: String, destType: String) extends TargetJDBCConnect
   }
 
   def showTargetData(tableName: String, props: Properties): Unit = {
-    logger.info("Showing data for target : " + tableName)
-    sparkSession.read.jdbc(props.get("url").toString, tableName, props).show(10,false)
+    logger.info("Showing data in target table  : " + tableName)
+    sparkSession.read.jdbc(props.get("url").toString, tableName, props).show(10, false)
   }
 
   override def transformSql(sqlText: String): FiletoJDBC = {
