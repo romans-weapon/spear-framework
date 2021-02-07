@@ -1,25 +1,33 @@
 # Spear Framework
-A framework which is a built on top of spark and has the ability to extract and load any kind of data with custom tansformations applied on the raw data,still allowing you to use the features of Apache spark
+
+A framework which is a built on top of spark and has the ability to extract and load any kind of data with custom
+tansformations applied on the raw data,still allowing you to use the features of Apache spark
 
 ## Table of Contents
+
 - [Introduction](#introduction)
 - [Requirements](#requirements)
 - [Connectors](#connectors)
-  * [Target JDBC](#target-jdbc)
-    + [CSV to JDBC Connector](#csv-to-jdbc-connector)
-    + [JSON to JDBC Connector](#json-to-jdbc-connector)
-    + [XML to JDBC Connector](#xml-to-jdbc-connector) 
-    + [TSV to JDBC Connector](#tsv-to-jdbc-connector)
-    + [Avro to JDBC Connector](#avro-to-jdbc-connector)
-    + [Parquet to JDBC Connector](#parquet-to-jdbc-connector)
-  * [Target FS](#target-fs)
-- [Examples](#examples) 
+    * [Target JDBC](#target-jdbc)
+        + [CSV to JDBC Connector](#csv-to-jdbc-connector)
+        + [JSON to JDBC Connector](#json-to-jdbc-connector)
+        + [XML to JDBC Connector](#xml-to-jdbc-connector)
+        + [TSV to JDBC Connector](#tsv-to-jdbc-connector)
+        + [Avro to JDBC Connector](#avro-to-jdbc-connector)
+        + [Parquet to JDBC Connector](#parquet-to-jdbc-connector)
+    * [Target FS](#target-fs)
+- [Examples](#examples)
 
 ## Introduction
-Spear Framework is basically used to write connectors from source to target,applying business logic/transformations over the soure data and loading it to the corresponding destination
+
+Spear Framework is basically used to write connectors from source to target,applying business logic/transformations over
+the soure data and loading it to the corresponding destination
 
 ## Connectors
-Connector is basically the logic/code with which you can create a pipeline from source to target using the spear framework.Below are the steps to write any connector logic:
+
+Connector is basically the logic/code with which you can create a pipeline from source to target using the spear
+framework.Below are the steps to write any connector logic:
+
 1. Get the suitable connector object for the source and destination provided
 2. Write the connector logic.
 3. On completion stop the connector.
@@ -27,34 +35,38 @@ Connector is basically the logic/code with which you can create a pipeline from 
 ### Target JDBC
 
 #### CSV to JDBC Connector
+
 Connector for reading csv file applying transformations and storing it into postgres table using spear:\
 The input data is available in the data/us-election-2012-results-by-county.csv
+
 ```scala
 import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
+
 //target jdbc properties
 val properties = new Properties()
 properties.put("driver", "org.postgresql.Driver");
 properties.put("user", "postgres_user")
 properties.put("password", "mysecretpassword")
 properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
-    
+
 //connector logic 
 val csvJdbcConnector = new SpearConnector().source("csv").destination("jdbc").getConnector
 
 csvJdbcConnector.init("local[*]", "CSVtoJdbcConnector")
-        .source("data/us-election-2012-results-by-county.csv  ", Map("header" -> "true", "inferSchema" -> "true"))
-        .saveAs("__tmp__")
-        .transformSql("select state_code,party,first_name,last_name,votes from __tmp__")
-        .saveAs("__tmp2__")
-        .transformSql("select state_code,party,sum(votes) as total_votes from __tmp2__ group by state_code,party")
-        .target("pg_db.destination_us_elections", properties, SaveMode.Overwrite)
+  .source("data/us-election-2012-results-by-county.csv  ", Map("header" -> "true", "inferSchema" -> "true"))
+  .saveAs("__tmp__")
+  .transformSql("select state_code,party,first_name,last_name,votes from __tmp__")
+  .saveAs("__tmp2__")
+  .transformSql("select state_code,party,sum(votes) as total_votes from __tmp2__ group by state_code,party")
+  .target("pg_db.destination_us_elections", properties, SaveMode.Overwrite)
 
 csvJdbcConnector.stop()
 ```
 
 ##### Output:
+
 ```
 21/01/26 14:16:57 INFO FiletoJDBC: Data after reading from csv in path : data/us-election-2012-results-by-county.csv  
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
@@ -163,6 +175,7 @@ only showing top 10 rows
 ```
 
 #### JSON to JDBC Connector
+
 Connector for reading json file applying transformations and storing it into postgres table using spear:\
 The input data is available in the data/data.json
 
@@ -173,14 +186,15 @@ import org.apache.spark.sql.SaveMode
 
 val jsonJdbcConnector = new SpearConnector().sourceType("json").targetType("jdbc").getConnector
 jsonJdbcConnector.init("local[*]", "JSONtoJDBC")
-        .source("data/data.json", Map("multiline" -> "true"))
-        .saveAs("__tmptable__")
-        .transformSql("select cast(id*10 as integer) as type_id,type from __tmptable__ ")
-        .target("pg_db.json_to_jdbc", properties, SaveMode.Overwrite)
+  .source("data/data.json", Map("multiline" -> "true"))
+  .saveAs("__tmptable__")
+  .transformSql("select cast(id*10 as integer) as type_id,type from __tmptable__ ")
+  .target("pg_db.json_to_jdbc", properties, SaveMode.Overwrite)
 jsonJdbcConnector.stop()
 ```
 
 ##### Output
+
 ```
 21/02/06 09:29:29 INFO FiletoJDBC: Data after reading from json file in path : data/data.json
 +----+------------------------+
@@ -238,6 +252,7 @@ jsonJdbcConnector.stop()
 ```
 
 #### XML to JDBC Connector
+
 Connector for reading xml file applying transformations and storing it into postgres table using spear:\
 The input data is available in the data/data.xml
 
@@ -249,12 +264,13 @@ import org.apache.spark.sql.SaveMode
 val xmlJdbcConnector = new SpearConnector().sourceType("xml").targetType("jdbc").getConnector
 
 xmlJdbcConnector.init("local[*]", "XMLtoJDBC")
-        .source("data/data.xml", Map("rootTag" -> "employees", "rowTag" -> "details"))
-        .saveAs("tmp")
-        .transformSql("select * from tmp ")
-        .target("pg_db.xml_to_jdbc", properties, SaveMode.Overwrite)
+  .source("data/data.xml", Map("rootTag" -> "employees", "rowTag" -> "details"))
+  .saveAs("tmp")
+  .transformSql("select * from tmp ")
+  .target("pg_db.xml_to_jdbc", properties, SaveMode.Overwrite)
 xmlJdbcConnector.stop()
 ```
+
 ##### Output
 
 ```
@@ -302,8 +318,10 @@ xmlJdbcConnector.stop()
 ```
 
 #### TSV to JDBC Connector
+
 Connector for reading csv file applying transformations and storing it into postgres table using spear:\
 The input data is available in the data/product_data
+
 ```scala
 import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
@@ -312,15 +330,16 @@ import org.apache.spark.sql.SaveMode
 val connector = new SpearConnector().sourceType("tsv").targetType("jdbc").getConnector
 
 connector.init("local[*]", "TSVtoJDBC")
-      .source("data/product_data", Map("sep" -> "\t", "header" -> "true", "inferSchema" -> "true"))
-      .saveAs("tmp")
-      .transformSql("select * from tmp ")
-      .target("pg_db.tsv_to_jdbc", properties, SaveMode.Overwrite)
+  .source("data/product_data", Map("sep" -> "\t", "header" -> "true", "inferSchema" -> "true"))
+  .saveAs("tmp")
+  .transformSql("select * from tmp ")
+  .target("pg_db.tsv_to_jdbc", properties, SaveMode.Overwrite)
 
 connector.stop()
 ```
 
 ##### Output
+
 ```
 21/02/06 12:43:54 INFO FiletoJDBC: Data after reading from tsv file in path : data/product_data
 +---+---+------+---------+
@@ -394,6 +413,7 @@ only showing top 10 rows
 ```
 
 #### Avro to JDBC Connector
+
 Connector for reading avro file applying transformations and storing it into postgres table using spear:\
 The input data is available in the data/sample_data.avro
 
@@ -404,24 +424,25 @@ import org.apache.spark.sql.SaveMode
 
 val avroJdbcConnector = new SpearConnector().sourceType("avro").targetType("jdbc").getConnector
 
-avroJdbcConnector.init("local[*]", "CSVtoJdbcConnector")
-      .source("data/sample_data.avro")
-      .saveAs("__tmp__")
-      .transformSql(
-        """select id,
-          |cast(concat(first_name ,' ', last_name) as VARCHAR(255)) as name,
-          |coalesce(gender,'NA') as gender,
-          |cast(country as VARCHAR(20)) as country,
-          |cast(salary as DOUBLE) as salary,email
-          |from __tmp__""".stripMargin)
-      .saveAs("__transformed_table__")
-      .transformSql("select id,name,country,email,salary from __transformed_table__ ")
-      .target("pg_db.company_data", properties, SaveMode.Overwrite)
+avroJdbcConnector.init("local[*]", "AvrotoJdbcConnector")
+  .source("data/sample_data.avro")
+  .saveAs("__tmp__")
+  .transformSql(
+    """select id,
+      |cast(concat(first_name ,' ', last_name) as VARCHAR(255)) as name,
+      |coalesce(gender,'NA') as gender,
+      |cast(country as VARCHAR(20)) as country,
+      |cast(salary as DOUBLE) as salary,email
+      |from __tmp__""".stripMargin)
+  .saveAs("__transformed_table__")
+  .transformSql("select id,name,country,email,salary from __transformed_table__ ")
+  .target("pg_db.company_data", properties, SaveMode.Overwrite)
 
 avroJdbcConnector.stop()
 ```
 
 ##### Output
+
 ```
 21/02/07 08:35:25 INFO FiletoJDBC: Data after reading from avro file in path : data/sample_data.avro
 +--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
@@ -533,4 +554,98 @@ only showing top 10 rows
 +---+--------------+----------------------+------------------------+---------+
 only showing top 10 rows
 
+```
+
+#### Parquet to JDBC Connector
+
+Connector for reading parquet file applying transformations and storing it into postgres table using spear:\
+The input data is available in the data/sample.parquet
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.sql.SaveMode
+
+val parquetJdbcConnector = new SpearConnector().sourceType("parquet").targetType("jdbc").getConnector
+
+parquetJdbcConnector.init("local[*]", "CSVtoJdbcConnector")
+  .source("data/sample.parquet")
+  .saveAs("__tmp__")
+  .transformSql("""select flow1,occupancy1,speed1 from __tmp__""")
+  .target("pg_db.user_data", properties, SaveMode.Overwrite)
+parquetJdbcConnector.stop()
+```
+
+### Output
+```
+21/02/07 09:11:28 INFO FiletoJDBC: Data after reading from parquet file in path : data/sample3.parquet
+21/02/07 09:11:31 INFO CodecPool: Got brand-new decompressor [.snappy]
++-------------------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+
+|timeperiod         |flow1|occupancy1|speed1|flow2|occupancy2|speed2|flow3|occupancy3|speed3|flow4|occupancy4|speed4|flow5|occupancy5|speed5|flow6|occupancy6|speed6|flow7|occupancy7|speed7|flow8|occupancy8|speed8|
++-------------------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+
+|09/24/2016 00:00:11|2    |0.01      |78.0  |1    |0.01      |71.0  |3    |0.02      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:00:41|2    |0.01      |71.0  |6    |0.04      |71.0  |2    |0.04      |65.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:01:11|1    |0.01      |71.0  |0    |0.0       |0.0   |2    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:01:41|5    |0.03      |78.0  |4    |0.03      |65.0  |4    |0.04      |65.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:02:11|4    |0.02      |78.0  |1    |0.01      |65.0  |1    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:02:41|2    |0.01      |78.0  |5    |0.03      |71.0  |1    |0.01      |78.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:03:11|1    |0.01      |71.0  |2    |0.01      |71.0  |2    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:03:41|3    |0.01      |78.0  |2    |0.01      |71.0  |2    |0.04      |65.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:04:11|0    |0.0       |0.0   |5    |0.03      |71.0  |0    |0.0       |0.0   |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:04:41|1    |0.0       |86.0  |3    |0.02      |78.0  |2    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
++-------------------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+
+only showing top 10 rows
+
+21/02/07 09:11:32 INFO FiletoJDBC: Data is saved as a temporary table by name: __tmp__
+21/02/07 09:11:32 INFO FiletoJDBC: showing saved data from temporary table with name: __tmp__
++-------------------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+
+|timeperiod         |flow1|occupancy1|speed1|flow2|occupancy2|speed2|flow3|occupancy3|speed3|flow4|occupancy4|speed4|flow5|occupancy5|speed5|flow6|occupancy6|speed6|flow7|occupancy7|speed7|flow8|occupancy8|speed8|
++-------------------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+
+|09/24/2016 00:00:11|2    |0.01      |78.0  |1    |0.01      |71.0  |3    |0.02      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:00:41|2    |0.01      |71.0  |6    |0.04      |71.0  |2    |0.04      |65.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:01:11|1    |0.01      |71.0  |0    |0.0       |0.0   |2    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:01:41|5    |0.03      |78.0  |4    |0.03      |65.0  |4    |0.04      |65.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:02:11|4    |0.02      |78.0  |1    |0.01      |65.0  |1    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:02:41|2    |0.01      |78.0  |5    |0.03      |71.0  |1    |0.01      |78.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:03:11|1    |0.01      |71.0  |2    |0.01      |71.0  |2    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:03:41|3    |0.01      |78.0  |2    |0.01      |71.0  |2    |0.04      |65.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:04:11|0    |0.0       |0.0   |5    |0.03      |71.0  |0    |0.0       |0.0   |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
+|09/24/2016 00:04:41|1    |0.0       |86.0  |3    |0.02      |78.0  |2    |0.01      |71.0  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |null |null      |null  |
++-------------------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+
+only showing top 10 rows
+
+21/02/07 09:11:32 INFO FiletoJDBC: Data after transformation using the SQL : select flow1,occupancy1,speed1 from __tmp__
++-----+----------+------+
+|flow1|occupancy1|speed1|
++-----+----------+------+
+|2    |0.01      |78.0  |
+|2    |0.01      |71.0  |
+|1    |0.01      |71.0  |
+|5    |0.03      |78.0  |
+|4    |0.02      |78.0  |
+|2    |0.01      |78.0  |
+|1    |0.01      |71.0  |
+|3    |0.01      |78.0  |
+|0    |0.0       |0.0   |
+|1    |0.0       |86.0  |
++-----+----------+------+
+only showing top 10 rows
+
+21/02/07 09:11:33 INFO FiletoJDBC: Writing data to target table: pg_db.user_data
+21/02/07 09:11:34 INFO FiletoJDBC: Showing data for target : pg_db.user_data
++-----+----------+------+
+|flow1|occupancy1|speed1|
++-----+----------+------+
+|2    |0.01      |78.0  |
+|2    |0.01      |71.0  |
+|1    |0.01      |71.0  |
+|5    |0.03      |78.0  |
+|4    |0.02      |78.0  |
+|2    |0.01      |78.0  |
+|1    |0.01      |71.0  |
+|3    |0.01      |78.0  |
+|0    |0.0       |0.0   |
+|1    |0.0       |86.0  |
++-----+----------+------+
+only showing top 10 rows
 ```
