@@ -156,7 +156,7 @@ only showing top 10 rows
 only showing top 10 rows
 
 21/01/26 14:17:02 INFO FiletoJDBC: Writing data to target table: pg_db.destination_us_elections
-21/01/26 14:17:12 INFO CSVtoJdbcConnector$: showing data in destination table :
+21/01/26 14:17:12 INFO FiletoJDBC: Showing data in target table  : pg_db.destination_us_elections
 +----------+-----+-----------+
 |state_code|party|total_votes|
 +----------+-----+-----------+
