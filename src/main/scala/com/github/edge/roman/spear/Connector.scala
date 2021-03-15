@@ -21,5 +21,7 @@ trait Connector {
 
   def cacheData(): Connector
 
+  def mapDataType(string: String):Connector
+
   def stop()
 }

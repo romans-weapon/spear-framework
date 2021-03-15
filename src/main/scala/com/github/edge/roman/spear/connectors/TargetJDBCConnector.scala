@@ -23,6 +23,11 @@ abstract class TargetJDBCConnector extends Connector {
     this
   }
 
+  def mapDataType(string: String):TargetJDBCConnector={
+
+
+    this
+  }
   override def stop(): Unit = {
     this.sparkSession.stop()
   }

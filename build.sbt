@@ -15,4 +15,6 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "42.2.5",
   "org.antlr" % "stringtemplate" % "4.0",
   "com.databricks" %% "spark-xml" % "0.11.0",
+  "org.apache.spark" %% "spark-avro" % "2.4.3",
+  "mysql" % "mysql-connector-java" % "8.0.23"
 )

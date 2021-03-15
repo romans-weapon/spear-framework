@@ -53,7 +53,6 @@ properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
 
 //connector logic 
 val csvJdbcConnector = new SpearConnector().sourceType("csv").targetType("jdbc").getConnector
-
 csvJdbcConnector.init("local[*]", "CSVtoJdbcConnector")
   .source("data/us-election-2012-results-by-county.csv  ", Map("header" -> "true", "inferSchema" -> "true"))
   .saveAs("__tmp__")
@@ -61,7 +60,6 @@ csvJdbcConnector.init("local[*]", "CSVtoJdbcConnector")
   .saveAs("__tmp2__")
   .transformSql("select state_code,party,sum(votes) as total_votes from __tmp2__ group by state_code,party")
   .target("pg_db.destination_us_elections", properties, SaveMode.Overwrite)
-
 csvJdbcConnector.stop()
 ```
 
@@ -262,7 +260,6 @@ import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
 
 val xmlJdbcConnector = new SpearConnector().sourceType("xml").targetType("jdbc").getConnector
-
 xmlJdbcConnector.init("local[*]", "XMLtoJDBC")
   .source("data/data.xml", Map("rootTag" -> "employees", "rowTag" -> "details"))
   .saveAs("tmp")
@@ -328,13 +325,11 @@ import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
 
 val connector = new SpearConnector().sourceType("tsv").targetType("jdbc").getConnector
-
 connector.init("local[*]", "TSVtoJDBC")
   .source("data/product_data", Map("sep" -> "\t", "header" -> "true", "inferSchema" -> "true"))
   .saveAs("tmp")
   .transformSql("select * from tmp ")
   .target("pg_db.tsv_to_jdbc", properties, SaveMode.Overwrite)
-
 connector.stop()
 ```
 
@@ -419,13 +414,20 @@ The input data is available in the data/sample_data.avro
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
-import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
+import scala.collection.JavaConverters._
+import java.util.Properties
+
+val properties = new Properties()
+properties.put("driver", "org.postgresql.Driver");
+properties.put("user", "postgres")
+properties.put("password", "pass")
+properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
 
 val avroJdbcConnector = new SpearConnector().sourceType("avro").targetType("jdbc").getConnector
 
 avroJdbcConnector.init("local[*]", "AvrotoJdbcConnector")
-  .source("data/sample_data.avro")
+  .source("/opt/sample_data.avro")
   .saveAs("__tmp__")
   .transformSql(
     """select id,
@@ -436,7 +438,7 @@ avroJdbcConnector.init("local[*]", "AvrotoJdbcConnector")
       |from __tmp__""".stripMargin)
   .saveAs("__transformed_table__")
   .transformSql("select id,name,country,email,salary from __transformed_table__ ")
-  .target("pg_db.company_data", properties, SaveMode.Overwrite)
+  .target("pgdb.avro_data", properties, SaveMode.Overwrite)
 
 avroJdbcConnector.stop()
 ```
