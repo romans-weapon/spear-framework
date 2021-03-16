@@ -1,12 +1,12 @@
 package com.github.edge.roman.spear.connectors.targetjdbc
 
 import com.databricks.spark.xml.XmlDataFrameReader
-import com.github.edge.roman.spear.connectors.TargetJDBCConnector
-import org.apache.spark.sql.{SaveMode}
+import com.github.edge.roman.spear.connectors.{TargetFSConnector}
+import org.apache.spark.sql.SaveMode
 
 import java.util.Properties
 
-class FiletoJDBC(sourceType: String, destType: String) extends TargetJDBCConnector {
+class FiletoJDBC(sourceType: String) extends TargetFSConnector {
 
   override def source(sourcePath: String): FiletoJDBC = {
     sourceType match {
