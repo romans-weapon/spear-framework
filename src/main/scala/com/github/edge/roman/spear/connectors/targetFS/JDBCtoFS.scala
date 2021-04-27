@@ -7,10 +7,10 @@ import org.apache.spark.sql.SaveMode
 import java.util.Properties
 
 
-class JDBCtoFS(sourceType: String) extends TargetFSConnector {
+class JDBCtoFS(sourceFormat: String) extends TargetFSConnector {
 
   override def source(tableName: String, params: Map[String, String]): JDBCtoFS = {
-    val df = this.sparkSession.read.format(sourceType).option("dbtable", tableName).options(params).load()
+    val df = this.sparkSession.read.format(sourceFormat).option("dbtable", tableName).options(params).load()
     this.df = df
     df.show(10, false)
     this
@@ -27,11 +27,7 @@ class JDBCtoFS(sourceType: String) extends TargetFSConnector {
 
   override def target(filePath: String, props: Properties, saveMode: SaveMode): Unit = {
     logger.info("Writing data to target file: " + filePath)
-    if (filePath.isEmpty) {
-      this.df.write.format(props.get("destination_file_format").toString).mode(saveMode).saveAsTable(props.get("destination_table_name").toString)
-    } else {
-      this.df.write.format(props.get("destination_file_format").toString).mode(saveMode).option("path", filePath).saveAsTable(props.get("destination_table_name").toString)
-    }
+    this.df.write.format(props.get("destination_file_format").toString).mode(saveMode).saveAsTable(props.get("destination_table_name").toString)
     val targetDF = sparkSession.sql("select * from " + props.get("destination_table_name").toString)
     targetDF.show(10, false)
   }

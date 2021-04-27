@@ -1,0 +1,26 @@
+version: '3'
+services:
+  postgres-metatsore:
+    image: "hive-metastore:latest"
+    restart: always
+    container_name: "hive_metastore"
+    hostname: "metastore.hive"
+    environment:
+      - POSTGRES_PASSWORD=hive
+  spark:
+    image: "spark-standalone-hadoop:latest"
+    hostname: "hadoop.spark"
+    container_name: "spark"
+    restart: always
+    ports:
+      - "4041:4041"
+      - "8089:8088"
+      - "8090:18080"
+    expose:
+      - "22"
+    depends_on:
+      - postgres-metatsore
+    privileged: "true"
+    command: "/usr/sbin/init"
+                
+                
