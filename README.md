@@ -6,7 +6,7 @@ tansformations applied on the raw data,still allowing you to use the features of
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Requirements](#requirements)
+- [How to Run](#how-to-run)
 - [Connectors](#connectors)
     * [Target JDBC](#target-jdbc)
         + [CSV to JDBC Connector](#csv-to-jdbc-connector)
@@ -16,12 +16,42 @@ tansformations applied on the raw data,still allowing you to use the features of
         + [Avro to JDBC Connector](#avro-to-jdbc-connector)
         + [Parquet to JDBC Connector](#parquet-to-jdbc-connector)
     * [Target FS](#target-fs)
+        + [JDBC to Hive Connector](#jdbc-to-hive-connector)
 - [Examples](#examples)
 
 ## Introduction
 
 Spear Framework is basically used to write connectors from source to target,applying business logic/transformations over
 the soure data and loading it to the corresponding destination
+
+## How to Run
+Below are the steps to write and run your own connector:
+1. Clone the repository from git 
+```commandline
+git clone https://github.com/AnudeepKonaboina/spear-framework.git
+```
+2. Run setup.sh script using the command
+```commandline
+sh setup.sh
+```
+3.After 2 min you will get a prompt with the scala shell loaded will all the dependencies where you can write your own connector and test it.
+```commandline
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /___/ .__/\_,_/_/ /_/\_\   version 2.4.7
+      /_/
+
+Using Scala version 2.11.12 (OpenJDK 64-Bit Server VM, Java 1.8.0_292)
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala>
+```
+NOTE: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source and write it to HDFS.
+
+4. You can write your own connector (look at some examples below ) and test it.
 
 ## Connectors
 
@@ -45,14 +75,15 @@ import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
 
 //target jdbc properties(can be any jdbc target postgres/mysql/sqlserver/oracle etc..)
+Logger.getLogger("com.github").setLevel(Level.INFO)
 val properties = new Properties()
 properties.put("driver", "org.postgresql.Driver");
 properties.put("user", "postgres_user")
 properties.put("password", "mysecretpassword")
 properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
 
-//connector logic 
-val csvJdbcConnector = new SpearConnector().sourceType("csv").targetType("jdbc").getConnector
+//connector logic
+val csvJdbcConnector =new SpearConnector().source("file", "csv").target("jdbc", "table").getConnector
 csvJdbcConnector.init("local[*]", "CSVtoJdbcConnector")
   .source("data/us-election-2012-results-by-county.csv  ", Map("header" -> "true", "inferSchema" -> "true"))
   .saveAs("__tmp__")
@@ -182,7 +213,7 @@ import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
 
-val jsonJdbcConnector = new SpearConnector().sourceType("json").targetType("jdbc").getConnector
+val jsonJdbcConnector = new SpearConnector().source("file", "json").target("jdbc", "table").getConnector
 jsonJdbcConnector.init("local[*]", "JSONtoJDBC")
   .source("data/data.json", Map("multiline" -> "true"))
   .saveAs("__tmptable__")
@@ -259,7 +290,7 @@ import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
 
-val xmlJdbcConnector = new SpearConnector().sourceType("xml").targetType("jdbc").getConnector
+val xmlJdbcConnector = new SpearConnector().source("file", "xml").target("jdbc", "table").getConnector
 xmlJdbcConnector.init("local[*]", "XMLtoJDBC")
   .source("data/data.xml", Map("rootTag" -> "employees", "rowTag" -> "details"))
   .saveAs("tmp")
@@ -324,7 +355,7 @@ import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
 
-val connector = new SpearConnector().sourceType("tsv").targetType("jdbc").getConnector
+val connector = new SpearConnector().source("file", "tsv").target("jdbc", "table").getConnector
 connector.init("local[*]", "TSVtoJDBC")
   .source("data/product_data", Map("sep" -> "\t", "header" -> "true", "inferSchema" -> "true"))
   .saveAs("tmp")
@@ -424,7 +455,7 @@ properties.put("user", "postgres")
 properties.put("password", "pass")
 properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
 
-val avroJdbcConnector = new SpearConnector().sourceType("avro").targetType("jdbc").getConnector
+val avroJdbcConnector = new SpearConnector().source("file", "avro").target("jdbc", "table").getConnector
 
 avroJdbcConnector.init("local[*]", "AvrotoJdbcConnector")
   .source("/opt/sample_data.avro")
@@ -568,7 +599,7 @@ import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
 
-val parquetJdbcConnector = new SpearConnector().sourceType("parquet").targetType("jdbc").getConnector
+val parquetJdbcConnector = new SpearConnector().source("file", "parquet").target("jdbc", "table").getConnector
 
 parquetJdbcConnector.init("local[*]", "CSVtoJdbcConnector")
   .source("data/sample.parquet")
@@ -579,6 +610,7 @@ parquetJdbcConnector.stop()
 ```
 
 ### Output
+
 ```
 21/02/07 09:11:28 INFO FiletoJDBC: Data after reading from parquet file in path : data/sample3.parquet
 21/02/07 09:11:31 INFO CodecPool: Got brand-new decompressor [.snappy]
@@ -649,5 +681,121 @@ only showing top 10 rows
 |0    |0.0       |0.0   |
 |1    |0.0       |86.0  |
 +-----+----------+------+
+only showing top 10 rows
+```
+### TargetFS
+
+#### JDBC to Hive
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.spark.sql.SaveMode
+import java.util.Properties
+
+val targetproperties = new Properties()
+targetproperties.put("destination_file_format", "parquet");
+targetproperties.put("destination_table_name", "ingest_test.destination_data")
+
+val postgresToHiveConnector = new SpearConnector().source("jdbc", "jdbc").target("FS", "praquet").getConnector
+
+postgresToHiveConnector.init("local[*]", "JdbctoHiveConnector")
+  .source("source_db.instance", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres", "password" -> "test", "url" -> "jdbc:postgresql://postgres-host:5433/source_db"))
+  .saveAs("__tmp__")
+  .transformSql(
+    """
+      |select cast( uuid as string) as uuid,
+      |cast( type_id as bigint ) as type_id, 
+      |cast( factory_message_process_id as bigint) as factory_message_process_id,
+      |cast( factory_uuid as string ) as factory_uuid,
+      |cast( factory_id as bigint ) as factory_id,
+      |cast( engine_id as bigint ) as engine_id,
+      |cast( topic as string ) as topic,
+      |cast( status_code_id as int) as status_code_id,
+      |cast( cru_by as string ) as cru_by,cast( cru_ts as timestamp) as cru_ts 
+      |from __tmp__""".stripMargin)
+  .target("/user/tmp/ingest_test.db", targetproperties, SaveMode.Overwrite)
+
+postgresToHiveConnector.stop()
+```
+
+### Output
+
+```commandline
++------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
+|uuid                                 |type_id    |factory_message_process_id   |factory_uuid                        |factory_id    |   engine_id      |topic                      |status_code_id|cru_by|cru_ts                    |
++------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
+|null                                |1          |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |factory_2_2                |5             |Modak |2021-04-27 10:17:37.529195|
+|null                                |1          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |factory_1_1                |5             |Modak |2021-04-27 10:17:37.533318|
+|null                                |1          |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |factory_3_3                |5             |Modak |2021-04-27 10:17:37.535323|
+|59d9b23e-ff93-4351-af7e-0a95ec4fde65|10         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |nabu_1_authtoken           |5             |Modak |2021-04-27 10:17:50.441147|
+|111eeff6-c61d-402e-9e70-615cf80d3016|10         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |nabu_2_authtoken           |5             |Modak |2021-04-27 10:18:02.439379|
+|2870ff43-73c9-424e-9f3c-c89ac4dda278|10         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |nabu_3_authtoken           |5             |Modak |2021-04-27 10:18:14.5242  |
+|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |nabu_3_errorbot            |5             |Modak |2021-04-27 10:21:17.098984|
+|534a2af0-af74-4633-8603-926070afd76f|16         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |nabu_2_filter_resolver_jdbc|5             |Modak |2021-04-27 10:21:17.223042|
+|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |nabu_1_errorbot            |5             |Modak |2021-04-27 10:21:17.437489|
+|6db9c72f-85b0-4254-bc2f-09dc1e63e6f3|9          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |nabu_1_flowcontroller      |5             |Modak |2021-04-27 10:21:17.780313|
++------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
+only showing top 10 rows
+
+21/05/01 10:39:31 INFO targetFS.JDBCtoFS: Data is saved as a temporary table by name: __tmp__
+21/05/01 10:39:31 INFO targetFS.JDBCtoFS: showing saved data from temporary table with name: __tmp__
++------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
+|uuid                                |type_id    |factory_message_process_id    |factory_uuid                        |factory_id    | engine_id        |topic                      |status_code_id|cru_by|cru_ts                    |
++------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
+|null                                |1          |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |factory_2_2                |5             |Modak |2021-04-27 10:17:37.529195|
+|null                                |1          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |factory_1_1                |5             |Modak |2021-04-27 10:17:37.533318|
+|null                                |1          |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |factory_3_3                |5             |Modak |2021-04-27 10:17:37.535323|
+|59d9b23e-ff93-4351-af7e-0a95ec4fde65|10         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |nabu_1_authtoken           |5             |Modak |2021-04-27 10:17:50.441147|
+|111eeff6-c61d-402e-9e70-615cf80d3016|10         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |nabu_2_authtoken           |5             |Modak |2021-04-27 10:18:02.439379|
+|2870ff43-73c9-424e-9f3c-c89ac4dda278|10         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |nabu_3_authtoken           |5             |Modak |2021-04-27 10:18:14.5242  |
+|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |nabu_3_errorbot            |5             |Modak |2021-04-27 10:21:17.098984|
+|534a2af0-af74-4633-8603-926070afd76f|16         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |nabu_2_filter_resolver_jdbc|5             |Modak |2021-04-27 10:21:17.223042|
+|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |nabu_1_errorbot            |5             |Modak |2021-04-27 10:21:17.437489|
+|6db9c72f-85b0-4254-bc2f-09dc1e63e6f3|9          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |nabu_1_flowcontroller      |5             |Modak |2021-04-27 10:21:17.780313|
++------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
+only showing top 10 rows
+
+21/05/01 10:39:33 INFO targetFS.JDBCtoFS: Data after transformation using the SQL :
+select cast( uuid as string) as uuid,
+cast( type_id as bigint ) as type_id,
+cast( factory_message_process_id as bigint) as factory_message_process_id,
+cast( factory_uuid as string ) as factory_uuid,
+cast( factory_id as bigint ) as factory_id,
+cast( workflow_engine_id as bigint ) as workflow_engine_id,
+cast( topic as string ) as topic,
+cast( status_code_id as int) as status_code_id,
+cast( cru_by as string ) as cru_by,cast( cru_ts as timestamp) as cru_ts
+from __tmp__
++------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
+|uuid                                |type_id|factory_message_process_id        |factory_uuid                        |factory_id    |engine_id         |topic                      |status_code_id|cru_by|cru_ts                    |
++------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
+|null                                |1          |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |factory_2_2                |5             |Modak |2021-04-27 10:17:37.529195|
+|null                                |1          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |factory_1_1                |5             |Modak |2021-04-27 10:17:37.533318|
+|null                                |1          |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |factory_3_3                |5             |Modak |2021-04-27 10:17:37.535323|
+|59d9b23e-ff93-4351-af7e-0a95ec4fde65|10         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |nabu_1_authtoken           |5             |Modak |2021-04-27 10:17:50.441147|
+|111eeff6-c61d-402e-9e70-615cf80d3016|10         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |nabu_2_authtoken           |5             |Modak |2021-04-27 10:18:02.439379|
+|2870ff43-73c9-424e-9f3c-c89ac4dda278|10         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |nabu_3_authtoken           |5             |Modak |2021-04-27 10:18:14.5242  |
+|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |nabu_3_errorbot            |5             |Modak |2021-04-27 10:21:17.098984|
+|534a2af0-af74-4633-8603-926070afd76f|16         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |nabu_2_filter_resolver_jdbc|5             |Modak |2021-04-27 10:21:17.223042|
+|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |nabu_1_errorbot            |5             |Modak |2021-04-27 10:21:17.437489|
+|6db9c72f-85b0-4254-bc2f-09dc1e63e6f3|9          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |nabu_1_flowcontroller      |5             |Modak |2021-04-27 10:21:17.780313|
++------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
+only showing top 10 rows
+
+21/05/01 10:39:35 INFO targetFS.JDBCtoFS: Writing data to target file: /user/tmp/ingest_test.db
++------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
+|uuid                                |type_id    |factory_message_process_id    |factory_uuid                        |factory_id    |        engine_id |topic                      |status_code_id|cru_by|cru_ts                    |
++------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
+|null                                |1          |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |factory_2_2                |5             |Modak |2021-04-27 10:17:37.529195|
+|null                                |1          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |factory_1_1                |5             |Modak |2021-04-27 10:17:37.533318|
+|null                                |1          |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |factory_3_3                |5             |Modak |2021-04-27 10:17:37.535323|
+|59d9b23e-ff93-4351-af7e-0a95ec4fde65|10         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |nabu_1_authtoken           |5             |Modak |2021-04-27 10:17:50.441147|
+|111eeff6-c61d-402e-9e70-615cf80d3016|10         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |nabu_2_authtoken           |5             |Modak |2021-04-27 10:18:02.439379|
+|2870ff43-73c9-424e-9f3c-c89ac4dda278|10         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |nabu_3_authtoken           |5             |Modak |2021-04-27 10:18:14.5242  |
+|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |nabu_3_errorbot            |5             |Modak |2021-04-27 10:21:17.098984|
+|534a2af0-af74-4633-8603-926070afd76f|16         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |nabu_2_filter_resolver_jdbc|5             |Modak |2021-04-27 10:21:17.223042|
+|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |nabu_1_errorbot            |5             |Modak |2021-04-27 10:21:17.437489|
+|6db9c72f-85b0-4254-bc2f-09dc1e63e6f3|9          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |nabu_1_flowcontroller      |5             |Modak |2021-04-27 10:21:17.780313|
++------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 only showing top 10 rows
 ```

@@ -85,4 +85,4 @@ RUN ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N "" && \
 ADD configs/services.sh /usr/bin/services.sh
 ADD configs/config /usr/bin/config
 RUN mv /usr/bin/config $HOME/.ssh/ && chmod 600 $HOME/.ssh/config
-############################################################hive installtion end###########################################################################################
+############################################################ hive installtion end ###########################################################################################
