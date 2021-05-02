@@ -19,10 +19,9 @@ tansformations applied on the raw data,still allowing you to use the features of
         + [JDBC to Hive Connector](#jdbc-to-hive-connector)
 - [Examples](#examples)
 
-## Introduction
+## Introductionl
 
-Spear Framework is basically used to write connectors from source to target,applying business logic/transformations over
-the soure data and loading it to the corresponding destination
+Spear Framework is basically used to write connectors from source to target,applying business logic/transformations over the soure data and loading it to the corresponding destination
 
 ## How to Run
 Below are the steps to write and run your own connector:
@@ -49,9 +48,30 @@ Type :help for more information.
 
 scala>
 ```
+
+4. To run manually,follow the below steps:
+
+For docker conatiners run the below commands one after the other:
+```
+docker exec -it spark bash -to enter into the container
+
+cd /opt/spear-framework/target/scala-2.12 -path where the binary exists
+
+spark-shell --jars spear-framework_2.12-0.1.jar --packages "org.postgresql:postgresql:9.4.1211,org.apache.spark:spark-hive_2.11:2.4.0" -opens a spark shell on top of spear
+```
 NOTE: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source and write it to HDFS.
 
-4. You can write your own connector (look at some examples below ) and test it.
+To run on any on any terminal or linux machine
+```
+clone the project using git clone https://github.com/AnudeepKonaboina/spear-framework.git
+
+Run cd spear-framework/ and then run sbt pcakage 
+
+Once the jar is created in the target dir ,navigate to the target dir and run the following command:
+spark-shell --jars spear-framework_2.12-0.1.jar --packages "org.postgresql:postgresql:9.4.1211,org.apache.spark:spark-hive_2.11:2.4.0"
+
+```
+5. You can write your own connector (look at some examples below ) and test it.
 
 ## Connectors
 
@@ -683,9 +703,9 @@ only showing top 10 rows
 +-----+----------+------+
 only showing top 10 rows
 ```
-### TargetFS
+### Target FS
 
-#### JDBC to Hive
+#### JDBC to Hive Connector
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
