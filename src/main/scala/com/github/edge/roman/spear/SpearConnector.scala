@@ -22,11 +22,11 @@ class SpearConnector {
   }
 
   def getConnector: Connector = {
-    (sourceType, destType) match {
-      case ("file", "jdbc") => new FiletoJDBC(sourceFormat)
-      case ("jdbc", "jdbc") => new JDBCtoJDBC(sourceFormat)
-      case ("file", "FS") => new FiletoFS(sourceFormat)
-      case ("jdbc", "FS") => new JDBCtoFS(sourceFormat)
+    (sourceFormat, destType) match {
+      case ("file", "jdbc") => new FiletoJDBC(sourceFormat,destFormat)
+      case ("jdbc", "jdbc") => new JDBCtoJDBC(sourceFormat,destFormat)
+      case ("file", "FS") => new FiletoFS(sourceFormat,destFormat)
+      case ("jdbc", "FS") => new JDBCtoFS(sourceFormat,destFormat)
     }
   }
 }

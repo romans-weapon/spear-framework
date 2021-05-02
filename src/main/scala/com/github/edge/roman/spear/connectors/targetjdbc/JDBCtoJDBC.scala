@@ -5,9 +5,9 @@ import com.github.edge.roman.spear.connectors.TargetJDBCConnector
 import org.apache.spark.sql.{SaveMode}
 import java.util.Properties
 
-class JDBCtoJDBC(sourceType: String) extends TargetJDBCConnector {
+class JDBCtoJDBC(sourceFormat: String,destFormat:String) extends TargetJDBCConnector {
   override def source(tableName: String, params: Map[String, String]): JDBCtoJDBC = {
-    val df = this.sparkSession.read.format(sourceType).option("dbtable", tableName).options(params).load()
+    val df = this.sparkSession.read.format(sourceFormat).option("dbtable", tableName).options(params).load()
     this.df = df
     df.show(10, false)
     this
@@ -32,5 +32,8 @@ class JDBCtoJDBC(sourceType: String) extends TargetJDBCConnector {
     sparkSession.read.jdbc(props.get("url").toString, tableName, props).show(10,false)
   }
 
+
   override def source(sourcePath: String): Connector = ???
+
+  override def target(target: String, objectName: String, saveMode: SaveMode): Unit = ???
 }

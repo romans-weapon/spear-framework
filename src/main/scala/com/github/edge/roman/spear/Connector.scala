@@ -13,6 +13,8 @@ trait Connector {
 
   def target(target: String, props: Properties, saveMode: SaveMode):Unit
 
+  def target(target: String, objectName: String, saveMode: SaveMode):Unit
+
   def transformSql(sqlText: String):Connector
 
   def saveAs(alias: String): Connector
@@ -20,8 +22,6 @@ trait Connector {
   def toDF(): DataFrame
 
   def cacheData(): Connector
-
-  def mapDataType(string: String):Connector
 
   def stop()
 }

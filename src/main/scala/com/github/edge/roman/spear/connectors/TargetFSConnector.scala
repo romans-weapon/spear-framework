@@ -16,9 +16,6 @@ abstract class TargetFSConnector extends Connector {
     this
   }
 
-  def mapDataType(string: String):TargetFSConnector={
-    this
-  }
   override def saveAs(alias: String): TargetFSConnector = {
     logger.info("Data is saved as a temporary table by name: " + alias)
     logger.info("showing saved data from temporary table with name: " + alias)

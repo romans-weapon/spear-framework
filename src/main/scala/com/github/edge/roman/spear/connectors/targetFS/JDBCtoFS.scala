@@ -2,12 +2,12 @@ package com.github.edge.roman.spear.connectors.targetFS
 
 import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.connectors.TargetFSConnector
-import org.apache.spark.sql.SaveMode
+import org.apache.spark.sql.{DataFrame, SaveMode}
 
 import java.util.Properties
 
 
-class JDBCtoFS(sourceFormat: String) extends TargetFSConnector {
+class JDBCtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnector {
 
   override def source(tableName: String, params: Map[String, String]): JDBCtoFS = {
     val df = this.sparkSession.read.format(sourceFormat).option("dbtable", tableName).options(params).load()
@@ -24,15 +24,21 @@ class JDBCtoFS(sourceFormat: String) extends TargetFSConnector {
     this
   }
 
-
-  override def target(filePath: String, props: Properties, saveMode: SaveMode): Unit = {
+  override def target(filePath: String, tableName: String, saveMode: SaveMode): Unit = {
     logger.info("Writing data to target file: " + filePath)
-    this.df.write.format(props.get("destination_file_format").toString).mode(saveMode).saveAsTable(props.get("destination_table_name").toString)
-    val targetDF = sparkSession.sql("select * from " + props.get("destination_table_name").toString)
+    this.df.write.format(destFormat).mode(saveMode).saveAsTable(tableName);
+    val targetDF = sparkSession.sql("select * from " + tableName)
     targetDF.show(10, false)
+  }
+
+  def target(filePath: String, saveMode: SaveMode): Unit = {
+    logger.info("Writing data to target file: " + filePath)
+    this.df.write.format(destFormat).mode(saveMode).save(filePath)
   }
 
 
   override def source(source: String): Connector = ???
+
+  override def target(target: String, props: Properties, saveMode: SaveMode): Unit = ???
 }
 

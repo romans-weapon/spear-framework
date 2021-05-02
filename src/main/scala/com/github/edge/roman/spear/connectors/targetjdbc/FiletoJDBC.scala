@@ -6,10 +6,10 @@ import org.apache.spark.sql.SaveMode
 
 import java.util.Properties
 
-class FiletoJDBC(sourceType: String) extends TargetFSConnector {
+class FiletoJDBC(sourceFormat: String,destFormat:String) extends TargetFSConnector {
 
   override def source(sourcePath: String): FiletoJDBC = {
-    sourceType match {
+    sourceFormat match {
       case "csv" =>
         val df = sparkSession.read.csv(sourcePath)
         this.df = df
@@ -45,7 +45,7 @@ class FiletoJDBC(sourceType: String) extends TargetFSConnector {
   }
 
   override def source(sourcePath: String, params: Map[String, String]): FiletoJDBC = {
-    sourceType match {
+    sourceFormat match {
       case "csv" =>
         val df = this.sparkSession.read.options(params).csv(sourcePath)
         this.df = df
@@ -100,4 +100,5 @@ class FiletoJDBC(sourceType: String) extends TargetFSConnector {
     this
   }
 
+  override def target(filePath: String, objectName: String, saveMode: SaveMode): Unit = ???
 }
