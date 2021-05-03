@@ -21,7 +21,7 @@ class SpearConnector {
     this
   }
 
-  def getConnector: Connector = {
+  def getConnector:Connector = {
     (sourceType, destType) match {
       case ("file", "relational") => new FiletoJDBC(sourceFormat,destFormat)
       case ("relational", "relational") => new JDBCtoJDBC(sourceFormat,destFormat)

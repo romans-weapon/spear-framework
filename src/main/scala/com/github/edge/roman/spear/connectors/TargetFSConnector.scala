@@ -1,27 +1,28 @@
 package com.github.edge.roman.spear.connectors
 
 import com.github.edge.roman.spear.Connector
-import com.github.edge.roman.spear.connectors.targetFS.JDBCtoFS
 import org.apache.log4j.Logger
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 
+import java.util.Properties
 
-abstract class TargetFSConnector extends Connector {
+
+trait TargetFSConnector extends Connector {
   val logger = Logger.getLogger(this.getClass.getName)
 
   var sparkSession: SparkSession = null
   var df: DataFrame = null
 
-  override def init(master: String, appName: String): Connector = {
+  override def init(master: String, appName: String): TargetFSConnector = {
     sparkSession = SparkSession.builder().master(master).appName(appName).enableHiveSupport().getOrCreate()
     this
   }
 
   override def saveAs(alias: String): TargetFSConnector = {
     logger.info("Data is saved as a temporary table by name: " + alias)
-    logger.info("showing saved data from temporary table with name: " + alias)
+    logger.info("Showing saved data from temporary table with name: " + alias)
     this.df.createOrReplaceTempView(alias)
-    df.show(10,false)
+    df.show(10, false)
     this
   }
 
@@ -29,7 +30,7 @@ abstract class TargetFSConnector extends Connector {
     this.sparkSession.stop()
   }
 
-  override def toDF(): DataFrame = {
+  override def toDF: DataFrame = {
     logger.info("Data will now be available as dataframe object")
     this.df
   }
@@ -38,4 +39,11 @@ abstract class TargetFSConnector extends Connector {
     this.df.cache()
     this
   }
+
+
+  override def targetFS(destinationFilePath: String, saveAsTable: String, saveMode: SaveMode): Unit
+
+  override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = ???
+
+  override def sourceSql(params: Map[String, String], sqlText: String): TargetFSConnector = ???
 }

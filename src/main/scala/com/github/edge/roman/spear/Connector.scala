@@ -7,21 +7,19 @@ import java.util.Properties
 trait Connector {
   def init(master: String, appName: String):Connector
 
-  def source(sourceObject:String):Connector
-
   def source(sourceObject:String,params: Map[String, String]):Connector
 
   def sourceSql(params: Map[String, String],sqlText:String):Connector
 
-  def target(target: String, props: Properties, saveMode: SaveMode):Unit
-
-  def target(target: String, objectName: String, saveMode: SaveMode):Unit
-
   def transformSql(sqlText: String):Connector
+
+  def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit
+
+  def targetFS(destinationFilePath: String, saveAsTable: String, saveMode: SaveMode): Unit
 
   def saveAs(alias: String): Connector
 
-  def toDF(): DataFrame
+  def toDF: DataFrame
 
   def cacheData(): Connector
 

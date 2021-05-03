@@ -2,9 +2,11 @@ package com.github.edge.roman.spear.connectors
 
 import com.github.edge.roman.spear.Connector
 import org.apache.log4j.Logger
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 
-abstract class TargetJDBCConnector extends Connector {
+import java.util.Properties
+
+trait TargetJDBCConnector extends Connector {
   val logger = Logger.getLogger(this.getClass.getName)
 
   var sparkSession: SparkSession = null
@@ -19,7 +21,7 @@ abstract class TargetJDBCConnector extends Connector {
     logger.info("Data is saved as a temporary table by name: " + alias)
     logger.info("showing saved data from temporary table with name: " + alias)
     this.df.createOrReplaceTempView(alias)
-    df.show(10,false)
+    df.show(10, false)
     this
   }
 
@@ -27,7 +29,7 @@ abstract class TargetJDBCConnector extends Connector {
     this.sparkSession.stop()
   }
 
-  override def toDF(): DataFrame = {
+  override def toDF: DataFrame = {
     logger.info("Data will now be available as dataframe object")
     this.df
   }
@@ -36,4 +38,11 @@ abstract class TargetJDBCConnector extends Connector {
     this.df.cache()
     this
   }
+
+  override def targetFS(destinationFilePath: String, saveAsTable: String, saveMode: SaveMode): Unit = ???
+
+  override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit
+
+  override def sourceSql(params: Map[String, String], sqlText: String): Connector = ???
+
 }
