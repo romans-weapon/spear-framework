@@ -1,7 +1,8 @@
 package com.github.edge.roman.spear.connectors.targetjdbc
 
 import com.databricks.spark.xml.XmlDataFrameReader
-import com.github.edge.roman.spear.connectors.{TargetFSConnector}
+import com.github.edge.roman.spear.Connector
+import com.github.edge.roman.spear.connectors.TargetFSConnector
 import org.apache.spark.sql.SaveMode
 
 import java.util.Properties
@@ -101,4 +102,6 @@ class FiletoJDBC(sourceFormat: String,destFormat:String) extends TargetFSConnect
   }
 
   override def target(filePath: String, objectName: String, saveMode: SaveMode): Unit = ???
+
+  override def sourceSql(params: Map[String, String], sqlText: String): Connector = ???
 }

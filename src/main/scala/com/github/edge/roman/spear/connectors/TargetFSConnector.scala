@@ -1,6 +1,7 @@
 package com.github.edge.roman.spear.connectors
 
 import com.github.edge.roman.spear.Connector
+import com.github.edge.roman.spear.connectors.targetFS.JDBCtoFS
 import org.apache.log4j.Logger
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 

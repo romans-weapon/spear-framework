@@ -36,4 +36,6 @@ class JDBCtoJDBC(sourceFormat: String,destFormat:String) extends TargetJDBCConne
   override def source(sourcePath: String): Connector = ???
 
   override def target(target: String, objectName: String, saveMode: SaveMode): Unit = ???
+
+  override def sourceSql(params: Map[String, String], sqlText: String): Connector = ???
 }

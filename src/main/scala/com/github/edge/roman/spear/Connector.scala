@@ -7,9 +7,11 @@ import java.util.Properties
 trait Connector {
   def init(master: String, appName: String):Connector
 
-  def source(source:String):Connector
+  def source(sourceObject:String):Connector
 
-  def source(source:String,params: Map[String, String]):Connector
+  def source(sourceObject:String,params: Map[String, String]):Connector
+
+  def sourceSql(params: Map[String, String],sqlText:String):Connector
 
   def target(target: String, props: Properties, saveMode: SaveMode):Unit
 
