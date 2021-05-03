@@ -16,7 +16,14 @@ class JDBCtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnect
     this
   }
 
-  override def transformSql(sqlText: String): Connector = {
+   override def sourceSql(params: Map[String, String], sqlText: String): JDBCtoFS = {
+    logger.info("Executing source sql query: " + sqlText)
+    val _df = sparkSession.read.format(sourceFormat).option("dbtable", s"($sqlText)temp").options(params).load()
+    this.df = _df
+    this
+  }
+
+  override def transformSql(sqlText: String): JDBCtoFS = {
     logger.info("Data after transformation using the SQL : " + sqlText)
     val _df = this.df.sqlContext.sql(sqlText)
     _df.show(10, false)
