@@ -17,23 +17,33 @@ tansformations applied on the raw data,still allowing you to use the features of
         + [Parquet to JDBC Connector](#parquet-to-jdbc-connector)
     * [Target FS](#target-fs)
         + [JDBC to Hive Connector](#jdbc-to-hive-connector)
+        + [Oracle to Hive Connector](#oracle-to-hive-connector)
 - [Examples](#examples)
 
 ## Introductionl
 
-Spear Framework is basically used to write connectors from source to target,applying business logic/transformations over the soure data and loading it to the corresponding destination
+Spear Framework is basically used to write connectors from source to target,applying business logic/transformations over
+the soure data and loading it to the corresponding destination
 
 ## How to Run
+
 Below are the steps to write and run your own connector:
-1. Clone the repository from git 
+
+1. Clone the repository from git
+
 ```commandline
 git clone https://github.com/AnudeepKonaboina/spear-framework.git
 ```
+
 2. Run setup.sh script using the command
+
 ```commandline
 sh setup.sh
 ```
-3.After 2 min you will get a prompt with the scala shell loaded will all the dependencies where you can write your own connector and test it.
+
+3.After 2 min you will get a prompt with the scala shell loaded will all the dependencies where you can write your own
+connector and test it.
+
 ```commandline
 Welcome to
       ____              __
@@ -52,6 +62,7 @@ scala>
 4. To run manually,follow the below steps:
 
 For docker conatiners run the below commands one after the other:
+
 ```
 docker exec -it spark bash -to enter into the container
 
@@ -59,9 +70,12 @@ cd /opt/spear-framework/target/scala-2.12 -path where the binary exists
 
 spark-shell --jars spear-framework_2.12-0.1.jar --packages "org.postgresql:postgresql:9.4.1211,org.apache.spark:spark-hive_2.11:2.4.0" -opens a spark shell on top of spear
 ```
-NOTE: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source and write it to HDFS.
+
+NOTE: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source
+and write it to HDFS.
 
 To run on any on any terminal or linux machine
+
 ```
 clone the project using git clone https://github.com/AnudeepKonaboina/spear-framework.git
 
@@ -71,6 +85,7 @@ Once the jar is created in the target dir ,navigate to the target dir and run th
 spark-shell --jars spear-framework_2.12-0.1.jar --packages "org.postgresql:postgresql:9.4.1211,org.apache.spark:spark-hive_2.11:2.4.0"
 
 ```
+
 5. You can write your own connector (look at some examples below ) and test it.
 
 ## Connectors
@@ -94,7 +109,6 @@ import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
 
-//target jdbc properties(can be any jdbc target postgres/mysql/sqlserver/oracle etc..)
 Logger.getLogger("com.github").setLevel(Level.INFO)
 val properties = new Properties()
 properties.put("driver", "org.postgresql.Driver");
@@ -103,14 +117,18 @@ properties.put("password", "mysecretpassword")
 properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
 
 //connector logic
-val csvJdbcConnector =new SpearConnector().source("file", "csv").target("jdbc", "table").getConnector
-csvJdbcConnector.init("local[*]", "CSVtoJdbcConnector")
-  .source("data/us-election-2012-results-by-county.csv  ", Map("header" -> "true", "inferSchema" -> "true"))
+val csvJdbcConnector = new SpearConnector().source(sourceType = "file", sourceFormat = "csv").target(targetType = "relational", targetFormat = "jdbc").getConnector
+csvJdbcConnector.init(master = "local[*]", appName = "CSVtoJdbcConnector")
+  .source(sourceObject = "/user/hive/warehouse/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
   .saveAs("__tmp__")
   .transformSql("select state_code,party,first_name,last_name,votes from __tmp__")
   .saveAs("__tmp2__")
-  .transformSql("select state_code,party,sum(votes) as total_votes from __tmp2__ group by state_code,party")
-  .target("pg_db.destination_us_elections", properties, SaveMode.Overwrite)
+  .transformSql(
+    """select state_code,party,
+      |sum(votes) as total_votes
+      |from __tmp2__
+      |group by state_code,party""".stripMargin)
+  .targetJDBC(tableName = "pg_db.destination_us_elections", properties, SaveMode.Overwrite)
 csvJdbcConnector.stop()
 ```
 
@@ -233,12 +251,20 @@ import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
 
-val jsonJdbcConnector = new SpearConnector().source("file", "json").target("jdbc", "table").getConnector
-jsonJdbcConnector.init("local[*]", "JSONtoJDBC")
+//target props
+val properties = new Properties()
+properties.put("driver", "org.postgresql.Driver");
+properties.put("user", "postgres_user")
+properties.put("password", "mysecretpassword")
+properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
+
+val jsonJdbcConnector = new SpearConnector().source(sourceType = "file", sourceFormat = "json").target(targetType = "relational", targetFormat = "jdbc").getConnector
+jsonJdbcConnector.init(master = "local[*]", appName = "JSONtoJDBC")
   .source("data/data.json", Map("multiline" -> "true"))
   .saveAs("__tmptable__")
   .transformSql("select cast(id*10 as integer) as type_id,type from __tmptable__ ")
-  .target("pg_db.json_to_jdbc", properties, SaveMode.Overwrite)
+  .targetJDBC(tableName = "pg_db.json_to_jdbc", properties, SaveMode.Overwrite)
+
 jsonJdbcConnector.stop()
 ```
 
@@ -310,12 +336,18 @@ import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
 
-val xmlJdbcConnector = new SpearConnector().source("file", "xml").target("jdbc", "table").getConnector
-xmlJdbcConnector.init("local[*]", "XMLtoJDBC")
+val properties = new Properties()
+properties.put("driver", "org.postgresql.Driver");
+properties.put("user", "postgres_user")
+properties.put("password", "mysecretpassword")
+properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
+
+val xmlJdbcConnector = new SpearConnector().source(sourceType = "file", sourceFormat = "xml").target(targetType = "relational", targetFormat = "jdbc").getConnector
+xmlJdbcConnector.init(master = "local[*]", appName = "XMLtoJDBC")
   .source("data/data.xml", Map("rootTag" -> "employees", "rowTag" -> "details"))
   .saveAs("tmp")
   .transformSql("select * from tmp ")
-  .target("pg_db.xml_to_jdbc", properties, SaveMode.Overwrite)
+  .targetJDBC(tableName="pg_db.xml_to_jdbc", properties, SaveMode.Overwrite)
 xmlJdbcConnector.stop()
 ```
 
@@ -375,12 +407,18 @@ import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
 
-val connector = new SpearConnector().source("file", "tsv").target("jdbc", "table").getConnector
-connector.init("local[*]", "TSVtoJDBC")
+val properties = new Properties()
+properties.put("driver", "org.postgresql.Driver");
+properties.put("user", "postgres_user")
+properties.put("password", "mysecretpassword")
+properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
+
+val connector = new SpearConnector().source(sourceType = "file", sourceFormat = "tsv").target(targetType = "relational", targetFormat = "jdbc").getConnector
+connector.init(master = "local[*]", appName = "TSVtoJDBC")
   .source("data/product_data", Map("sep" -> "\t", "header" -> "true", "inferSchema" -> "true"))
   .saveAs("tmp")
   .transformSql("select * from tmp ")
-  .target("pg_db.tsv_to_jdbc", properties, SaveMode.Overwrite)
+  .targetJDBC(tableName = "pg_db.tsv_to_jdbc", properties, SaveMode.Overwrite)
 connector.stop()
 ```
 
@@ -475,10 +513,9 @@ properties.put("user", "postgres")
 properties.put("password", "pass")
 properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
 
-val avroJdbcConnector = new SpearConnector().source("file", "avro").target("jdbc", "table").getConnector
-
-avroJdbcConnector.init("local[*]", "AvrotoJdbcConnector")
-  .source("/opt/sample_data.avro")
+val avroJdbcConnector = new SpearConnector().source("file", "avro").target("relational", "jdbc").getConnector
+avroJdbcConnector.init(master = "local[*]", appName = "AvrotoJdbcConnector")
+  .source(sourceObject = "/user/hive/warehouse/sample_data.avro")
   .saveAs("__tmp__")
   .transformSql(
     """select id,
@@ -489,7 +526,7 @@ avroJdbcConnector.init("local[*]", "AvrotoJdbcConnector")
       |from __tmp__""".stripMargin)
   .saveAs("__transformed_table__")
   .transformSql("select id,name,country,email,salary from __transformed_table__ ")
-  .target("pgdb.avro_data", properties, SaveMode.Overwrite)
+  .targetJDBC(tableName = "nabu.avro_data", properties, SaveMode.Overwrite)
 
 avroJdbcConnector.stop()
 ```
@@ -619,13 +656,18 @@ import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
 
-val parquetJdbcConnector = new SpearConnector().source("file", "parquet").target("jdbc", "table").getConnector
+val properties = new Properties()
+properties.put("driver", "org.postgresql.Driver");
+properties.put("user", "postgres")
+properties.put("password", "pass")
+properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
 
+val parquetJdbcConnector = new SpearConnector().source("file", "parquet").target("jdbc", "table").getConnector
 parquetJdbcConnector.init("local[*]", "CSVtoJdbcConnector")
   .source("data/sample.parquet")
   .saveAs("__tmp__")
   .transformSql("""select flow1,occupancy1,speed1 from __tmp__""")
-  .target("pg_db.user_data", properties, SaveMode.Overwrite)
+  .targetJDBC(tableName="pg_db.user_data", properties, SaveMode.Overwrite)
 parquetJdbcConnector.stop()
 ```
 
@@ -633,7 +675,6 @@ parquetJdbcConnector.stop()
 
 ```
 21/02/07 09:11:28 INFO FiletoJDBC: Data after reading from parquet file in path : data/sample3.parquet
-21/02/07 09:11:31 INFO CodecPool: Got brand-new decompressor [.snappy]
 +-------------------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+
 |timeperiod         |flow1|occupancy1|speed1|flow2|occupancy2|speed2|flow3|occupancy3|speed3|flow4|occupancy4|speed4|flow5|occupancy5|speed5|flow6|occupancy6|speed6|flow7|occupancy7|speed7|flow8|occupancy8|speed8|
 +-------------------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+-----+----------+------+
@@ -703,6 +744,7 @@ only showing top 10 rows
 +-----+----------+------+
 only showing top 10 rows
 ```
+
 ### Target FS
 
 #### JDBC to Hive Connector
@@ -710,14 +752,12 @@ only showing top 10 rows
 ```scala
 import com.github.edge.roman.spear.SpearConnector
 import org.apache.spark.sql.SaveMode
+import org.apache.log4j.{Level, Logger}
 import java.util.Properties
 
-val targetproperties = new Properties()
-targetproperties.put("destination_file_format", "parquet");
-targetproperties.put("destination_table_name", "ingest_test.destination_data")
+Logger.getLogger("com.github").setLevel(Level.INFO)
 
-val postgresToHiveConnector = new SpearConnector().source("jdbc", "jdbc").target("FS", "praquet").getConnector
-
+val postgresToHiveConnector = new SpearConnector().source(sourceType = "postgres", sourceFormat = "jdbc").target(targetType = "FS", targetFormat = "parquet").getConnector
 postgresToHiveConnector.init("local[*]", "JdbctoHiveConnector")
   .source("source_db.instance", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres", "password" -> "test", "url" -> "jdbc:postgresql://postgres-host:5433/source_db"))
   .saveAs("__tmp__")
@@ -733,7 +773,7 @@ postgresToHiveConnector.init("local[*]", "JdbctoHiveConnector")
       |cast( status_code_id as int) as status_code_id,
       |cast( cru_by as string ) as cru_by,cast( cru_ts as timestamp) as cru_ts 
       |from __tmp__""".stripMargin)
-  .target("/user/tmp/ingest_test.db", targetproperties, SaveMode.Overwrite)
+  .targetFS(destinationFilePath = "/tmp/ingest_test.db", saveAsTable = "ingest_test.postgres_data", SaveMode.Overwrite)
 
 postgresToHiveConnector.stop()
 ```
@@ -741,6 +781,7 @@ postgresToHiveConnector.stop()
 ### Output
 
 ```commandline
+21/05/01 10:39:20 INFO targetFS.JDBCtoFS: Reading source data from table: source_db.instance
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 |uuid                                 |type_id    |factory_message_process_id   |factory_uuid                        |factory_id    |   engine_id      |topic                      |status_code_id|cru_by|cru_ts                    |
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
@@ -802,7 +843,10 @@ from __tmp__
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 only showing top 10 rows
 
-21/05/01 10:39:35 INFO targetFS.JDBCtoFS: Writing data to target file: /user/tmp/ingest_test.db
+21/05/01 10:39:35 INFO targetFS.JDBCtoFS: Writing data to target file: /tmp/ingest_test.db
+21/05/01 10:39:35 INFO targetFS.JDBCtoFS: Saving data to table:ingest_test.postgres_data
+21/05/01 10:39:35 INFO targetFS.JDBCtoFS: Target Data in table:ingest_test.postgres_data
+
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 |uuid                                |type_id    |factory_message_process_id    |factory_uuid                        |factory_id    |        engine_id |topic                      |status_code_id|cru_by|cru_ts                    |
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
@@ -818,4 +862,117 @@ only showing top 10 rows
 |6db9c72f-85b0-4254-bc2f-09dc1e63e6f3|9          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_flowcontroller      |5             |ABCDE |2021-04-27 10:21:17.780313|
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 only showing top 10 rows
+```
+
+#### Oracle to Hive Connector
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.sql.SaveMode
+
+Logger.getLogger("com.github").setLevel(Level.INFO)
+
+val oraToHiveConnector = new SpearConnector().source(sourceType = "relational", sourceFormat = "jdbc").target(targetType = "FS", targetFormat = "parquet").getConnector
+oraToHiveConnector.init(master = "local[*]", appName = "OracleToHiveConnector")
+oraToHiveConnector.sourceSql(Map("driver" -> "oracle.jdbc.driver.OracleDriver", "user" -> "user", "password" -> "pass", "url" -> "jdbc:oracle:thin:@ora-host:1521:orcl"),
+  """
+    |SELECT
+    |        to_char(sys_extract_utc(systimestamp), 'YYYY-MM-DD HH24:MI:SS.FF') as ingest_ts_utc,
+    |        cast(NUMBER_TYPE as varchar(255)) as number_type,
+    |        cast(TINYINT_TYPE_1 as varchar(255)) as tinyint_type_1,
+    |        cast(TINYINT_TYPE_2 as varchar(255)) as tinyint_type_2,
+    |        cast(INT_TYPE_5 as varchar(255)) as int_type_5,
+    |        cast(INT_TYPE_9 as varchar(255)) as int_type_9,
+    |        cast(BIGINT_TYPE_15 as varchar(255)) as bigint_type_15,
+    |        cast(BIGINT_TYPE_18 as varchar(255)) as bigint_type_18,
+    |        cast(NUMBER_TYPE_31 as varchar(255)) as number_type_31,
+    |        cast(NUMBER_TYPE_38 as varchar(255)) as number_type_38,
+    |        cast(NUMBER_TYPE_7_4 as varchar(255)) as number_type_7_4,
+    |        cast(NUMBER_TYPE_13_7 as varchar(255)) as number_type_13_7
+    |        from DBSRV.ORACLE_NUMBER
+    |""".stripMargin
+).saveAs("__TF_SOURCE_TABLE__")
+  .transformSql(
+    """
+      |SELECT
+      |        TO_TIMESTAMP(ingest_ts_utc) as ingest_ts_utc,
+      |        NUMBER_TYPE as number_type,
+      |        cast(TINYINT_TYPE_1 as TINYINT) as tinyint_type_1,
+      |        cast(TINYINT_TYPE_2 as TINYINT) as tinyint_type_2,
+      |        cast(INT_TYPE_5 as INT) as int_type_5,
+      |        cast(INT_TYPE_9 as INT) as int_type_9,
+      |        cast(BIGINT_TYPE_15 as BIGINT) as bigint_type_15,
+      |        cast(BIGINT_TYPE_18 as BIGINT) as bigint_type_18,
+      |        cast(NUMBER_TYPE_31 as DECIMAL(31,0)) as number_type_31,
+      |        cast(NUMBER_TYPE_38 as DECIMAL(38,0)) as number_type_38,
+      |        cast(NUMBER_TYPE_7_4 as DECIMAL(7,4)) as number_type_7_4,
+      |        cast(NUMBER_TYPE_13_7 as DECIMAL(13,7)) as number_type_13_7
+      |        from __TF_SOURCE_TABLE__
+      |""".stripMargin)
+  .targetFS(destinationFilePath = "/tmp/ingest_test.db", saveAsTable = "ingest_test.ora_data", SaveMode.Overwrite)
+```
+
+### Output
+
+```commandline
+21/05/03 17:19:46 INFO targetFS.JDBCtoFS: Executing source sql query:
+SELECT
+        to_char(sys_extract_utc(systimestamp), 'YYYY-MM-DD HH24:MI:SS.FF') as ingest_ts_utc,
+        cast(NUMBER_TYPE as varchar(255)) as number_type,
+        cast(TINYINT_TYPE_1 as varchar(255)) as tinyint_type_1,
+        cast(TINYINT_TYPE_2 as varchar(255)) as tinyint_type_2,
+        cast(INT_TYPE_5 as varchar(255)) as int_type_5,
+        cast(INT_TYPE_9 as varchar(255)) as int_type_9,
+        cast(BIGINT_TYPE_15 as varchar(255)) as bigint_type_15,
+        cast(BIGINT_TYPE_18 as varchar(255)) as bigint_type_18,
+        cast(NUMBER_TYPE_31 as varchar(255)) as number_type_31,
+        cast(NUMBER_TYPE_38 as varchar(255)) as number_type_38,
+        cast(NUMBER_TYPE_7_4 as varchar(255)) as number_type_7_4,
+        cast(NUMBER_TYPE_13_7 as varchar(255)) as number_type_13_7
+        from NABU_SWAT_DBSRV.ORACLE_NUMBER
+
+21/05/03 17:19:46 INFO targetFS.JDBCtoFS: Data is saved as a temporary table by name: __TF_SOURCE_TABLE__
+21/05/03 17:19:46 INFO targetFS.JDBCtoFS: showing saved data from temporary table with name: __TF_SOURCE_TABLE__
++--------------------------+------------------+--------------+--------------+----------+----------+---------------+------------------+---------------------------+-------------------------------+---------------+----------------+
+|INGEST_TS_UTC             |NUMBER_TYPE       |TINYINT_TYPE_1|TINYINT_TYPE_2|INT_TYPE_5|INT_TYPE_9|BIGINT_TYPE_15 |BIGINT_TYPE_18    |NUMBER_TYPE_31             |NUMBER_TYPE_38                 |NUMBER_TYPE_7_4|NUMBER_TYPE_13_7|
++--------------------------+------------------+--------------+--------------+----------+----------+---------------+------------------+---------------------------+-------------------------------+---------------+----------------+
+|2021-05-03 17:19:46.664410|1244124343.2341111|5             |89            |98984     |788288722 |788288722989848|788288722989848897|788288722989848897788288722|7882887229898488977882887228987|322.1311       |132431.2144     |
+|2021-05-03 17:19:46.664410|78441243.2341111  |9             |89            |98984     |7888722   |788722989848   |288722989848897   |7882887229898488288722     |78828872288977882887228987     |322.1311       |132431.2144     |
++--------------------------+------------------+--------------+--------------+----------+----------+---------------+------------------+---------------------------+-------------------------------+---------------+----------------+
+
+21/05/03 17:19:46 INFO targetFS.JDBCtoFS: Data after transformation using the SQL :
+SELECT
+        TO_TIMESTAMP(ingest_ts_utc) as ingest_ts_utc,
+        NUMBER_TYPE as number_type,
+        cast(TINYINT_TYPE_1 as TINYINT) as tinyint_type_1,
+        cast(TINYINT_TYPE_2 as TINYINT) as tinyint_type_2,
+        cast(INT_TYPE_5 as INT) as int_type_5,
+        cast(INT_TYPE_9 as INT) as int_type_9,
+        cast(BIGINT_TYPE_15 as BIGINT) as bigint_type_15,
+        cast(BIGINT_TYPE_18 as BIGINT) as bigint_type_18,
+        cast(NUMBER_TYPE_31 as DECIMAL(31,0)) as number_type_31,
+        cast(NUMBER_TYPE_38 as DECIMAL(38,0)) as number_type_38,
+        cast(NUMBER_TYPE_7_4 as DECIMAL(7,4)) as number_type_7_4,
+        cast(NUMBER_TYPE_13_7 as DECIMAL(13,7)) as number_type_13_7
+        from __TF_SOURCE_TABLE__
+
++--------------------------+------------------+--------------+--------------+----------+----------+---------------+------------------+---------------------------+-------------------------------+---------------+----------------+
+|ingest_ts_utc             |number_type       |tinyint_type_1|tinyint_type_2|int_type_5|int_type_9|bigint_type_15 |bigint_type_18    |number_type_31             |number_type_38                 |number_type_7_4|number_type_13_7|
++--------------------------+------------------+--------------+--------------+----------+----------+---------------+------------------+---------------------------+-------------------------------+---------------+----------------+
+|2021-05-03 17:19:46.973852|1244124343.2341111|5             |89            |98984     |788288722 |788288722989848|788288722989848897|788288722989848897788288722|7882887229898488977882887228987|322.1311       |132431.2144000  |
+|2021-05-03 17:19:46.973852|78441243.2341111  |9             |89            |98984     |7888722   |788722989848   |288722989848897   |7882887229898488288722     |78828872288977882887228987     |322.1311       |132431.2144000  |
++--------------------------+------------------+--------------+--------------+----------+----------+---------------+------------------+---------------------------+-------------------------------+---------------+----------------+
+
+21/05/03 17:19:46 INFO targetFS.JDBCtoFS: Writing data to target file: /tmp/ingest_test.db
+21/05/03 17:19:53 INFO targetFS.JDBCtoFS: Saving data to table:ingest_test.ora_data
+21/05/03 17:19:53 INFO targetFS.JDBCtoFS: Target Data in table:ingest_test.ora_data
+
++--------------------------+------------------+--------------+--------------+----------+----------+---------------+------------------+---------------------------+-------------------------------+---------------+----------------+
+|ingest_ts_utc             |number_type       |tinyint_type_1|tinyint_type_2|int_type_5|int_type_9|bigint_type_15 |bigint_type_18    |number_type_31             |number_type_38                 |number_type_7_4|number_type_13_7|
++--------------------------+------------------+--------------+--------------+----------+----------+---------------+------------------+---------------------------+-------------------------------+---------------+----------------+
+|2021-05-03 17:19:47.533503|1244124343.2341111|5             |89            |98984     |788288722 |788288722989848|788288722989848897|788288722989848897788288722|7882887229898488977882887228987|322.1311       |132431.2144000  |
+|2021-05-03 17:19:47.533503|78441243.2341111  |9             |89            |98984     |7888722   |788722989848   |288722989848897   |7882887229898488288722     |78828872288977882887228987     |322.1311       |132431.2144000  |
++--------------------------+------------------+--------------+--------------+----------+----------+---------------+------------------+---------------------------+-------------------------------+---------------+----------------+
+
 ```
