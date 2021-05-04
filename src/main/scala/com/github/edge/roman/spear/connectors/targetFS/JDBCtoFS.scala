@@ -6,6 +6,7 @@ import org.apache.spark.sql.SaveMode
 class JDBCtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnector {
 
   override def source(tableName: String, params: Map[String, String]): JDBCtoFS = {
+    logger.info("Reading source data from table :" + tableName)
     val df = this.sparkSession.read.format(sourceFormat).option("dbtable", tableName).options(params).load()
     this.df = df
     df.show(10, false)

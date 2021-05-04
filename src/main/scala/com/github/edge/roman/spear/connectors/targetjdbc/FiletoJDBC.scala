@@ -8,7 +8,7 @@ import java.util.Properties
 
 class FiletoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector {
 
-  override def source(sourcePath: String, params: Map[String, String] = Map()): FiletoJDBC = {
+  override def source(sourcePath: String, params: Map[String, String]): FiletoJDBC = {
     sourceFormat match {
       case "csv" =>
         val df = this.sparkSession.read.options(params).csv(sourcePath)

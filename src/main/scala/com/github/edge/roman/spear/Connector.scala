@@ -5,9 +5,10 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 import java.util.Properties
 
 trait Connector {
+
   def init(master: String, appName: String):Connector
 
-  def source(sourceObject:String,params: Map[String, String]):Connector
+  def source(sourceObject:String,params: Map[String, String]=Map()):Connector
 
   def sourceSql(params: Map[String, String],sqlText:String):Connector
 
