@@ -1,9 +1,9 @@
 # Spear Framework
 
-A framework which is a built on top of spark and has the ability to extract and load any kind of data with custom
-tansformations applied on the raw data,still allowing you to use the features of Apache spark
+A framework which is a built on top of spark and has the ability to extract and load (ETL or ELT job) any kind of data (structured/unstructured/stream) with custom
+tansformations applied on the raw data,still allowing you to use the features of Apache spark.
 
-![image](https://user-images.githubusercontent.com/59328701/116994717-b3003680-acf6-11eb-8137-e2b37fdcb8fd.png)
+![image](https://user-images.githubusercontent.com/59328701/116995066-36ba2300-acf7-11eb-9d4d-fab26cb88faa.png)
 
 
 ## Table of Contents
