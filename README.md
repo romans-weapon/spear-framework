@@ -870,7 +870,7 @@ import java.util.Properties
 
 Logger.getLogger("com.github").setLevel(Level.INFO)
 
-val postgresToHiveConnector = new SpearConnector().source(sourceType = "postgres", sourceFormat = "jdbc").target(targetType = "FS", targetFormat = "parquet").getConnector
+val postgresToHiveConnector = new SpearConnector().source(sourceType = "relational", sourceFormat = "jdbc").target(targetType = "FS", targetFormat = "parquet").getConnector
 postgresToHiveConnector.init("local[*]", "JdbctoHiveConnector")
   .source("source_db.instance", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres", "password" -> "test", "url" -> "jdbc:postgresql://postgres-host:5433/source_db"))
   .saveAs("__tmp__")
