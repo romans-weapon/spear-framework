@@ -781,7 +781,7 @@ oracleTOPostgresConnector.init(master = "local[*]", appName = "OracleTOPostgresC
       |        to_char(TIMESTAMP0_WITH_LTZ) as timestamp0_with_ltz , to_char(sys_extract_utc(TIMESTAMP0_WITH_LTZ), 'YYYY-MM-DD HH24:MI:SS') as timestamp0_with_ltz_utc,
       |        to_char(TIMESTAMP5_WITH_LTZ) as timestamp5_with_ltz , to_char(sys_extract_utc(TIMESTAMP5_WITH_LTZ), 'YYYY-MM-DD HH24:MI:SS.FF') as timestamp5_with_ltz_utc,
       |        to_char(TIMESTAMP8_WITH_LTZ) as timestamp8_with_ltz , to_char(sys_extract_utc(TIMESTAMP8_WITH_LTZ), 'YYYY-MM-DD HH24:MI:SS.FF') as timestamp8_with_ltz_utc
-      |        from NABU_SWAT_DBSRV.ORACLE_TIMESTAMPS
+      |        from DBSRV.ORACLE_TIMESTAMPS
       |""".stripMargin)
   .saveAs("__source__")
   .transformSql(
