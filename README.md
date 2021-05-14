@@ -3,7 +3,8 @@
 A framework which is a built on top of spark and has the ability to extract and load (ETL or ELT job) any kind of data (structured/unstructured/stream) with custom
 tansformations applied on the raw data,still allowing you to use the features of Apache spark.
 
-![image](https://user-images.githubusercontent.com/59328701/116995066-36ba2300-acf7-11eb-9d4d-fab26cb88faa.png)
+
+![image](https://user-images.githubusercontent.com/59328701/118262340-64128800-b4d2-11eb-879f-64771d00274c.png)
 
 
 ## Table of Contents
