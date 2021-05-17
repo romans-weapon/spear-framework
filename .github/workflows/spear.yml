@@ -13,7 +13,7 @@ jobs:
       postgres:
         image: postgres
         ports:
-          - "5433:5432"
+          - "5432:5432"
         env:
           POSTGRES_USER : postgres_user
           POSTGRES_PASSWORD : mysecretpassword
