@@ -3,7 +3,7 @@
 A framework which is a built on top of spark and has the ability to extract and load (ETL or ELT job) any kind of data (structured/unstructured/stream) with custom
 tansformations applied on the raw data,still allowing you to use the features of Apache spark.
 
-[![Build Status](https://github.com/AnudeepKonaboina/spear-framework/blob/main/.github/workflows/spear.yml/badge.svg??branch=main)]
+[![Build Status](https://github.com/AnudeepKonaboina/spear-framework/workflows/spear/badge.svg)](https://github.com/AnudeepKonaboina/spear-framework/actions)
 
 ![image](https://user-images.githubusercontent.com/59328701/118262340-64128800-b4d2-11eb-879f-64771d00274c.png)
 
