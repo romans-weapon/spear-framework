@@ -1,0 +1,54 @@
+version: '3'
+services:
+  postgres-db:
+    image: postgres
+    ports:
+      - "5433:5432"
+    container_name: "postgres"
+    environment:
+      - POSTGRES_DB=pgdb
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_USER=postgres_user
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    container_name: "zookeeper"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+  kafka:
+    image: 'bitnami/kafka:latest'
+    container_name: "kafka"
+    ports:
+      - '9093:9093'
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
+      - KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT
+    depends_on:
+      - zookeeper
+  hive-metastore:
+    image: "spearframework/hive-metastore:1.0"
+    restart: always
+    container_name: "hive_metastore"
+    hostname: "metastore.hive"
+    environment:
+      - POSTGRES_PASSWORD=hive
+  spear-container:
+    image: "spearframework/spark-hadoop-hive:1.0"
+    hostname: "hadoop.spark"
+    container_name: "spark"
+    restart: always
+    ports:
+      - "4040:4040"
+      - "4041:4041"
+      - "8089:8088"
+      - "8090:18080"
+    expose:
+      - "22"
+    depends_on:
+      - hive-metastore
+    privileged: true
+    command: "/usr/sbin/init"
