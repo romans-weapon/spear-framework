@@ -52,3 +52,5 @@ services:
       - hive-metastore
     privileged: true
     command: "/usr/sbin/init"
+    
+    
