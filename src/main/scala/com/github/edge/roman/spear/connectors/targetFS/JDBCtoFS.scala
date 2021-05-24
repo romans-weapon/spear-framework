@@ -1,6 +1,5 @@
 package com.github.edge.roman.spear.connectors.targetFS
 
-import com.github.edge.roman.spear.connectors.TargetFSConnector
 import org.apache.spark.sql.SaveMode
 
 class JDBCtoFS(sourceFormat: String, destFormat: String) extends TargetFSConnector {

@@ -1,66 +1,18 @@
 package com.github.edge.roman.spear.connectors.targetjdbc
 
-import com.databricks.spark.xml.XmlDataFrameReader
-import com.github.edge.roman.spear.connectors.TargetJDBCConnector
-import org.apache.spark.sql.SaveMode
+import com.github.edge.roman.spear.Connector
+import com.github.edge.roman.spear.connectors.AbstractTargetJDBCConnector
+import com.github.edge.roman.spear.connectors.commons.{ConnectorCommon, SpearCommons}
 
-import java.util.Properties
 
-class FiletoJDBC(sourceFormat: String, destFormat: String) extends TargetJDBCConnector {
+class FiletoJDBC(sourceFormat: String, destFormat: String) extends AbstractTargetJDBCConnector(sourceFormat,destFormat) {
 
-  override def source(sourcePath: String, params: Map[String, String]): FiletoJDBC = {
-    sourceFormat match {
-      case "csv" =>
-        val df = this.sparkSession.read.options(params).csv(sourcePath)
-        this.df = df
-        logger.info("Data after reading from csv in path : " + sourcePath)
-        df.show(10, false)
-      case "avro" =>
-        val df = this.sparkSession.read.format("avro").options(params).load(sourcePath)
-        this.df = df
-        logger.info("Data after reading from avro file in path : " + sourcePath)
-        df.show(10, false)
-      case "parquet" =>
-        val df = this.sparkSession.read.format("parquet").options(params).load(sourcePath)
-        this.df = df
-        logger.info("Data after reading from parquet file in path : " + sourcePath)
-        df.show(10, false)
-      case "json" =>
-        val df = this.sparkSession.read.options(params).json(sourcePath)
-        this.df = df
-        logger.info("Data after reading from json file in path : " + sourcePath)
-        df.show(10, false)
-      case "tsv" =>
-        val df = this.sparkSession.read.options(params).csv(sourcePath)
-        this.df = df
-        logger.info("Data after reading from tsv file in path : " + sourcePath)
-        df.show(10, false)
-      case "xml" =>
-        val df = this.sparkSession.read.format("com.databricks.spark.xml").options(params).xml(sourcePath)
-        this.df = df
-        logger.info("Data after reading from xml file in path : " + sourcePath)
-        df.show(10, false)
-      case _ =>
-        throw new Exception("Invalid source type provided.")
-    }
+  override def source(sourceFilePath: String, params: Map[String, String]): FiletoJDBC = {
+    logger.info(s"Connector to Target: JDBC with Format: ${destFormat} from Source: ${sourceFilePath} with Format: ${sourceFilePath} started running !!")
+    this.df = ConnectorCommon.sourceFile(sourceFormat, sourceFilePath, params)
+    logger.info(s"Reading source file: ${sourceFilePath} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+    show()
     this
   }
-
-  override def transformSql(sqlText: String): FiletoJDBC = {
-    logger.info("Data after transformation using the SQL : " + sqlText)
-    this.df = this.df.sqlContext.sql(sqlText)
-    this.df.show(10, false)
-    this
-  }
-
-  override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = {
-    logger.info("Writing data to target table: " + tableName)
-    this.df.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
-    showTargetData(tableName: String, props: Properties)
-  }
-
-  def showTargetData(tableName: String, props: Properties): Unit = {
-    logger.info("Showing data in target table  : " + tableName)
-    sparkSession.read.jdbc(props.get("url").toString, tableName, props).show(10, false)
-  }
+  override def sourceSql(params: Map[String, String], sqlText: String): Connector =throw new NoSuchMethodException(s"method sourceSql is not supported for given sourceType file for connector type FiletoJDBC" )
 }

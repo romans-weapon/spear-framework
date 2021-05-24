@@ -22,4 +22,5 @@ object SpearCommons {
   val LOCAL="local"
   val Username="username"
   val Password="password"
+  val ShowNumRows=10
 }
