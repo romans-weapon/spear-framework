@@ -1,16 +1,9 @@
 ## Spear Framework -Preface
 The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
-[![Build Status](https://github.com/AnudeepKonaboina/spear-framework/workflows/spear-framework-build/badge.svg)](https://github.com/AnudeepKonaboina/spear-framework/actions)
-[![Code Quality Grade](https://www.code-inspector.com/project/22855/status/svg)](https://www.code-inspector.com/project/22940/status/svg)
-[![Code Quality Score](https://www.code-inspector.com/project/22855/score/svg)](https://www.code-inspector.com/project/22940/score/svg)
-[![GitHub tag](https://img.shields.io/github/v/release/AnudeepKonaboina/spear-framework)](https://github.com/AnudeepKonaboina/spear-framework/tags)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+![image](https://user-images.githubusercontent.com/59328701/118606240-cf12d600-b7d4-11eb-9d9f-c308b3ef286c.png)
 
-
-## Table of Contents
-- [Introduction](#introduction)
-- [Pre-Requisites](#pre-requisites)
+## Table of Contents for Connectors
 - [Getting started with Spear](#getting-started-with-spear)
 - [Connectors built using spear](#connectors-built-using-spear)
     * [Target JDBC](#target-jdbc)
@@ -35,58 +28,7 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
     * [Target FS (Cloud)](#target-fs-cloud)
         + [Oracle to S3 Connector](#oracle-to-s3-connector)
         + [Postgres to GCS Connector](#postgres-to-gcs-connector)
-
-## Introduction
-
-Spear Framework is basically used to write connectors (ETL jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination with minimal code.
-
-![image](https://user-images.githubusercontent.com/59328701/118606240-cf12d600-b7d4-11eb-9d9f-c308b3ef286c.png)
-
-## Pre-Requisites
-Following are the pre-requisites you need for playing around with spear:
-
-1. Need to have a linux machine with 16GB Ram and 4 CPU's for better performance
-2. Install docker and docker-compose using the below steps
-
-```commandline
-To install docker on centos:
-============================
-sudo yum remove docker \
-                  docker-client \
-                  docker-client-latest \
-                  docker-common \
-                  docker-latest \
-                  docker-latest-logrotate \
-                  docker-logrotate \
-                  docker-engine
-sudo yum install -y yum-utils
-sudo yum-config-manager \
-    --add-repo \
-    https://download.docker.com/linux/centos/docker-ce.repo
-
-sudo yum install docker-ce docker-ce-cli containerd.io
-sudo systemctl start docker
-
-To install docker ubuntu:
-=========================
-sudo apt-get remove docker docker-engine docker.io containerd runc
-
-sudo apt-get update
-sudo apt-get install \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release
-    
-sudo apt-get install docker.io
-sudo systemctl start docker
-
-To install docker-compose:
-=========================
-sudo curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-```
+        
 
 ## Getting Started with Spear
 
