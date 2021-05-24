@@ -1,10 +1,9 @@
 package com.github.edge.roman.spear
 
-import com.github.edge.roman.spear.commons.SpearCommons
 import com.github.edge.roman.spear.connectors.AbstractConnector
 import com.github.edge.roman.spear.connectors.commons.SpearCommons
-import com.github.edge.roman.spear.connectors.targetFS.{FiletoFS, JDBCtoFS, StreamtoFS}
-import com.github.edge.roman.spear.connectors.targetjdbc.{FiletoJDBC, JDBCtoJDBC, StreamtoJDBC}
+import com.github.edge.roman.spear.connectors.targetFS.{FiletoFS, JDBCtoFS}
+import com.github.edge.roman.spear.connectors.targetjdbc.{FiletoJDBC, JDBCtoJDBC}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 
@@ -41,10 +40,8 @@ object SpearConnector {
       (sourceType, destType) match {
         case (SpearCommons.File, SpearCommons.Relational) => new FiletoJDBC(sourceFormat, destFormat)
         case (SpearCommons.Relational, SpearCommons.Relational) => new JDBCtoJDBC(sourceFormat, destFormat)
-        case (SpearCommons.Stream, SpearCommons.Relational) => new StreamtoJDBC(sourceFormat, destFormat)
         case (SpearCommons.File, SpearCommons.FileSystem) => new FiletoFS(sourceFormat, destFormat)
         case (SpearCommons.Relational, SpearCommons.FileSystem) => new JDBCtoFS(sourceFormat, destFormat)
-        case (SpearCommons.Stream, SpearCommons.FileSystem) => new StreamtoFS(sourceFormat, destFormat)
         case (SpearCommons.FileSystem, SpearCommons.FileSystem) => new FiletoFS(sourceFormat, destFormat)
         case (_, _) => throw new Exception(SpearCommons.InvalidParams)
       }
