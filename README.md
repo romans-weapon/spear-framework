@@ -872,6 +872,6 @@ Anudeep Konaboina <krantianudeep@gmail.com>
 Kayan Deshi <kalyan.mgit@gmail.com>
 
 ## Explore more
-Want to explore various connectors from different sources to targets, then visit github page [here](https://anudeepkonaboina.github.io/spear-framework/)
+To explore various connectors written for data movement from different sources to differnrt targets, visit github page [here](https://anudeepkonaboina.github.io/spear-framework/)
 
 
