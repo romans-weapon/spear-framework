@@ -1,1 +1,3 @@
 theme: jekyll-theme-cayman
+title: Spear Framework
+Description: A developer friendly framework for rapid ETL-connectors/pipeline development with minimal code leveraged on top of Apache Spark
