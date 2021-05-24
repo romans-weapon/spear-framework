@@ -1,6 +1,7 @@
 package com.github.edge.roman.spear.connectors
 
 import com.github.edge.roman.spear.Connector
+import com.github.edge.roman.spear.connectors.commons.SpearCommons
 import org.apache.spark.sql.SaveMode
 
 import java.util.Properties
