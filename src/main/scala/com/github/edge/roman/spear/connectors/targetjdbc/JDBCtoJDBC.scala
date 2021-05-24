@@ -1,7 +1,7 @@
 package com.github.edge.roman.spear.connectors.targetjdbc
 
 import com.github.edge.roman.spear.connectors.AbstractTargetJDBCConnector
-import com.github.edge.roman.spear.connectors.commons.{ConnectorCommon, SpearCommons}
+import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
 
 class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends AbstractTargetJDBCConnector(sourceFormat,destFormat)  {
 

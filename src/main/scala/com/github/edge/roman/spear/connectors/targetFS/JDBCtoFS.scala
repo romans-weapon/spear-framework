@@ -1,7 +1,7 @@
 package com.github.edge.roman.spear.connectors.targetFS
 
 import com.github.edge.roman.spear.connectors.AbstractTargetFSConnector
-import com.github.edge.roman.spear.connectors.commons.{ConnectorCommon, SpearCommons}
+import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
 
 class JDBCtoFS(sourceFormat: String, destFormat: String) extends AbstractTargetFSConnector(sourceFormat, destFormat) {
 

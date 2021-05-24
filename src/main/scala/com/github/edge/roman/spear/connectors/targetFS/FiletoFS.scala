@@ -2,7 +2,7 @@ package com.github.edge.roman.spear.connectors.targetFS
 
 import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.connectors.AbstractTargetFSConnector
-import com.github.edge.roman.spear.connectors.commons.{ConnectorCommon, SpearCommons}
+import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
 
 
 class FiletoFS(sourceFormat: String, destFormat: String) extends AbstractTargetFSConnector(sourceFormat, destFormat) {

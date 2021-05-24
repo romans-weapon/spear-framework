@@ -1,4 +1,4 @@
-package com.github.edge.roman.spear.connectors.commons
+package com.github.edge.roman.spear.commons
 
 import com.databricks.spark.xml.XmlDataFrameReader
 import com.github.edge.roman.spear.SpearConnector

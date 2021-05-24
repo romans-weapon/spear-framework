@@ -1,6 +1,6 @@
 package com.github.edge.roman.spear.connectors
 
-import com.github.edge.roman.spear.connectors.commons.{ConnectorCommon, SpearCommons}
+import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
 import com.github.edge.roman.spear.{Connector, SpearConnector}
 import org.apache.log4j.Logger
 import org.apache.spark.sql.types.StructType

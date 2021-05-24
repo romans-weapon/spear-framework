@@ -1,4 +1,4 @@
-package com.github.edge.roman.spear.connectors.commons
+package com.github.edge.roman.spear.commons
 
 object SpearCommons {
   val InvalidParams = "un-supported source and destination type provided!!"
