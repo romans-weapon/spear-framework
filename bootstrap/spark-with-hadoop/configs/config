@@ -1,6 +1,0 @@
-Host hadoop.spark
-    StrictHostKeyChecking no
-
-Host localhost
-    StrictHostKeyChecking no
-
