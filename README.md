@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/AnudeepKonaboina/spear-framework/workflows/spear-framework-build/badge.svg)](https://github.com/AnudeepKonaboina/spear-framework/actions)
 [![Code Quality Grade](https://www.code-inspector.com/project/22855/status/svg)](https://www.code-inspector.com/project/22855/status/svg)
 [![Code Quality Score](https://www.code-inspector.com/project/22855/score/svg)](https://www.code-inspector.com/project/22855/score/svg)
-[![GitHub tag](https://img.shields.io/github/v/release/AnudeepKonaboina/spear-framework)](https://GitHub.com/AnudeepKonaboina/spear-framework/tags/)
+[![GitHub tag](https://img.shields.io/github/v/release/AnudeepKonaboina/spear-framework)](https://github.com/AnudeepKonaboina/spear-framework/tags)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://anudeepkonaboina.github.io/spear-framework/)
 
