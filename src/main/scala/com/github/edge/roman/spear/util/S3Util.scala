@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 
 import java.io.{File, InputStream}
 import java.util
+import scala.util.{Failure, Success, Try}
 
 class S3Util {
 
@@ -38,7 +39,7 @@ class S3Util {
     try {
       amazonS3Client.putObject(bucket_name, remote, file)
     } catch {
-      case exception: Exception =>exception.printStackTrace()
+      case exception: Exception => exception.printStackTrace()
     }
   }
 
@@ -53,16 +54,15 @@ class S3Util {
     }
   }
 
-  def getSize(remote: String): Long = {
-    var size: Long = 0L
-    try {
+  def getSize(remote: String): Option[Long] = {
+    Try {
       val listObjectsRequest: ListObjectsRequest = new ListObjectsRequest().withBucketName(bucket_name).withPrefix(remote).withDelimiter("/")
       val objects: ObjectListing = amazonS3Client.listObjects(listObjectsRequest)
       val summaries: util.List[S3ObjectSummary] = objects.getObjectSummaries
-      size = summaries.get(0).getSize
-    } catch {
-      case exception: Exception => exception.printStackTrace()
+      summaries.get(0).getSize
+    } match {
+      case Success(a) => Some(a)
+      case Failure(f) => None
     }
-    size
   }
 }

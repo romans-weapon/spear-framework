@@ -1,9 +1,11 @@
 package com.github.edge.roman.spear.util
 
+import com.google.cloud.storage.BlobId
 import com.microsoft.azure.storage.CloudStorageAccount
 import com.microsoft.azure.storage.blob.{CloudBlobClient, CloudBlobContainer}
 
 import java.io.{File, FileInputStream, InputStream}
+import scala.util.{Failure, Success, Try}
 
 class ADLSUtil {
 
@@ -61,14 +63,13 @@ class ADLSUtil {
     }
   }
 
-  def getSize(remote: String): Long = {
-    var size: Long = 0L
-    try {
+  def getSize(remote: String): Option[Long] = {
+    Try {
       val blob = container.getBlockBlobReference(remote)
-      size = blob.getProperties.getLength
-    } catch {
-      case exception: Exception => exception.printStackTrace()
+      blob.getProperties.getLength
+    } match {
+      case Success(a) => Some(a)
+      case Failure(f) => None
     }
-    size
   }
 }
