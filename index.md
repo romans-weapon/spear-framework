@@ -1,9 +1,19 @@
-## About Spear Framework 
+# Spear Framework - Introduction
 The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
 ![image](https://user-images.githubusercontent.com/59328701/118606240-cf12d600-b7d4-11eb-9d9f-c308b3ef286c.png)
 
-## Table of Contents for Connectors
+# Framework Quality
+
+![image](https://user-images.githubusercontent.com/59328701/119534452-8cd53000-bda4-11eb-97f5-e226701eb9e4.png)   
+
+![image](https://user-images.githubusercontent.com/59328701/119535484-ac208d00-bda5-11eb-8e27-5e9bcc5a0a66.png)
+
+
+
+
+
+# Table of Contents for Connectors developed using Spear
 - [Getting started with Spear](#getting-started-with-spear)
 - [Connectors built using spear](#connectors-built-using-spear)
     * [Target JDBC](#target-jdbc)
@@ -30,7 +40,7 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
         + [Postgres to GCS Connector](#postgres-to-gcs-connector)
         
 
-## Getting Started with Spear
+# Getting Started with Spear
 
 Below are the steps to setup spear on any machine having docker and docker-compose installed:
 
@@ -58,7 +68,7 @@ and write it to HDFS so that it gives you complete environment to play with spea
 
 5. Start writing your own single line connectors and explore .To understand how to write a connector [click here](#build-your-first-connector)
 
-## Connectors built using Spear
+# Connectors built using Spear
 Connector is basically the logic/code which allows you to create a pipeline from source to target using the spear framework using which you can ingest data from any source to any destination.
 
 ![image](https://user-images.githubusercontent.com/59328701/119258939-7afb5d80-bbe9-11eb-837f-02515cb7cf74.png)
