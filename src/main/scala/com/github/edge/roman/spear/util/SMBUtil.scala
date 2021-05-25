@@ -10,7 +10,7 @@ import com.hierynomus.smbj.share.DiskShare
 
 import java.io.InputStream
 import java.util
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class SMBUtil {
 
@@ -46,17 +46,16 @@ class SMBUtil {
     }
   }
 
-  def getSize(remote: String): Long = {
-    var size: Long = 0L;
-    try {
+  def getSize(remote: String): Option[Long] = {
+    Try {
       val file: com.hierynomus.smbj.share.File = diskShare
         .openFile(remote, util.EnumSet.of(AccessMask.GENERIC_READ), null, SMB2ShareAccess.ALL,
           SMB2CreateDisposition.FILE_OPEN,
           null)
-      size = file.getFileInformation().getStandardInformation.getEndOfFile
-    } catch {
-      case exception: Exception => exception.printStackTrace()
+       file.getFileInformation().getStandardInformation.getEndOfFile
+    } match {
+      case Success(a) => Some(a)
+      case Failure(f) => None
     }
-    size
   }
 }

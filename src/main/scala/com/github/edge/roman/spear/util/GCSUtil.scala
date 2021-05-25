@@ -6,6 +6,7 @@ import com.google.cloud.storage.{BlobId, BlobInfo, Storage, StorageOptions}
 
 import java.io.{File, FileInputStream, InputStream}
 import java.nio.channels.Channels
+import scala.util.{Failure, Success, Try}
 
 class GCSUtil {
 
@@ -56,14 +57,15 @@ class GCSUtil {
     }
   }
 
-  def getSize(remote: String): Long = {
-    var size: Long = 0L
-    try {
+  def getSize(remote: String): Option[Long] = {
+
+    Try {
       val blobId = BlobId.of(bucket_name, remote)
-      size = storage.get(blobId).getSize()
-    } catch {
-      case exception: Exception => exception.printStackTrace()
+      val size = storage.get(blobId).getSize
+      size
+    } match {
+      case Success(a) => Some(a)
+      case Failure(f) => None
     }
-    size
   }
 }
