@@ -8,7 +8,6 @@ import org.apache.hadoop.io.IOUtils
 import java.io.{File, FileInputStream, InputStream}
 
 class HDFSUtil {
-
   var fileSystem: FileSystem = _
   var bucket_name: String = _
 
@@ -52,8 +51,7 @@ class HDFSUtil {
       case exception: Exception => exception.printStackTrace()
     }
   }
-
-
+  
   def uploadFile(remote: String, size: Long, fileStream: InputStream):Unit = {
     try {
       val path = new Path(remote)
