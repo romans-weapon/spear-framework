@@ -3,14 +3,9 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
 
 ![image](https://user-images.githubusercontent.com/59328701/118606240-cf12d600-b7d4-11eb-9d9f-c308b3ef286c.png)
 
-# Framework Quality
-
-![image](https://user-images.githubusercontent.com/59328701/119534452-8cd53000-bda4-11eb-97f5-e226701eb9e4.png)   
+# Framework Quality 
 
 ![image](https://user-images.githubusercontent.com/59328701/119535484-ac208d00-bda5-11eb-8e27-5e9bcc5a0a66.png)
-
-
-
 
 
 # Table of Contents for Connectors developed using Spear
