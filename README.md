@@ -9,7 +9,6 @@
 
 The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
-
 ## Table of Contents
 - [Introduction](#introduction)
 - [Pre-Requisites](#pre-requisites)
@@ -35,7 +34,7 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
 
 ## Introduction
 
-Spear Framework is basically used to write connectors (ETL jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination with minimal code.
+Spear Framework provides the developers thae ability to write connectors (ETL jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination with very minimal code.
 
 ![image](https://user-images.githubusercontent.com/59328701/118606240-cf12d600-b7d4-11eb-9d9f-c308b3ef286c.png)
 
@@ -164,7 +163,7 @@ connector.stop()
 ```
 
 4. Enable verbose logging
-   To get the output df at each stage in your connector you can explicitly enable verbose logging as below on top of connector object.
+   To get the output df at each stage in your connector you can explicitly enable verbose logging as below on top of connector object.This is completely optional.
 
 ```commandline
 connector.setVeboseLogging(true) //default value is false.
@@ -713,5 +712,3 @@ Kayan Deshi <kalyan.mgit@gmail.com>
 
 ## More about Spear
 To explore various connectors written for data movement from different sources to differnrt targets, visit github page [here](https://anudeepkonaboina.github.io/spear-framework/)
-
-
