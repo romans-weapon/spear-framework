@@ -13,7 +13,7 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
 - [Introduction](#introduction)
 - [Pre-Requisites](#pre-requisites)
 - [Getting started with Spear](#getting-started-with-spear)
-- [Build your first connector](#build-your-first-connector)
+- [Develop your first connector using Spear](#develop-your-first-connector-using-spear)
 - [Example Connectors](#example-connectors)
     * [Target JDBC](#target-jdbc)
         - [File Source](#file-source)
@@ -112,7 +112,7 @@ and write it to HDFS so that it gives you complete environment to play with spea
 4. Start writing your own single line connectors and explore .To understand how to write a connector [click here](#how-to-write-a-connector)
 
 
-## Build your first connector
+## Develop your first connector using Spear
 Below are the steps to write any connector:
 
 1. Get the suitable connector object using Spearconnector by providing the source and destination details as shown below:
@@ -158,7 +158,7 @@ connector
 3. On completion stop the connector.
 
 ```commandline
-//stops the connector object
+//stops the connector object and the underlying spark session
 connector.stop()
 ```
 
