@@ -24,6 +24,7 @@ import com.github.edge.roman.spear.commons.SpearCommons
 import com.mongodb.spark.MongoSpark
 import com.mongodb.spark.config.WriteConfig
 import org.apache.spark.sql.SaveMode
+import scala.collection.JavaConverters._
 
 import java.util.Properties
 
@@ -32,8 +33,8 @@ abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: St
     destFormat match {
       case "mongo" =>
         val writeConfig = WriteConfig(
-          Map("uri" -> props.get("uri").toString.concat(s"/${props.get("database").toString}.${props.get("collection").toString}")))
-        MongoSpark.save(this.df.write.format("mongo").mode(saveMode), writeConfig)
+          Map("uri" -> props.get("uri").toString.concat(s"/${objectName}")))
+        MongoSpark.save(this.df.write.format("mongo").options(props.asScala).mode(saveMode), writeConfig)
     }
     logger.info(s"Write data to object ${objectName} completed with status:${SpearCommons.SuccessStatus} ")
     show()
