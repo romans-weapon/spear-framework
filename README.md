@@ -9,12 +9,11 @@
 
 The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
-
 ## Table of Contents
 - [Introduction](#introduction)
 - [Pre-Requisites](#pre-requisites)
 - [Getting started with Spear](#getting-started-with-spear)
-- [Build your first connector](#build-your-first-connector)
+- [Develop your first connector using Spear](#develop-your-first-connector-using-spear)
 - [Example Connectors](#example-connectors)
     * [Target JDBC](#target-jdbc)
         - [File Source](#file-source)
@@ -35,7 +34,7 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
 
 ## Introduction
 
-Spear Framework is basically used to write connectors (ETL jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination with minimal code.
+Spear Framework provides the developers thae ability to write connectors (ETL jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination with very minimal code.
 
 ![image](https://user-images.githubusercontent.com/59328701/118606240-cf12d600-b7d4-11eb-9d9f-c308b3ef286c.png)
 
@@ -113,7 +112,7 @@ and write it to HDFS so that it gives you complete environment to play with spea
 4. Start writing your own single line connectors and explore .To understand how to write a connector [click here](#how-to-write-a-connector)
 
 
-## Build your first connector
+## Develop your first connector using Spear
 Below are the steps to write any connector:
 
 1. Get the suitable connector object using Spearconnector by providing the source and destination details as shown below:
@@ -159,12 +158,12 @@ connector
 3. On completion stop the connector.
 
 ```commandline
-//stops the connector object
+//stops the connector object and the underlying spark session
 connector.stop()
 ```
 
 4. Enable verbose logging
-   To get the output df at each stage in your connector you can explicitly enable verbose logging as below on top of connector object.
+   To get the output df at each stage in your connector you can explicitly enable verbose logging as below on top of connector object.This is completely optional.
 
 ```commandline
 connector.setVeboseLogging(true) //default value is false.
@@ -713,5 +712,3 @@ Kayan Deshi <kalyan.mgit@gmail.com>
 
 ## More about Spear
 To explore various connectors written for data movement from different sources to differnrt targets, visit github page [here](https://anudeepkonaboina.github.io/spear-framework/)
-
-
