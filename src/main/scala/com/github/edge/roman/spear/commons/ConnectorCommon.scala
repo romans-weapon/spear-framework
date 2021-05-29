@@ -76,6 +76,10 @@ object ConnectorCommon {
   }
 
   def sourceNOSQL(sourceObject: String, sourceFormat: String, params: Map[String, String]): DataFrame = {
-    SparkSessionFunctions(SpearConnector.spark).loadFromMongoDB(ReadConfig(Map("uri" -> params.get("uri").toString.concat(s".$sourceObject"))))
+    sourceFormat match {
+      case "mongo"=>
+        SparkSessionFunctions(SpearConnector.spark).loadFromMongoDB(ReadConfig(Map("uri" -> params.get("uri").orNull.concat(s"/$sourceObject"))))
+    }
+
   }
 }
