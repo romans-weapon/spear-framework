@@ -46,7 +46,9 @@ abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: Strin
     }
   }
 
-  def targetFS(destinationPath: String, params: Map[String, String]): Unit= ???
+  def targetFS(destinationPath: String, params: Map[String, String]): Unit = ???
 
-  override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetJDBC not compatible for given targetType FS")
+  override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetJDBC() not compatible for given targetType FS")
+
+  override def targetNoSQL(tableName: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetNoSQL() not compatible for given targetType FS")
 }

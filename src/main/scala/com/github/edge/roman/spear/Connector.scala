@@ -1,7 +1,8 @@
 package com.github.edge.roman.spear
 
 import org.apache.spark.sql.types.StructType
-import org.apache.spark.sql.SaveMode
+import org.apache.spark.sql.{DataFrame, SaveMode}
+
 import java.util.Properties
 
 trait Connector {
@@ -22,14 +23,20 @@ trait Connector {
 
   def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit
 
+  def targetNoSQL(tableName: String, props: Properties, saveMode: SaveMode): Unit
+
   def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit
 
   def saveAs(alias: String): Connector
+
+  def toDF: DataFrame
 
   def cacheData(): Connector
 
   def repartition(n: Int): Connector
 
   def coalesce(n: Int): Connector
+
+  def stop(): Unit
 }
 

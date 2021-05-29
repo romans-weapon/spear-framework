@@ -3,6 +3,7 @@ package com.github.edge.roman.spear
 import com.github.edge.roman.spear.connectors.AbstractConnector
 import com.github.edge.roman.spear.commons.SpearCommons
 import com.github.edge.roman.spear.connectors.targetFS.{FStoFS, FiletoFS, JDBCtoFS}
+import com.github.edge.roman.spear.connectors.targetNoSQL.{FilettoNoSQL, JDBCtoNoSQL}
 import com.github.edge.roman.spear.connectors.targetjdbc.{FiletoJDBC, JDBCtoJDBC, NOSQLtoJDBC}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
@@ -44,6 +45,8 @@ object SpearConnector {
         case (SpearCommons.Relational, SpearCommons.FileSystem) => new JDBCtoFS(sourceFormat, destFormat)
         case (SpearCommons.FileSystem, SpearCommons.FileSystem) => new FStoFS(sourceFormat, destFormat)
         case (SpearCommons.NoSql, SpearCommons.Relational) => new NOSQLtoJDBC(sourceFormat, destFormat)
+        case (SpearCommons.File, SpearCommons.NoSql) => new FilettoNoSQL(sourceFormat, destFormat)
+        case (SpearCommons.Relational, SpearCommons.NoSql) => new JDBCtoNoSQL(sourceFormat, destFormat)
         case (_, _) => throw new Exception(SpearCommons.InvalidParams)
       }
     }

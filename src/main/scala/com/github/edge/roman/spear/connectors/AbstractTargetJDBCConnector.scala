@@ -26,7 +26,7 @@ import org.apache.spark.sql.SaveMode
 import java.util.Properties
 
 
-abstract class  AbstractTargetJDBCConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String, destFormat: String) with Connector {
+abstract class AbstractTargetJDBCConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String, destFormat: String) with Connector {
 
   override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = {
     destFormat match {
@@ -51,5 +51,7 @@ abstract class  AbstractTargetJDBCConnector(sourceFormat: String, destFormat: St
 
   override def targetFS(destinationFilePath: String, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType 'relational'")
 
-  override def targetFS(destinationFilePath: String,params: Map[String, String]): Unit = throw new NoSuchMethodException("method targetFS() not compatible for given targetType 'relational'")
+  override def targetFS(destinationFilePath: String, params: Map[String, String]): Unit = throw new NoSuchMethodException("method targetFS() not compatible for given targetType 'relational'")
+
+  override def targetNoSQL(tableName: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetNoSQL() not compatible for given targetType FS")
 }
