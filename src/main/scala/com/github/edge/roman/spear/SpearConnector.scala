@@ -3,7 +3,7 @@ package com.github.edge.roman.spear
 import com.github.edge.roman.spear.connectors.AbstractConnector
 import com.github.edge.roman.spear.commons.SpearCommons
 import com.github.edge.roman.spear.connectors.targetFS.{FStoFS, FiletoFS, JDBCtoFS}
-import com.github.edge.roman.spear.connectors.targetjdbc.{FiletoJDBC, JDBCtoJDBC, NOSQLtoJDBC}
+import com.github.edge.roman.spear.connectors.targetjdbc.{FiletoJDBC, JDBCtoJDBC}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 
