@@ -4,6 +4,9 @@ import com.databricks.spark.xml.XmlDataFrameReader
 import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.Logger
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.functions.from_json
+import org.apache.spark.sql.types.StructType
+import com.github.edge.roman.spear.SpearConnector.spark.implicits._
 
 object ConnectorCommon {
   val logger: Logger = Logger.getLogger(this.getClass.getName)
@@ -45,6 +48,28 @@ object ConnectorCommon {
         }
       case _ =>
         SpearConnector.spark.read.format(sourceFormat).option("dbtable", s"($sqlText)temp").options(params).load()
+    }
+  }
+
+  def sourceStream(sourceTopic: String, sourceFormat: String, params: Map[String, String], schema: StructType): DataFrame = {
+    sourceFormat match {
+      case "kafka" =>
+        SpearConnector.spark
+          .readStream
+          .format(sourceFormat)
+          .option("subscribe", sourceTopic)
+          .options(params)
+          .load()
+          .selectExpr("CAST(value AS STRING)").as[String]
+          .select(from_json($"value", schema).as("data"))
+          .select("data.*")
+      case _ =>
+        SpearConnector.spark
+          .readStream
+          .format(sourceFormat)
+          .schema(schema)
+          .options(params)
+          .load(sourceTopic + "/*." + sourceFormat)
     }
   }
 }
