@@ -30,10 +30,13 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
             + [Salesforce to Hive Connector](#salesforce-to-hive-connector)
         - [Streaming Source](#streaming-source)
             + [kafka to Hive Connector](#kafka-to-hive-connector)
+        - [Cloud Source](#cloud-source)
+            + [S3 to Hive Connector](#s3-to-hive-connector)  
     * [Target FS (Cloud)](#target-fs-cloud)
-        + [Oracle to S3 Connector](#oracle-to-s3-connector)
-        + [Postgres to GCS Connector](#postgres-to-gcs-connector)
-        + [Salesforce to S3 Connector](#salesforce-to-s3-connector)
+        - [JDBC Source](#jdbc-source)
+            + [Oracle to S3 Connector](#oracle-to-s3-connector)
+            + [Postgres to GCS Connector](#postgres-to-gcs-connector)
+            + [Salesforce to S3 Connector](#salesforce-to-s3-connector)
         
 
 # Getting Started with Spear
@@ -939,7 +942,7 @@ SELECT
 ```
 
 #### Salesforce to Hive Connector
-Spark cannot read a salesforce object directly if specified,You must always use a soql or a saql query to read from the Salesforce object.
+Spark cannot read a salesforce object directly if specified,You must always use a soql or a saql query to read from the Salesforce object.So we need to use sourceSql API.
 
 ```scala
 
@@ -982,6 +985,99 @@ Spark cannot read a salesforce object directly if specified,You must always use 
     
     salseforceToHiveConnector.stop()
 ```
+### Output
+
+```commandline
+21/05/29 08:08:15 INFO targetFS.JDBCtoFS: Connector from Source sql: select
+    Id,
+    name,
+    OwnerId,
+    age__c,
+    gender__c,
+    guardianname__c,
+    ingest_ts_utc__c,
+    name_siml_score__c,
+    year_of_birth__c,
+    LastModifiedById,
+    LastModifiedDate
+    from spark_sale_test__c with Format: soql started running!!
+21/05/29 08:08:37 INFO targetFS.JDBCtoFS: Executing source sql query: select
+    Id,
+    name,
+    OwnerId,
+    age__c,
+    gender__c,
+    guardianname__c,
+    ingest_ts_utc__c,
+    name_siml_score__c,
+    year_of_birth__c,
+    LastModifiedById,
+    LastModifiedDate
+    from spark_sale_test__c with format: soql status:success
++----------------------------+------------------+------+---------+------------------+---------------+----------------+------------------+------------------+---------------------+------------+
+|LastModifiedDate            |OwnerId           |age__c|gender__c|name_siml_score__c|guardianname__c|year_of_birth__c|Id                |LastModifiedById  |ingest_ts_utc__c     |Name        |
++----------------------------+------------------+------+---------+------------------+---------------+----------------+------------------+------------------+---------------------+------------+
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |F        |0.583333          |prahlad ram    |1962.0          |a045g000001RNLnAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|magi devi   |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |M        |1.0               |kisan lal      |1959.0          |a045g000001RNLoAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|bhanwar lal |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |F        |1.0               |bhagwan singh  |1967.0          |a045g000001RNLpAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|chain kanvar|
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |M        |null              |pepa ram       |1998.0          |a045g000001RNLqAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|baga ram    |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |M        |0.333333          |sataram        |1974.0          |a045g000001RNLrAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|prabhu ram  |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |M        |0.357143          |jiyaram        |1981.0          |a045g000001RNLsAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|karna ram   |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |F        |1.0               |hameera ram    |1992.0          |a045g000001RNLtAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|vimla       |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |F        |0.6               |shyam singh    |1987.0          |a045g000001RNLuAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|brij kanvar |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |F        |1.0               |viramaram      |1936.0          |a045g000001RNLvAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|javarodevi  |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |M        |0.583333          |bagataram      |1981.0          |a045g000001RNLwAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|arjun ram   |
++----------------------------+------------------+------+---------+------------------+---------------+----------------+------------------+------------------+---------------------+------------+
+only showing top 10 rows
+
+21/05/29 08:08:37 INFO targetFS.JDBCtoFS: Saving data as temporary table:__temp__ success
+21/05/29 08:08:37 INFO targetFS.JDBCtoFS: Executing tranformation sql: select
+    Id,
+    name,
+    OwnerId,
+    age__c,
+    gender__c,
+    guardianname__c,
+    ingest_ts_utc__c,
+    cast(name_siml_score__c as Float) name_siml_score__c,
+    year_of_birth__c,
+    LastModifiedById,
+    cast(unix_timestamp(LastModifiedDate,"yyyy-MM-dd") AS timestamp) as LastModifiedDate
+    from __temp__ status :success
++------------------+------------+------------------+------+---------+---------------+---------------------+------------------+----------------+------------------+-------------------+
+|Id                |name        |OwnerId           |age__c|gender__c|guardianname__c|ingest_ts_utc__c     |name_siml_score__c|year_of_birth__c|LastModifiedById  |LastModifiedDate   |
++------------------+------------+------------------+------+---------+---------------+---------------------+------------------+----------------+------------------+-------------------+
+|a045g000001RNLnAAO|magi devi   |0055g0000043QwfAAE|null  |F        |prahlad ram    |2020-05-20 16:01:25.0|0.583333          |1962.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLoAAO|bhanwar lal |0055g0000043QwfAAE|null  |M        |kisan lal      |2020-05-20 16:01:25.0|1.0               |1959.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLpAAO|chain kanvar|0055g0000043QwfAAE|null  |F        |bhagwan singh  |2020-05-20 16:01:25.0|1.0               |1967.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLqAAO|baga ram    |0055g0000043QwfAAE|null  |M        |pepa ram       |2020-05-20 16:01:25.0|null              |1998.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLrAAO|prabhu ram  |0055g0000043QwfAAE|null  |M        |sataram        |2020-05-20 16:01:25.0|0.333333          |1974.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLsAAO|karna ram   |0055g0000043QwfAAE|null  |M        |jiyaram        |2020-05-20 16:01:25.0|0.357143          |1981.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLtAAO|vimla       |0055g0000043QwfAAE|null  |F        |hameera ram    |2020-05-20 16:01:25.0|1.0               |1992.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLuAAO|brij kanvar |0055g0000043QwfAAE|null  |F        |shyam singh    |2020-05-20 16:01:25.0|0.6               |1987.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLvAAO|javarodevi  |0055g0000043QwfAAE|null  |F        |viramaram      |2020-05-20 16:01:25.0|1.0               |1936.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLwAAO|arjun ram   |0055g0000043QwfAAE|null  |M        |bagataram      |2020-05-20 16:01:25.0|0.583333          |1981.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
++------------------+------------+------------------+------+---------+---------------+---------------------+------------------+----------------+------------------+-------------------+
+only showing top 10 rows
+
+21/05/29 08:08:39 INFO targetFS.JDBCtoFS: Write data to target path: /tmp/salesforce with format: soql and saved as table salesforcehive completed with status:success
++------------------+------------+------------------+------+---------+---------------+---------------------+------------------+----------------+------------------+-------------------+
+|Id                |name        |OwnerId           |age__c|gender__c|guardianname__c|ingest_ts_utc__c     |name_siml_score__c|year_of_birth__c|LastModifiedById  |LastModifiedDate   |
++------------------+------------+------------------+------+---------+---------------+---------------------+------------------+----------------+------------------+-------------------+
+|a045g000001RNLnAAO|magi devi   |0055g0000043QwfAAE|null  |F        |prahlad ram    |2020-05-20 16:01:25.0|0.583333          |1962.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLoAAO|bhanwar lal |0055g0000043QwfAAE|null  |M        |kisan lal      |2020-05-20 16:01:25.0|1.0               |1959.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLpAAO|chain kanvar|0055g0000043QwfAAE|null  |F        |bhagwan singh  |2020-05-20 16:01:25.0|1.0               |1967.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLqAAO|baga ram    |0055g0000043QwfAAE|null  |M        |pepa ram       |2020-05-20 16:01:25.0|null              |1998.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLrAAO|prabhu ram  |0055g0000043QwfAAE|null  |M        |sataram        |2020-05-20 16:01:25.0|0.333333          |1974.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLsAAO|karna ram   |0055g0000043QwfAAE|null  |M        |jiyaram        |2020-05-20 16:01:25.0|0.357143          |1981.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLtAAO|vimla       |0055g0000043QwfAAE|null  |F        |hameera ram    |2020-05-20 16:01:25.0|1.0               |1992.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLuAAO|brij kanvar |0055g0000043QwfAAE|null  |F        |shyam singh    |2020-05-20 16:01:25.0|0.6               |1987.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLvAAO|javarodevi  |0055g0000043QwfAAE|null  |F        |viramaram      |2020-05-20 16:01:25.0|1.0               |1936.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
+|a045g000001RNLwAAO|arjun ram   |0055g0000043QwfAAE|null  |M        |bagataram      |2020-05-20 16:01:25.0|0.583333          |1981.0          |0055g0000043QwfAAE|2021-03-10 00:00:00|
++------------------+------------+------------------+------+---------+---------------+---------------------+------------------+----------------+------------------+-------------------+
+only showing top 10 rows
+```
+
 
 ### Streaming source
 
@@ -1015,7 +1111,33 @@ streamTOHdfs
 
 streamTOHdfs.stop()
 ```
+### Cloud source
 
+#### S3 to Hive COnnector
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.spark.sql.{Column, DataFrame, SaveMode}
+
+spark.sparkContext.hadoopConfiguration.set("fs.s3a.access.key", "*****")
+spark.sparkContext.hadoopConfiguration.set("fs.s3a.secret.key", "******")
+
+ val s3ToHiveConnector = SpearConnector
+    .createConnector("salseforce-hive")
+    .source(sourceType = "FS", sourceFormat = "parquet")
+    .target(targetType = "FS", targetFormat = "parquet")
+    .getConnector
+ s3ToHiveConnector.source("s3a://testbucketspear/salesforcedata")
+.targetFS(destinationFilePath = "",saveAsTable="ingest_test.salesforce",SaveMode.Overwrite)
+```
+
+### Output
+
+```commandline
+21/05/29 08:02:18 INFO targetFS.FiletoFS: Connector to Target: File System with Format: parquet from Source: s3a://testbucketspear/salesforcedata with Format: s3a://testbucketspear/salesforcedata started running !!
+21/05/29 08:02:19 INFO targetFS.FiletoFS: Reading source file: s3a://testbucketspear/salesforcedata with format: parquet status:success
+21/05/29 08:02:21 INFO targetFS.FiletoFS: Write data to target path:  with format: parquet and saved as table ingest_test.salesforce completed with status:success
+```
 
 
 ### Target FS (Cloud)
