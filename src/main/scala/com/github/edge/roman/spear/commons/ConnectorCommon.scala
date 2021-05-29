@@ -7,6 +7,8 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.from_json
 import org.apache.spark.sql.types.StructType
 import com.github.edge.roman.spear.SpearConnector.spark.implicits._
+import com.mongodb.spark.config.ReadConfig
+import com.mongodb.spark.sql.SparkSessionFunctions
 
 object ConnectorCommon {
   val logger: Logger = Logger.getLogger(this.getClass.getName)
@@ -71,5 +73,9 @@ object ConnectorCommon {
           .options(params)
           .load(sourceTopic + "/*." + sourceFormat)
     }
+  }
+
+  def sourceNOSQL(sourceObject: String, sourceFormat: String, params: Map[String, String]): DataFrame = {
+    SparkSessionFunctions(SpearConnector.spark).loadFromMongoDB(ReadConfig(Map("uri" -> params.get("uri").toString.concat(s".$sourceObject"))))
   }
 }

@@ -23,6 +23,7 @@ libraryDependencies ++= Seq(
   "com.google.cloud" % "google-cloud-nio" % "0.30.0-alpha",
   "com.microsoft.azure" % "azure-storage" % "4.0.0",
   "org.antlr" % "stringtemplate" % "4.0",
+  "org.mongodb.spark" %% "mongo-spark-connector" % "2.4.2",
 
   "org.postgresql" % "postgresql" % "42.2.5" % Test,
   "org.scalatest" %% "scalatest" % "3.0.8" % Test
