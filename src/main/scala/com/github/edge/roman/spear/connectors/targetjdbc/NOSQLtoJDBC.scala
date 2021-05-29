@@ -20,16 +20,14 @@
 package com.github.edge.roman.spear.connectors.targetjdbc
 
 import com.github.edge.roman.spear.Connector
-import com.github.edge.roman.spear.commons.SpearCommons
+import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
 import com.github.edge.roman.spear.connectors.AbstractTargetJDBCConnector
-import com.mongodb.spark.config.ReadConfig
-import com.mongodb.spark.sql.SparkSessionFunctions
+
 
 class NOSQLtoJDBC(sourceFormat: String, destFormat: String) extends AbstractTargetJDBCConnector(sourceFormat, destFormat) {
   override def source(sourceObject: String, params: Map[String, String]): Connector = {
     logger.info(s"Connector to Target: JDBC with Format: ${destFormat} from Source Object: ${sourceObject} with Format: ${sourceFormat} started running!!")
-    val _df = SparkSessionFunctions(this.df.sparkSession).loadFromMongoDB(ReadConfig(Map("uri" -> params.get("uri").toString.concat(s".$sourceObject"))))
-    this.df = _df
+    this.df = ConnectorCommon.sourceNOSQL(sourceObject = sourceObject, sourceFormat, params)
     logger.info(s"Reading source object: ${sourceObject} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
     if (this.verboseLogging) this.df.show(this.numRows, false)
     this
