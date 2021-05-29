@@ -20,6 +20,7 @@
 package com.github.edge.roman.spear.connectors
 
 import com.github.edge.roman.spear.Connector
+import com.github.edge.roman.spear.commons.SpearCommons
 import com.mongodb.spark.MongoSpark
 import com.mongodb.spark.config.WriteConfig
 import org.apache.spark.sql.SaveMode
@@ -27,13 +28,15 @@ import org.apache.spark.sql.SaveMode
 import java.util.Properties
 
 abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String, destFormat: String) with Connector {
-  override def targetNoSQL(tableName: String, props: Properties, saveMode: SaveMode): Unit = {
+  override def targetNoSQL(objectName: String, props: Properties, saveMode: SaveMode): Unit = {
     destFormat match {
       case "mongo" =>
         val writeConfig = WriteConfig(
           Map("uri" -> props.get("uri").toString.concat(s"/${props.get("database").toString}.${props.get("collection").toString}")))
         MongoSpark.save(this.df.write.format("mongo").mode(saveMode), writeConfig)
     }
+    logger.info(s"Write data to object ${objectName} completed with status:${SpearCommons.SuccessStatus} ")
+    show()
   }
 
   override def targetFS(destinationFilePath: String, saveAsTable: String, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType nosql")
