@@ -696,6 +696,7 @@ streamTOPostgres.stop()
 
 ![image](https://user-images.githubusercontent.com/59328701/119257299-433ce780-bbe2-11eb-8de0-9d0dc7bb1cdc.png)
 
+### JDBC source
 
 #### Postgres to Hive Connector
 
@@ -1141,6 +1142,8 @@ spark.sparkContext.hadoopConfiguration.set("fs.s3a.secret.key", "******")
 
 
 ### Target FS (Cloud)
+
+### JDBC source
 
 #### Oracle To S3 Connector
 
