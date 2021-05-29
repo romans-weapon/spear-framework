@@ -8,7 +8,7 @@ import org.apache.spark.sql.SaveMode
 import java.io.InputStream
 
 
-class FStoFS(sourceFormat: String, destFormat: String) extends AbstractTargetFSConnector(sourceFormat,destFormat) {
+class FStoFS(sourceFormat: String, destFormat: String) extends AbstractTargetFSConnector(sourceFormat, destFormat) {
   private val ftpUtil: FTPUtil = new FTPUtil
   private val s3Util: S3Util = new S3Util
   private val smbUtil: SMBUtil = new SMBUtil
@@ -26,17 +26,17 @@ class FStoFS(sourceFormat: String, destFormat: String) extends AbstractTargetFSC
         ftpUtil.configureClient(params)
         logger.info("FTP Client configured successfully")
         inputStream = ftpUtil.downloadFile(sourceObject).orNull
-        size = ftpUtil.getSize(sourceObject).getOrElse()
+        size = ftpUtil.getSize(sourceObject).getOrElse(0L)
       case SpearCommons.AWS =>
         s3Util.configureClient(params)
         logger.info("Amazon S3 Client configured successfully")
         inputStream = s3Util.downloadFile(sourceObject)
-        size = s3Util.getSize(sourceObject).getOrElse()
+        size = s3Util.getSize(sourceObject).getOrElse(0L)
       case SpearCommons.SMB =>
         smbUtil.configureClient(params)
         logger.info("SMB Client configured successfully")
         inputStream = smbUtil.downloadFile(sourceObject)
-        size = smbUtil.getSize(sourceObject).getOrElse()
+        size = smbUtil.getSize(sourceObject).getOrElse(0L)
       case SpearCommons.GCS =>
         gcsUtil.configureClient(params)
         logger.info("Google Cloud Storage configured successfully")
