@@ -7,7 +7,6 @@ import org.apache.spark.sql.SaveMode
 
 import java.io.InputStream
 
-
 class FStoFS(sourceFormat: String, destFormat: String) extends AbstractTargetFSConnector(sourceFormat, destFormat) {
   private val ftpUtil: FTPUtil = new FTPUtil
   private val s3Util: S3Util = new S3Util

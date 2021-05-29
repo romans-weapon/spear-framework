@@ -1,6 +1,5 @@
 package com.github.edge.roman.spear.util
 
-import com.google.cloud.storage.BlobId
 import com.microsoft.azure.storage.CloudStorageAccount
 import com.microsoft.azure.storage.blob.{CloudBlobClient, CloudBlobContainer}
 
