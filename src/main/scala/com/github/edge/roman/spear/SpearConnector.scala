@@ -43,7 +43,6 @@ object SpearConnector {
         case (SpearCommons.File, SpearCommons.FileSystem) => new FiletoFS(sourceFormat, destFormat)
         case (SpearCommons.Relational, SpearCommons.FileSystem) => new JDBCtoFS(sourceFormat, destFormat)
         case (SpearCommons.FileSystem, SpearCommons.FileSystem) => new FStoFS(sourceFormat, destFormat)
-        case (SpearCommons.NoSql, SpearCommons.Relational) => new NOSQLtoJDBC(sourceFormat, destFormat)
         case (_, _) => throw new Exception(SpearCommons.InvalidParams)
       }
     }
