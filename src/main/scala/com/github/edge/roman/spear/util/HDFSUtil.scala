@@ -6,6 +6,7 @@ import org.apache.hadoop.hdfs.DistributedFileSystem
 import org.apache.hadoop.io.IOUtils
 
 import java.io.{File, FileInputStream, InputStream}
+import scala.util.{Failure, Success, Try}
 
 class HDFSUtil {
   var fileSystem: FileSystem = _
@@ -51,7 +52,7 @@ class HDFSUtil {
       case exception: Exception => exception.printStackTrace()
     }
   }
-  
+
   def uploadFile(remote: String, size: Long, fileStream: InputStream):Unit = {
     try {
       val path = new Path(remote)
@@ -63,13 +64,12 @@ class HDFSUtil {
     }
   }
 
-  def getSize(remote: String): Long = {
-    var size: Long = 0L
-    try {
-      size = fileSystem.getFileStatus(new Path(remote)).getLen
-    } catch {
-      case exception: Exception =>exception.printStackTrace()
+  def getSize(remote: String): Option[Long] = {
+    Try {
+      fileSystem.getFileStatus(new Path(remote)).getLen
+    } match {
+      case Success(a) => Some(a)
+      case Failure(f) => None
     }
-    size
   }
 }
