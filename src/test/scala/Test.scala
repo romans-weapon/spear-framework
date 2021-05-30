@@ -7,7 +7,6 @@ import org.scalatest._
 import java.util.Properties
 
 class Test extends FunSuite with BeforeAndAfter {
-
   val properties = new Properties()
   properties.put("driver", "org.postgresql.Driver")
   properties.put("user", "postgres_user")
