@@ -1,7 +1,7 @@
 # Spear Framework - Introduction
 The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
-![image](https://user-images.githubusercontent.com/59328701/120102721-09cc2500-c16a-11eb-8075-25cc0e28e0aa.png)
+![image](https://user-images.githubusercontent.com/59328701/120106134-84507100-c179-11eb-9624-7a1504c8a083.png)
 
 
 # Framework Design and Code Quality 
@@ -35,6 +35,8 @@ Below is the code and design quality score for Spear framework given by Code Ins
             + [Salesforce to Hive Connector](#salesforce-to-hive-connector)
         - [Streaming Source](#streaming-source)
             + [kafka to Hive Connector](#kafka-to-hive-connector)
+        - [NOSQL Source](#nosql-source)
+            + [MongoDB to Hive Connector](#mongodb-to-hive-connector)
         - [Cloud Source](#cloud-source)
             + [S3 to Hive Connector](#s3-to-hive-connector)  
     * [Target FS (Cloud)](#target-fs-cloud)
@@ -47,6 +49,8 @@ Below is the code and design quality score for Spear framework given by Code Ins
              + [CSV to MongoDB Connector](#csv-to-mongodb-connector)
          - [JDBC Source](#jdbc-source)
              + [Salesforce to Cassandra Connector](#salesforce-to-cassandra-connector)
+         - [NOSQL Source](#nosql-source)
+             + [Cassandra to Mongo Connector](#cassandra-to-mongo-connector)
 
 
 
@@ -668,8 +672,11 @@ postgresSalesForce.stop()
 
 ### NOSQL Source
 
+![image](https://user-images.githubusercontent.com/59328701/120105831-40a93780-c178-11eb-842e-08b8e6a57e40.png)
+
+
 #### MongoDB to Postgres Connector
-The sourceObject in case of mongo is nothing but the collection name person in db spear.
+The sourceObject in case of mongo is nothing but the collection name person in db spear.The format for source object is <db_name>.<collection_name>
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -815,7 +822,7 @@ Points to be remembered:
 1. While writing to hdfs using spear ,the destination file path is not mandatory.If specified an external table will be created on top of that path else a managed table will be created in hive.
 
 
-![image](https://user-images.githubusercontent.com/59328701/120101434-b2c35180-c163-11eb-877d-80218cf3e47a.png)
+![image](https://user-images.githubusercontent.com/59328701/120105944-a0074780-c178-11eb-85bf-877876795e86.png)
 
 ### JDBC source
 
@@ -1182,6 +1189,37 @@ only showing top 10 rows
 only showing top 10 rows
 ```
 
+### NOSQL Source
+
+![image](https://user-images.githubusercontent.com/59328701/120105977-d9d84e00-c178-11eb-91aa-6dc7c83aa777.png)
+
+#### MongoDB to Hive Connector
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import java.util.Properties
+import org.apache.spark.sql.{Column, DataFrame, SaveMode}
+
+Logger.getLogger("com.github").setLevel(Level.INFO)  
+val mongoToHiveConnector = SpearConnector
+    .createConnector("Mongo-Hive")
+    .source(sourceType = "nosql", sourceFormat = "mongo")
+    .target(targetType = "FS", targetFormat = "parquet")
+    .getConnector
+mongoToHiveConnector.setVeboseLogging(true)
+mongoToHiveConnector
+    .source(sourceObject = "spear.person",Map("uri" -> "mongodb://mongo:27017"))
+    .saveAs("_mongo_staging_")
+    .transformSql(
+      """
+        |select cast(id as INT) as person_id,
+        |cast (name as STRING) as person_name,
+        |cast (sal as FLOAT) as salary
+        |from _mongo_staging_ """.stripMargin)
+    .targetFS(destinationFilePath = "/tmp/mongo.db",saveAsTable="mongohive" ,SaveMode.Overwrite) 
+mongoToHiveConnector.stop()    
+```
 
 ### Streaming source
 
@@ -1563,7 +1601,7 @@ Spear framework supports writing data to NOSQL Databases like mongodb/cassandra 
 
 ### File source
 
-![image](https://user-images.githubusercontent.com/59328701/120101839-c2439a00-c165-11eb-96ce-a26cb8518372.png)
+![image](https://user-images.githubusercontent.com/59328701/120106455-a1397400-c17a-11eb-9ee2-a3b646e76968.png)
 
 #### CSV to MongoDB Connector
 
@@ -1661,10 +1699,33 @@ only showing top 10 rows
 
 ### JDBC source
 
-![image](https://user-images.githubusercontent.com/59328701/120101743-2d40a100-c165-11eb-9ad9-76c7334b6996.png)
+![image](https://user-images.githubusercontent.com/59328701/120106053-23289d80-c179-11eb-8a25-8f1691f440de.png)
 
 #### Salesforce to Cassandra Connector
+Points to remember:
+1. To write data into Cassandra a keyspace and a table must exist as spark will not create them automatically.
+2. The target object must be of the form <keyspace_name>.<table_name>
+3. The steps for creating a keyspace and table in Cassandra are also shown in the connector below.
 
+Create keyspace and table in Cassandra:
+```command line 
+root@2cab4a6ebee2:/# cqlsh
+Connected to Test Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.11.10 | CQL spec 3.4.4 | Native protocol v4]
+Use HELP for help. 
+cqlsh>  CREATE KEYSPACE ingest
+  WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};
+
+cqlsh:ingest>    CREATE TABLE salesforcedata_new(
+          ...                 Id text PRIMARY KEY,
+          ...                 name text,
+          ...                 OwnerId text,
+          ...                 age__c text,
+          ...                 gender__c text
+          ...                  );
+```
+
+Write connector:
 ```scala
 import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
@@ -1800,4 +1861,116 @@ only showing top 10 rows
 +------------------+------------+------------------+------+---------+
 only showing top 10 rows
 
+
+Cassandra o/p:
+==============
+cqlsh:ingest> select * from salesforcedata_new;
+
+ id                 | age__c | gender__c | name             | ownerid
+--------------------+--------+-----------+------------------+--------------------
+ a045g000001ROpXAAW |   null |         M |        sukha ram | 0055g0000043QwfAAE
+ a045g000001RPNbAAO |   null |         M |      punam singh | 0055g0000043QwfAAE
+ a045g000001RPCkAAO |   null |         M |      radhakishan | 0055g0000043QwfAAE
+ a045g000001RNzbAAG |   null |         F |            dhani | 0055g0000043QwfAAE
 ```
+
+### NoSQL Source
+
+![image](https://user-images.githubusercontent.com/59328701/120106101-5ff49480-c179-11eb-8c99-e3a053c3172d.png)
+
+#### Cassandra to Mongo Connector
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import java.util.Properties
+import org.apache.spark.sql.{Column, DataFrame, SaveMode}
+
+val mongoProps=new Properties()
+  mongoProps.put("uri","mongodb://mongo:27017")
+
+Logger.getLogger("com.github").setLevel(Level.INFO)  
+  
+val cassandraTOMongoConnector = SpearConnector
+    .createConnector("cassandra-mongo")
+    .source(sourceType = "nosql", sourceFormat = "cassandra")
+    .target(targetType = "nosql", targetFormat = "mongo")
+    .getConnector
+cassandraTOMongoConnector.setVeboseLogging(true)
+
+cassandraTOMongoConnector
+   .source(sourceObject="ingest.salesforcedata_new",Map("spark.cassandra.connection.host" -> "cassandra"))
+   .saveAs("__cassandra_temp__") 
+   .transformSql("""select 
+      |    id,
+      |    cast (name as STRING) as name,
+      |    cast (ownerid as STRING) as ownerid,
+      |    age__c as age,
+      |    cast (gender__c as STRING) as gender 
+      |    from __cassandra_temp__""".stripMargin)
+   .targetNoSQL("ingest.cassandra_data_mongo",mongoProps,SaveMode.Overwrite)
+```
+
+##### Output
+
+```commandline
+
+21/05/30 12:41:20 INFO targetNoSQL.NoSQLtoNoSQL: Connector to Target: NoSQL with Format: mongo from Source Object: ingest.salesforcedata_new with Format: cassandra started running!!
+21/05/30 12:41:20 INFO targetNoSQL.NoSQLtoNoSQL: Reading source object: ingest.salesforcedata_new with format: cassandra status:success
++------------------+------+---------+-------------+------------------+
+|id                |age__c|gender__c|name         |ownerid           |
++------------------+------+---------+-------------+------------------+
+|a045g000001RPSEAA4|null  |F        |sushil kanvar|0055g0000043QwfAAE|
+|a045g000001RNfpAAG|null  |M        |kirat singh  |0055g0000043QwfAAE|
+|a045g000001RNfoAAG|null  |M        |gaurakha ram |0055g0000043QwfAAE|
+|a045g000001RNtWAAW|null  |M        |dhanna ram   |0055g0000043QwfAAE|
+|a045g000001RNiTAAW|null  |F        |udekanvar    |0055g0000043QwfAAE|
+|a045g000001RPD2AAO|null  |M        |dinesh kumar |0055g0000043QwfAAE|
+|a045g000001ROb3AAG|null  |M        |bhanwar lal  |0055g0000043QwfAAE|
+|a045g000001ROi7AAG|null  |F        |santu kanvar |0055g0000043QwfAAE|
+|a045g000002GlshAAC|null  |null     |Superman181  |0055g0000043QwfAAE|
+|a045g000001RPWXAA4|null  |M        |vishal singh |0055g0000043QwfAAE|
++------------------+------+---------+-------------+------------------+
+only showing top 10 rows
+
+21/05/30 12:41:20 INFO targetNoSQL.NoSQLtoNoSQL: Saving data as temporary table:__cassandra_temp__ success
+21/05/30 12:41:20 INFO targetNoSQL.NoSQLtoNoSQL: Executing tranformation sql: select
+    id,
+    cast (name as STRING) as name,
+    cast (ownerid as STRING) as ownerid,
+    age__c as age,
+    cast (gender__c as STRING) as gender
+    from __cassandra_temp__ status :success
++------------------+-------------+------------------+----+------+
+|id                |name         |ownerid           |age |gender|
++------------------+-------------+------------------+----+------+
+|a045g000001RPSEAA4|sushil kanvar|0055g0000043QwfAAE|null|F     |
+|a045g000001RNfpAAG|kirat singh  |0055g0000043QwfAAE|null|M     |
+|a045g000001RNfoAAG|gaurakha ram |0055g0000043QwfAAE|null|M     |
+|a045g000001RNtWAAW|dhanna ram   |0055g0000043QwfAAE|null|M     |
+|a045g000001RNiTAAW|udekanvar    |0055g0000043QwfAAE|null|F     |
+|a045g000001RPD2AAO|dinesh kumar |0055g0000043QwfAAE|null|M     |
+|a045g000001ROb3AAG|bhanwar lal  |0055g0000043QwfAAE|null|M     |
+|a045g000001ROi7AAG|santu kanvar |0055g0000043QwfAAE|null|F     |
+|a045g000002GlshAAC|Superman181  |0055g0000043QwfAAE|null|null  |
+|a045g000001RPWXAA4|vishal singh |0055g0000043QwfAAE|null|M     |
++------------------+-------------+------------------+----+------+
+only showing top 10 rows
+
+21/05/30 12:41:21 INFO targetNoSQL.NoSQLtoNoSQL: Write data to object ingest.cassandra_data_mongo completed with status:success
++------------------+-------------+------------------+----+------+
+|id                |name         |ownerid           |age |gender|
++------------------+-------------+------------------+----+------+
+|a045g000001RPSEAA4|sushil kanvar|0055g0000043QwfAAE|null|F     |
+|a045g000001RNfpAAG|kirat singh  |0055g0000043QwfAAE|null|M     |
+|a045g000001RNfoAAG|gaurakha ram |0055g0000043QwfAAE|null|M     |
+|a045g000001RNtWAAW|dhanna ram   |0055g0000043QwfAAE|null|M     |
+|a045g000001RNiTAAW|udekanvar    |0055g0000043QwfAAE|null|F     |
+|a045g000001RPD2AAO|dinesh kumar |0055g0000043QwfAAE|null|M     |
+|a045g000001ROb3AAG|bhanwar lal  |0055g0000043QwfAAE|null|M     |
+|a045g000001ROi7AAG|santu kanvar |0055g0000043QwfAAE|null|F     |
+|a045g000002GlshAAC|Superman181  |0055g0000043QwfAAE|null|null  |
+|a045g000001RPWXAA4|vishal singh |0055g0000043QwfAAE|null|M     |
++------------------+-------------+------------------+----+------+
+only showing top 10 rows
+````
