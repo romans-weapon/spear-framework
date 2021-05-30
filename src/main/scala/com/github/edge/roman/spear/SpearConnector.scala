@@ -48,9 +48,9 @@ object SpearConnector {
         case (SpearCommons.NoSql, SpearCommons.FileSystem) => new NOSQLtoFS(sourceFormat, destFormat)
         case (SpearCommons.File, SpearCommons.NoSql) => new FilettoNoSQL(sourceFormat, destFormat)
         case (SpearCommons.Relational, SpearCommons.NoSql) => new JDBCtoNoSQL(sourceFormat, destFormat)
+        case (SpearCommons.NoSql, SpearCommons.NoSql) => new NoSQLtoNoSQL(sourceFormat, destFormat)
         case (_, _) => throw new Exception(SpearCommons.InvalidParams)
       }
     }
   }
-
 }
