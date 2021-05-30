@@ -117,7 +117,7 @@ root@hadoop # spear-shell
 **NOTE**: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source
 and write it to HDFS so that it gives you complete environment to play with spear-framework.
 
-4. Start writing your own single line connectors and explore .To understand how to write a connector [click here](#how-to-write-a-connector)
+4. Start writing your own single line connectors and explore .To understand how to write a connector [click here](develop-your-first-connector-using-spear)
 
 
 ## Develop your first connector using Spear
