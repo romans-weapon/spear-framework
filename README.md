@@ -2,7 +2,6 @@
 
 [![Build Status](https://github.com/AnudeepKonaboina/spear-framework/workflows/spear-framework-build/badge.svg)](https://github.com/AnudeepKonaboina/spear-framework/actions)
 [![Code Quality Grade](https://www.code-inspector.com/project/22855/status/svg)](https://www.code-inspector.com/project/22940/status/svg)
-[![Code Quality Score](https://www.code-inspector.com/project/22855/score/svg)](https://www.code-inspector.com/project/22940/score/svg)
 [![GitHub tag](https://img.shields.io/github/v/release/AnudeepKonaboina/spear-framework)](https://github.com/AnudeepKonaboina/spear-framework/tags)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://anudeepkonaboina.github.io/spear-framework/)
@@ -29,6 +28,9 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
             + [kafka to Hive Connector](#kafka-to-hive-connector)
     * [Target FS (Cloud)](#target-fs-cloud)
         + [Oracle to S3 Connector](#oracle-to-s3-connector)
+    * [Target NOSQL](#target-nosql) 
+         - [File Source](#file-source)
+             + [CSV to MongoDB Connector](#csv-to-mongodb-connector)    
 - [Contributions and License](#contributions-and-license)
 - [More about Spear](#more-about-spear)
 
@@ -138,6 +140,9 @@ Below are the source and destination type combinations that spear-framework supp
 | relational  |  FS           |connector object with database source and FileSystem as dest|
 | stream      |  FS           |connector object with stream source and FileSystem as dest. |
 | FS          |  FS           |connector object with FileS  source and FileSystem as dest. |
+| nosql       |  relational   |connector object with nosql  source and relational as dest. |
+| nosql       |  FS           |connector object with nosql  source and FileSystem as dest. |
+| nosql       |  nosql        |connector object with nosql  source and nosql      as dest. |
 ```
 
 
@@ -146,13 +151,17 @@ Below are the source and destination type combinations that spear-framework supp
 ```commandline
 connector
    //souce object and connection profile needs to be specified
-  .source(sourceObject="can be <filename/tablename/topic/api>", <connection profile Map((key->value))>)
+  .source(sourceObject="can be <filename/tablename/topic/api>", <connection profile Map((key->value))>) (or) .sourceSql(<connection profile>,sql text)
   //creates a temporary table on the source data with the given alias name which can be used for further transformations
   .saveAs("<alias temporary table name>")
   //apply custom tranformations on the loaded source data.(optional/can be applied only if necessary)
   .transformSql("<transformations to be applied on source data>")
   //target details where you want to load the data.
-  .targetFS(destinationFilePath = "<hdfs /s3/gcs file path>", saveAsTable = "<tablename>", <Savemode can be overwrite/append/ignore>)
+  .targetFS(destinationFilePath = "<hdfs /s3/gcs file path>", saveAsTable = "<tablename>", <Savemode can be overwrite/append/ignore>) 
+  (or)
+  .targetJDBC(tableName=<table_name>, properties, <Savemode can be overwrite/append/ignore>)
+  (or)
+  .targetNoSQL(<nosql_obj_name>,cassandraProps,<Savemode can be overwrite/append/ignore>)
 ```
 
 3. On completion stop the connector.
@@ -221,7 +230,8 @@ csvJdbcConnector.stop()
 
 ```
 
-21/05/20 16:17:37 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with format: csv status:success
+21/05/30 09:56:27 INFO targetjdbc.FiletoJDBC: Connector to Target: JDBC with Format: jdbc from Source: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with Format: csv started running !!
+21/05/30 09:56:28 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with format: csv status:success
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
 |country_id|state_code|country_name|country_total_votes|party|first_name|last_name|votes|
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
@@ -238,8 +248,8 @@ csvJdbcConnector.stop()
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
 only showing top 10 rows
 
-21/05/20 16:17:39 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmp__ success
-21/05/20 16:17:39 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select state_code,party,
+21/05/30 09:56:29 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmp__ success
+21/05/30 09:56:29 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select state_code,party,
 sum(votes) as total_votes
 from __tmp__
 group by state_code,party status :success
@@ -259,7 +269,7 @@ group by state_code,party status :success
 +----------+-----+-----------+
 only showing top 10 rows
 
-21/05/20 16:17:56 INFO targetjdbc.FiletoJDBC: Write data to table/object mytable completed with status:success
+21/05/30 09:56:32 INFO targetjdbc.FiletoJDBC: Write data to table/object mytable completed with status:success
 +----------+-----+-----------+
 |state_code|party|total_votes|
 +----------+-----+-----------+
@@ -275,8 +285,9 @@ only showing top 10 rows
 |ID        |Dem  |212560     |
 +----------+-----+-----------+
 only showing top 10 rows
+
 ```
-A lot of connectors from file source to JDBC destination are avaialble [here](https://anudeepkonaboina.github.io/spear-framework/).
+A lot of connectors from other file source to JDBC destination are avaialble [here](https://anudeepkonaboina.github.io/spear-framework/).
 
 
 ### JDBC source
@@ -701,6 +712,105 @@ user@node:~$ aws s3 ls s3://destination/data
 2021-05-08 12:09:59       4224 part-00000-71fad52e-404d-422c-a6af-7889691bc506-c000.snappy.parquet
 
 ```
+
+## Target NOSQL
+
+### File source
+
+#### CSV to MongoDB Connector
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import java.util.Properties
+import org.apache.spark.sql.{Column, DataFrame, SaveMode}
+
+val mongoProps=new Properties()
+  mongoProps.put("uri","mongodb://mongo:27017")
+
+val csvMongoConnector = SpearConnector
+    .createConnector("CSVTOMONGO")
+    .source(sourceType = "file", sourceFormat = "csv")
+    .target(targetType = "nosql", targetFormat = "mongo")
+    .getConnector
+csvMongoConnector.setVeboseLogging(true)
+  csvMongoConnector
+    .source(sourceObject = "file:///opt/spear-framework/data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
+    .saveAs("__tmp__")
+    .transformSql(
+      """select state_code,party,
+        |sum(votes) as total_votes
+        |from __tmp__
+        |group by state_code,party""".stripMargin)
+    .targetNoSQL("ingest.csvdata",mongoProps,SaveMode.Overwrite)
+
+csvMongoConnector.stop()
+```
+
+
+##### Output
+
+````commandline
+
+21/05/30 11:18:02 INFO targetNoSQL.FilettoNoSQL: Connector to Target: NoSQL DB with Format: mongo from Source: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with Format: csv started running !!
+21/05/30 11:18:04 INFO targetNoSQL.FilettoNoSQL: Reading source file: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with format: csv status:success
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+|country_id|state_code|country_name|country_total_votes|party|first_name|last_name|votes|
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+|1         |AK        |Alasaba     |220596             |Dem  |Barack    |Obama    |91696|
+|2         |AK        |Akaskak     |220596             |Dem  |Barack    |Obama    |91696|
+|3         |AL        |Autauga     |23909              |Dem  |Barack    |Obama    |6354 |
+|4         |AK        |Akaska      |220596             |Dem  |Barack    |Obama    |91696|
+|5         |AL        |Baldwin     |84988              |Dem  |Barack    |Obama    |18329|
+|6         |AL        |Barbour     |11459              |Dem  |Barack    |Obama    |5873 |
+|7         |AL        |Bibb        |8391               |Dem  |Barack    |Obama    |2200 |
+|8         |AL        |Blount      |23980              |Dem  |Barack    |Obama    |2961 |
+|9         |AL        |Bullock     |5318               |Dem  |Barack    |Obama    |4058 |
+|10        |AL        |Butler      |9483               |Dem  |Barack    |Obama    |4367 |
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+only showing top 10 rows
+
+21/05/30 11:18:04 INFO targetNoSQL.FilettoNoSQL: Saving data as temporary table:__tmp__ success
+21/05/30 11:18:04 INFO targetNoSQL.FilettoNoSQL: Executing tranformation sql: select state_code,party,
+sum(votes) as total_votes
+from __tmp__
+group by state_code,party status :success
++----------+-----+-----------+
+|state_code|party|total_votes|
++----------+-----+-----------+
+|AL        |Dem  |793620     |
+|NY        |GOP  |2226637    |
+|MI        |CST  |16792      |
+|ID        |GOP  |420750     |
+|ID        |Ind  |2495       |
+|WA        |CST  |7772       |
+|HI        |Grn  |3121       |
+|MS        |RP   |969        |
+|MN        |Grn  |13045      |
+|ID        |Dem  |212560     |
++----------+-----+-----------+
+only showing top 10 rows
+
+21/05/30 11:18:08 INFO targetNoSQL.FilettoNoSQL: Write data to object ingest.csvdata completed with status:success
++----------+-----+-----------+
+|state_code|party|total_votes|
++----------+-----+-----------+
+|AL        |Dem  |793620     |
+|NY        |GOP  |2226637    |
+|MI        |CST  |16792      |
+|ID        |GOP  |420750     |
+|ID        |Ind  |2495       |
+|WA        |CST  |7772       |
+|HI        |Grn  |3121       |
+|MS        |RP   |969        |
+|MN        |Grn  |13045      |
+|ID        |Dem  |212560     |
++----------+-----+-----------+
+only showing top 10 rows
+
+````
+Other connectors with NO-SQL destination are avaialble [here](https://anudeepkonaboina.github.io/spear-framework/).
+
 
 ## Contributions and License
 #### License
