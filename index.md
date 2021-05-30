@@ -1712,7 +1712,8 @@ Points to remember:
 3. The steps for creating a keyspace and table in Cassandra are also shown in the connector below.
 
 Create keyspace and table in Cassandra:
-```command line 
+```commandline
+
 root@2cab4a6ebee2:/# cqlsh
 Connected to Test Cluster at 127.0.0.1:9042.
 [cqlsh 5.0.1 | Cassandra 3.11.10 | CQL spec 3.4.4 | Native protocol v4]
@@ -1731,7 +1732,7 @@ cqlsh:ingest>    CREATE TABLE salesforcedata_new(
 
 Write connector:
 ```scala
-import com.github.edge.roman.spear.SpearConnector
+ com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import java.util.Properties
 import org.apache.spark.sql.{Column, DataFrame, SaveMode}
