@@ -10,6 +10,7 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
 
 ## Table of Contents
 - [Introduction](#introduction)
+- [Design and Code Quality](#design-and-code-quality)
 - [Pre-Requisites](#pre-requisites)
 - [Getting started with Spear](#getting-started-with-spear)
 - [Develop your first connector using Spear](#develop-your-first-connector-using-spear)
@@ -38,7 +39,12 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
 
 Spear Framework provides the developers thae ability to write connectors (ETL jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination with very minimal code.
 
-![image](https://user-images.githubusercontent.com/59328701/118606240-cf12d600-b7d4-11eb-9d9f-c308b3ef286c.png)
+![image](https://user-images.githubusercontent.com/59328701/120106134-84507100-c179-11eb-9624-7a1504c8a083.png)
+
+## Design and Code Quality
+
+![image](https://user-images.githubusercontent.com/59328701/120107447-aac4db00-c17e-11eb-815e-ff18381767ab.png)
+
 
 ## Pre-Requisites
 Following are the pre-requisites you need for playing around with spear:
@@ -115,6 +121,7 @@ and write it to HDFS so that it gives you complete environment to play with spea
 
 
 ## Develop your first connector using Spear
+
 Below are the steps to write any connector:
 
 1. Get the suitable connector object using Spearconnector by providing the source and destination details as shown below:
@@ -177,6 +184,9 @@ connector.stop()
 ```commandline
 connector.setVeboseLogging(true) //default value is false.
 ```
+
+Diagramatic Representation:
+![image](https://user-images.githubusercontent.com/59328701/119258939-7afb5d80-bbe9-11eb-837f-02515cb7cf74.png)
 
 ## Example Connectors
 Connector is basically the logic/code which allows you to create a pipeline from source to target using the spear framework using which you can ingest data from any source to any destination.
