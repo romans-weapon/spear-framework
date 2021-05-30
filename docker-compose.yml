@@ -5,6 +5,8 @@ services:
     ports:
       - "5433:5432"
     container_name: "postgres"
+    volumes:
+      - postgres_vol:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=pgdb
       - POSTGRES_PASSWORD=mysecretpassword
@@ -39,7 +41,7 @@ services:
   spear-container:
     image: "spearframework/spark-hadoop-hive:1.0"
     hostname: "hadoop.spark"
-    container_name: "spark"
+    container_name: "spear"
     restart: always
     ports:
       - "4040:4040"
@@ -52,5 +54,17 @@ services:
       - hive-metastore
     privileged: true
     command: "/usr/sbin/init"
-    
-    
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - mongo_vol:/data/db
+    ports:
+      - 27017:27017
+    restart: unless-stopped
+volumes:
+  mongo_vol:
+  postgres_vol:

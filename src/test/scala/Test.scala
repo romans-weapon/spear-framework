@@ -9,7 +9,7 @@ import java.util.Properties
 class Test extends FunSuite with BeforeAndAfter {
 
   val properties = new Properties()
-  properties.put("driver", "org.postgresql.Driver");
+  properties.put("driver", "org.postgresql.Driver")
   properties.put("user", "postgres_user")
   properties.put("password", "mysecretpassword")
   properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
