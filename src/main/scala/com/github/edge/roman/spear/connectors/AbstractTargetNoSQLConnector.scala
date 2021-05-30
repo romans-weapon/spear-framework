@@ -35,6 +35,11 @@ abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: St
         val writeConfig = WriteConfig(
           Map("uri" -> props.get("uri").toString.concat(s"/${objectName}")))
         MongoSpark.save(this.df.write.format("mongo").options(props.asScala).mode(saveMode), writeConfig)
+      case "cassandra" =>
+        this.df.write.format("org.apache.spark.sql.cassandra")
+          .options(props.asScala)
+          .mode(saveMode)
+          .save()
     }
     logger.info(s"Write data to object ${objectName} completed with status:${SpearCommons.SuccessStatus} ")
     show()
