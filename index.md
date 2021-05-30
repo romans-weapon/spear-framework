@@ -8,7 +8,7 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
 
 Below is the code and design quality score for Spear framework given by Code Inspector. For more details click [here](https://frontend.code-inspector.com/public/user/github/AnudeepKonaboina)
 
-![image](https://user-images.githubusercontent.com/59328701/120076433-206b7100-c0c3-11eb-82cf-85b6d722ce85.png)
+![image](https://user-images.githubusercontent.com/59328701/120112763-ccc95800-c194-11eb-8588-ba814a1efaf5.png)
 
 
 # Connectors developed using Spear
@@ -80,7 +80,7 @@ user@node~$ docker exec -it spear bash
 NOTE: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source
 and write it to HDFS so that it gives you complete environment to play with spear-framework.
 
-5. Start writing your own single line connectors and explore .To understand how to write a connector [click here](#build-your-first-connector)
+5. Start writing your own single line connectors and explore .To understand how to write a connector [click here](https://github.com/AnudeepKonaboina/spear-framework/tree/main#develop-your-first-connector-using-spear)
 
 # Connectors built using Spear
 Connector is basically the logic/code which allows you to create a pipeline from source to target using the spear framework using which you can ingest data from any source to any destination.
