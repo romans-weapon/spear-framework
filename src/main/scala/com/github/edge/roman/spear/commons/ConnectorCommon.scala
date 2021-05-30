@@ -77,9 +77,13 @@ object ConnectorCommon {
 
   def sourceNOSQL(sourceObject: String, sourceFormat: String, params: Map[String, String]): DataFrame = {
     sourceFormat match {
-      case "mongo"=>
+      case "mongo" =>
         SparkSessionFunctions(SpearConnector.spark).loadFromMongoDB(ReadConfig(Map("uri" -> params.get("uri").orNull.concat(s"/$sourceObject"))))
+      case "cassandra" =>
+        val sourceObj = sourceObject.split("\\.")
+        val keySpace = sourceObj(0)
+        val tableName = sourceObj(1)
+        SpearConnector.spark.read.format("org.apache.spark.sql.cassandra").options(Map("keyspace" -> keySpace, "table" -> tableName) ++ params).load()
     }
-
   }
 }

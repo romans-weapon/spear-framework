@@ -24,8 +24,8 @@ import com.github.edge.roman.spear.commons.SpearCommons
 import com.mongodb.spark.MongoSpark
 import com.mongodb.spark.config.WriteConfig
 import org.apache.spark.sql.SaveMode
-import scala.collection.JavaConverters._
 
+import scala.collection.JavaConverters._
 import java.util.Properties
 
 abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String, destFormat: String) with Connector {
@@ -36,8 +36,11 @@ abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: St
           Map("uri" -> props.get("uri").toString.concat(s"/${objectName}")))
         MongoSpark.save(this.df.write.format("mongo").options(props.asScala).mode(saveMode), writeConfig)
       case "cassandra" =>
+        val destdetailsArr = objectName.split("\\.")
+        val keySpace = destdetailsArr(0)
+        val tableName = destdetailsArr(1)
         this.df.write.format("org.apache.spark.sql.cassandra")
-          .options(props.asScala)
+          .options(Map("keyspace" -> keySpace, "table" -> tableName) ++ props.asScala)
           .mode(saveMode)
           .save()
     }
