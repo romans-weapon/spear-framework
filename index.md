@@ -1272,6 +1272,8 @@ spark.sparkContext.hadoopConfiguration.set("fs.s3a.secret.key", "******")
     .getConnector
  s3ToHiveConnector.source("s3a://testbucketspear/salesforcedata")
 .targetFS(destinationFilePath = "",saveAsTable="ingest_test.salesforce",SaveMode.Overwrite)
+
+s3ToHiveConnector.stop()
 ```
 
 ### Output
@@ -1515,6 +1517,8 @@ salseforceToS3Connector.setVeboseLogging(true)
       |    cast(unix_timestamp(LastModifiedDate,"yyyy-MM-dd") AS timestamp) as LastModifiedDate
       |    from __temp__""".stripMargin)
     .targetFS(destinationFilePath = "s3a://testbucketspear/salesforcedata", SaveMode.Overwrite)
+    
+salseforceToS3Connector.stop()
 ```
 
 ### Output
@@ -1909,6 +1913,8 @@ cassandraTOMongoConnector
       |    cast (gender__c as STRING) as gender 
       |    from __cassandra_temp__""".stripMargin)
    .targetNoSQL("ingest.cassandra_data_mongo",mongoProps,SaveMode.Overwrite)
+   
+cassandraTOMongoConnector.stop()   
 ```
 
 ##### Output
