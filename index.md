@@ -1,26 +1,31 @@
 # Spear Framework - Introduction
 The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
-![image](https://user-images.githubusercontent.com/59328701/118606240-cf12d600-b7d4-11eb-9d9f-c308b3ef286c.png)
-
-# Framework Quality 
-
-![image](https://user-images.githubusercontent.com/59328701/119535484-ac208d00-bda5-11eb-8e27-5e9bcc5a0a66.png)
+![image](https://user-images.githubusercontent.com/59328701/120102721-09cc2500-c16a-11eb-8075-25cc0e28e0aa.png)
 
 
-# Table of Contents for Connectors developed using Spear
+# Framework Design and Code Quality 
+
+Below is the code and design quality score for Spear framework given by Code Inspector. For more details click [here](https://frontend.code-inspector.com/public/user/github/AnudeepKonaboina)
+
+![image](https://user-images.githubusercontent.com/59328701/120076433-206b7100-c0c3-11eb-82cf-85b6d722ce85.png)
+
+
+# Connectors developed using Spear
 - [Getting started with Spear](#getting-started-with-spear)
 - [Connectors built using spear](#connectors-built-using-spear)
     * [Target JDBC](#target-jdbc)
         - [File Source](#file-source)
-            + [CSV to JDBC Connector](#csv-to-jdbc-connector)
-            + [JSON to JDBC Connector](#json-to-jdbc-connector)
-            + [XML to JDBC Connector](#xml-to-jdbc-connector)
-            + [Avro to JDBC Connector](#avro-to-jdbc-connector)
-            + [Parquet to JDBC Connector](#parquet-to-jdbc-connector)
+            + [CSV to Postgres Connector](#csv-to-postgres-connector)
+            + [JSON to Postgres Connector](#json-to-postgres-connector)
+            + [XML to Postgres Connector](#xml-to-postgres-connector)
+            + [Avro to Postgres Connector](#avro-to-postgres-connector)
+            + [Parquet to Postgres Connector](#parquet-to-postgres-connector)
         - [JDBC Source](#jdbc-source)
             + [Oracle to Postgres Connector](#oracle-to-postgres-connector)
             + [Postgres to Salesforce Connector](#postgres-to-salesforce-connector)
+        - [NOSQL Source](#nosql-source)
+            + [MongoDB to Postgres Connector](#mongodb-to-postgres-connector)
         - [Streaming Source](#streaming-source)
             + [kafka to Postgres Connector](#kafka-to-postgres-connector)
     * [Target FS (HDFS)](#target-fs-hdfs)
@@ -37,7 +42,13 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
             + [Oracle to S3 Connector](#oracle-to-s3-connector)
             + [Postgres to GCS Connector](#postgres-to-gcs-connector)
             + [Salesforce to S3 Connector](#salesforce-to-s3-connector)
-        
+    * [Target NOSQL](#target-nosql) 
+         - [File Source](#file-source)
+             + [CSV to MongoDB Connector](#csv-to-mongodb-connector)
+         - [JDBC Source](#jdbc-source)
+             + [Salesforce to Cassandra Connector](#salesforce-to-cassandra-connector)
+
+
 
 # Getting Started with Spear
 
@@ -55,7 +66,7 @@ sh setup.sh
 
 3. Once the setup is completed run enter into spark-conatiner using the command
 ```commandline
-user@node~$ docker exec -it spark bash
+user@node~$ docker exec -it spear bash
 [root@hadoop /]#
 ```
 4. Run spear-shell to start the shell
@@ -73,7 +84,7 @@ Connector is basically the logic/code which allows you to create a pipeline from
 ![image](https://user-images.githubusercontent.com/59328701/119258939-7afb5d80-bbe9-11eb-837f-02515cb7cf74.png)
 
 
-### Target JDBC
+## Target JDBC
 Spear framework supports writing data to any RDBMS with jdbc as destination(postgres/oracle/msql etc..)  from various sources like a file(csv/json/filesystem etc..)/database(RDBMS/cloud db etc..)/streaming(kafka/dir path etc..).Given below are examples of few connectors with JDBC as target.Below examples are written for postgresql as JDBC target,but this can be extended for any jdbc target.
 
 ### File source
@@ -81,7 +92,7 @@ Spear framework supports writing data to any RDBMS with jdbc as destination(post
 ![image](https://user-images.githubusercontent.com/59328701/119256610-2521b800-bbdf-11eb-8a82-2fd81f48e85a.png)
 
 
-#### CSV to JDBC Connector
+#### CSV to Postgres Connector
 An example connector for reading csv file applying transformations and storing it into postgres table using spear:\
 
 The input data is available in the data/us-election-2012-results-by-county.csv. Simply copy the below connector and paste it in your interactive shell and see your data being moved to a table in postgres with such minimal code !!!.
@@ -125,7 +136,8 @@ csvJdbcConnector.stop()
 
 ```
 
-21/05/20 16:17:37 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with format: csv status:success
+21/05/30 09:56:27 INFO targetjdbc.FiletoJDBC: Connector to Target: JDBC with Format: jdbc from Source: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with Format: csv started running !!
+21/05/30 09:56:28 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with format: csv status:success
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
 |country_id|state_code|country_name|country_total_votes|party|first_name|last_name|votes|
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
@@ -142,8 +154,8 @@ csvJdbcConnector.stop()
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
 only showing top 10 rows
 
-21/05/20 16:17:39 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmp__ success
-21/05/20 16:17:39 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select state_code,party,
+21/05/30 09:56:29 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmp__ success
+21/05/30 09:56:29 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select state_code,party,
 sum(votes) as total_votes
 from __tmp__
 group by state_code,party status :success
@@ -163,7 +175,7 @@ group by state_code,party status :success
 +----------+-----+-----------+
 only showing top 10 rows
 
-21/05/20 16:17:56 INFO targetjdbc.FiletoJDBC: Write data to table/object mytable completed with status:success
+21/05/30 09:56:32 INFO targetjdbc.FiletoJDBC: Write data to table/object mytable completed with status:success
 +----------+-----+-----------+
 |state_code|party|total_votes|
 +----------+-----+-----------+
@@ -179,9 +191,10 @@ only showing top 10 rows
 |ID        |Dem  |212560     |
 +----------+-----+-----------+
 only showing top 10 rows
+
 ```
 
-#### JSON to JDBC Connector
+#### JSON to Postgres Connector
 
 Connector for reading json file applying transformations and storing it into postgres table using spear:\
 The input data is available in the data/data.json
@@ -196,7 +209,7 @@ val properties = new Properties()
 properties.put("driver", "org.postgresql.Driver");
 properties.put("user", "postgres_user")
 properties.put("password", "mysecretpassword")
-properties.put("url", "jdbc:postgresql://postgres_host:5433/pg_db")
+properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
 
 val jsonJdbcConnector = SpearConnector
   .createConnector(name="JSONtoPostgresConnector")
@@ -217,7 +230,8 @@ jsonJdbcConnector.stop()
 ##### Output
 
 ```
-21/05/20 16:25:54 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/data.json with format: json status:success
+21/05/30 09:58:22 INFO targetjdbc.FiletoJDBC: Connector to Target: JDBC with Format: jdbc from Source: file:///opt/spear-framework/data/data.json with Format: json started running !!
+21/05/30 09:58:22 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/data.json with format: json status:success
 +----+------------------------+
 |id  |type                    |
 +----+------------------------+
@@ -230,8 +244,8 @@ jsonJdbcConnector.stop()
 |5004|Maple                   |
 +----+------------------------+
 
-21/05/20 16:25:55 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmptable__ success
-21/05/20 16:25:55 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select cast(id*10 as integer) as type_id,type from __tmptable__  status :success
+21/05/30 09:58:22 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmptable__ success
+21/05/30 09:58:22 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select cast(id*10 as integer) as type_id,type from __tmptable__  status :success
 +-------+------------------------+
 |type_id|type                    |
 +-------+------------------------+
@@ -244,7 +258,7 @@ jsonJdbcConnector.stop()
 |50040  |Maple                   |
 +-------+------------------------+
 
-21/05/20 16:25:58 INFO targetjdbc.FiletoJDBC: Write data to table/object json_to_jdbc completed with status:success
+21/05/30 09:58:23 INFO targetjdbc.FiletoJDBC: Write data to table/object json_to_jdbc completed with status:success
 +-------+------------------------+
 |type_id|type                    |
 +-------+------------------------+
@@ -256,10 +270,9 @@ jsonJdbcConnector.stop()
 |50030  |Chocolate               |
 |50040  |Maple                   |
 +-------+------------------------+
-
 ```
 
-#### XML to JDBC Connector
+#### XML to Postgres Connector
 
 Connector for reading xml file applying transformations and storing it into postgres table using spear:\
 The input data is available in the data/data.xml
@@ -295,7 +308,8 @@ xmlJdbcConnector.stop()
 ##### Output
 
 ```
-21/05/20 16:30:31 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/data.xml with format: xml status:success
+21/05/30 09:59:24 INFO targetjdbc.FiletoJDBC: Connector to Target: JDBC with Format: jdbc from Source: file:///opt/spear-framework/data/data.xml with Format: xml  started running !!
+21/05/30 09:59:24 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/data.xml with format: xml status:success
 +--------+--------+---------+--------+----+---------+
 |building|division|firstname|lastname|room|title    |
 +--------+--------+---------+--------+----+---------+
@@ -305,8 +319,8 @@ xmlJdbcConnector.stop()
 |305     |Computer|Deep     |Parekh  |14  |Designer |
 +--------+--------+---------+--------+----+---------+
 
-21/05/20 16:30:32 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:tmp success
-21/05/20 16:30:32 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select * from tmp  status :success
+21/05/30 09:59:24 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:tmp success
+21/05/30 09:59:24 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select * from tmp  status :success
 +--------+--------+---------+--------+----+---------+
 |building|division|firstname|lastname|room|title    |
 +--------+--------+---------+--------+----+---------+
@@ -316,7 +330,7 @@ xmlJdbcConnector.stop()
 |305     |Computer|Deep     |Parekh  |14  |Designer |
 +--------+--------+---------+--------+----+---------+
 
-21/05/20 16:30:36 INFO targetjdbc.FiletoJDBC: Write data to table/object xml_to_jdbc completed with status:success
+21/05/30 09:59:24 INFO targetjdbc.FiletoJDBC: Write data to table/object xml_to_jdbc completed with status:success
 +--------+--------+---------+--------+----+---------+
 |building|division|firstname|lastname|room|title    |
 +--------+--------+---------+--------+----+---------+
@@ -325,10 +339,11 @@ xmlJdbcConnector.stop()
 |304     |Computer|Rahil    |Khan    |10  |Tester   |
 |305     |Computer|Deep     |Parekh  |14  |Designer |
 +--------+--------+---------+--------+----+---------+
+
 ```
 
 
-#### Avro to JDBC Connector
+#### Avro to Postgres Connector
 
 Connector for reading avro file applying transformations and storing it into postgres table using spear:\
 The input data is available in the data/sample_data.avro
@@ -341,9 +356,9 @@ import java.util.Properties
 
 val properties = new Properties()
 properties.put("driver", "org.postgresql.Driver");
-properties.put("user", "postgres")
-properties.put("password", "pass")
-properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
+properties.put("user", "postgres_user")
+properties.put("password", "mysecretpassword")
+properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
 
 val avroJdbcConnector = SpearConnector
     .createConnector(name = "AvrotoPostgresConnector")
@@ -376,7 +391,8 @@ avroJdbcConnector.stop()
 ##### Output
 
 ```
-21/05/20 16:55:42 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/sample_data.avro with format: avro status:success
+21/05/30 10:05:05 INFO targetjdbc.FiletoJDBC: Connector to Target: JDBC with Format: jdbc from Source: file:///opt/spear-framework/data/sample_data.avro with Format: avro started running !!
+21/05/30 10:05:05 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/sample_data.avro with format: avro status:success
 +--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
 |registration_dttm   |id |first_name|last_name|email                   |gender|ip_address    |cc              |country               |birthdate |salary   |title                   |comments|
 +--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
@@ -393,8 +409,8 @@ avroJdbcConnector.stop()
 +--------------------+---+----------+---------+------------------------+------+--------------+----------------+----------------------+----------+---------+------------------------+--------+
 only showing top 10 rows
 
-21/05/20 16:55:43 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmp__ success
-21/05/20 16:55:43 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select id,
+21/05/30 10:05:05 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmp__ success
+21/05/30 10:05:05 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select id,
 cast(concat(first_name ,' ', last_name) as VARCHAR(255)) as name,
 coalesce(gender,'NA') as gender,
 cast(country as VARCHAR(20)) as country,
@@ -416,8 +432,8 @@ from __tmp__ status :success
 +---+--------------+------+----------------------+---------+------------------------+
 only showing top 10 rows
 
-21/05/20 16:55:45 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__transformed_table__ success
-21/05/20 16:55:45 INFO targetjdbc.FiletoJDBC: Executing tranformation sql:
+21/05/30 10:05:06 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__transformed_table__ success
+21/05/30 10:05:06 INFO targetjdbc.FiletoJDBC: Executing tranformation sql:
 select id,name,
 country,email,
 salary
@@ -438,7 +454,7 @@ from __transformed_table__ status :success
 +---+--------------+----------------------+------------------------+---------+
 only showing top 10 rows
 
-21/05/20 16:55:48 INFO targetjdbc.FiletoJDBC: Write data to table/object avro_data completed with status:success
+21/05/30 10:05:06 INFO targetjdbc.FiletoJDBC: Write data to table/object avro_data completed with status:success
 +---+--------------+----------------------+------------------------+---------+
 |id |name          |country               |email                   |salary   |
 +---+--------------+----------------------+------------------------+---------+
@@ -453,14 +469,13 @@ only showing top 10 rows
 |9  |Jose Foster   |South Korea           |jfoster8@yelp.com       |231067.84|
 |10 |Emily Stewart |Nigeria               |estewart9@opensource.org|27234.28 |
 +---+--------------+----------------------+------------------------+---------+
-only showing top 10 rows
 
 ```
 
-#### Parquet to JDBC Connector
+#### Parquet to Postgres Connector
 
 Connector for reading parquet file applying transformations and storing it into postgres table using spear:\
-The input data is available in the data/sample.parquet
+The input data is available in the data/sample.parquet.Note that verbose logging is not enabled for this connector 
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -469,9 +484,9 @@ import org.apache.spark.sql.SaveMode
 
 val properties = new Properties()
 properties.put("driver", "org.postgresql.Driver");
-properties.put("user", "postgres")
-properties.put("password", "pass")
-properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
+properties.put("user", "postgres_user")
+properties.put("password", "mysecretpassword")
+properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
 
 val parquetJdbcConnector = SpearConnector
   .createConnector(name="ParquettoPostgresConnector")
@@ -483,27 +498,30 @@ parquetJdbcConnector
   .source("file:///opt/spear-framework/data/sample.parquet")
   .saveAs("__tmp__")
   .transformSql("""select flow1,occupancy1,speed1 from __tmp__""")
-  .targetJDBC(tableName="user_data", properties, SaveMode.Overwrite
+  .targetJDBC(tableName="user_data", properties, SaveMode.Overwrite)
 
 parquetJdbcConnector.stop()
 ```
 
-### Output
+##### Output
 
 ```
-21/05/20 17:00:09 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/sample.parquet with format: parquet status:success
-21/05/20 17:00:09 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmp__ success
-21/05/20 17:00:09 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select flow1,occupancy1,speed1 from __tmp__ status :success
-21/05/20 17:00:16 INFO targetjdbc.FiletoJDBC: Write data to table/object user_data completed with status:success
+21/05/30 10:10:22 INFO targetjdbc.FiletoJDBC: Connector to Target: JDBC with Format: jdbc from Source: file:///opt/spear-framework/data/sample.parquet with Format: parquet started running !!
+21/05/30 10:10:23 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/sample.parquet with format: parquet status:success
+21/05/30 10:10:23 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmp__ success
+21/05/30 10:10:23 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select flow1,occupancy1,speed1 from __tmp__ status :success
+21/05/30 10:10:23 INFO targetjdbc.FiletoJDBC: Write data to table/object user_data completed with status:success
 
 ```
 
-### JDBC source
+## JDBC source
 
 ![image](https://user-images.githubusercontent.com/59328701/119256795-07088780-bbe0-11eb-9c25-4f37ff232703.png)
 
 
-#### Oracle to Postgres Connector
+### Oracle to Postgres Connector
+
+We need to add oracle jar (ojdbc6.jar) as a package and start the spear shell for this connector to work.
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -513,9 +531,9 @@ import java.util.Properties
 
 val properties = new Properties()
 properties.put("driver", "org.postgresql.Driver");
-properties.put("user", "postgres")
-properties.put("password", "pass")
-properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
+properties.put("user", "postgres_user")
+properties.put("password", "mysecretpassword")
+properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
 
 Logger.getLogger("com.github").setLevel(Level.INFO)
 
@@ -561,7 +579,7 @@ oracleTOPostgresConnector
       |        TIMESTAMP8_WITH_LTZ as timestamp8_with_ltz,TIMESTAMP8_WITH_LTZ_utc as timestamp8_with_ltz_utc
       |        from __source__
       |""".stripMargin)
-  .targetJDBC(tableName = "pgdb.ora_to_postgres", properties, SaveMode.Overwrite)
+  .targetJDBC(tableName = "ora_to_postgres", properties, SaveMode.Overwrite)
 
 oracleTOPostgresConnector.stop()
 
@@ -570,7 +588,7 @@ oracleTOPostgresConnector.stop()
 ### Output
 
 ```commandline
-21/05/04 17:35:50 INFO targetjdbc.JDBCtoJDBC: Executing source sql query:
+21/05/04 17:35:48 INFO targetjdbc.JDBCtoJDBC: Connector from Source sql:
 SELECT
         to_char(sys_extract_utc(systimestamp), 'YYYY-MM-DD HH24:MI:SS.FF') as ingest_ts_utc,
         to_char(TIMESTAMP_0, 'YYYY-MM-DD HH24:MI:SS.FF') as timestamp_0,
@@ -579,20 +597,16 @@ SELECT
         to_char(TIMESTAMP_9, 'YYYY-MM-DD HH24:MI:SS.FF') as timestamp_9,
         to_char(TIMESTAMP0_WITH_TZ) as timestamp0_with_tz , to_char(sys_extract_utc(TIMESTAMP0_WITH_TZ), 'YYYY-MM-DD HH24:MI:SS') as timestamp0_with_tz_utc,
         to_char(TIMESTAMP5_WITH_TZ) as timestamp5_with_tz , to_char(sys_extract_utc(TIMESTAMP5_WITH_TZ), 'YYYY-MM-DD HH24:MI:SS.FF') as timestamp5_with_tz_utc,
-        to_char(TIMESTAMP8_WITH_TZ) as timestamp8_with_tz , to_char(sys_extract_utc(TIMESTAMP8_WITH_TZ), 'YYYY-MM-DD HH24:MI:SS.FF') as timestamp8_with_tz_utc
+        to_char(TIMESTAMP8_WITH_TZ) as timestamp8_with_tz , to_char(sys_extract_utc(TIMESTAMP8_WITH_TZ), 'YYYY-MM-DD HH24:MI:SS.FF') as timestamp8_with_tz_utc,
+        to_char(TIMESTAMP0_WITH_LTZ) as timestamp0_with_ltz , to_char(sys_extract_utc(TIMESTAMP0_WITH_LTZ), 'YYYY-MM-DD HH24:MI:SS') as timestamp0_with_ltz_utc,
+        to_char(TIMESTAMP5_WITH_LTZ) as timestamp5_with_ltz , to_char(sys_extract_utc(TIMESTAMP5_WITH_LTZ), 'YYYY-MM-DD HH24:MI:SS.FF') as timestamp5_with_ltz_utc,
+        to_char(TIMESTAMP8_WITH_LTZ) as timestamp8_with_ltz , to_char(sys_extract_utc(TIMESTAMP8_WITH_LTZ), 'YYYY-MM-DD HH24:MI:SS.FF') as timestamp8_with_ltz_utc
         from DBSRV.ORACLE_TIMESTAMPS
+ with Format: jdbc started running!!
 
-21/05/04 17:35:50 INFO targetjdbc.JDBCtoJDBC: Data is saved as a temporary table by name: __source__
-21/05/04 17:35:50 INFO targetjdbc.JDBCtoJDBC: showing saved data from temporary table with name: __source__
-+--------------------------+---------------------+-------------------------+---------------------------+-----------------------------+-----------------------------------+----------------------+-----------------------------------------+-------------------------+--------------------------------------------+----------------------------+
-|INGEST_TS_UTC             |TIMESTAMP_0          |TIMESTAMP_5              |TIMESTAMP_7                |TIMESTAMP_9                  |TIMESTAMP0_WITH_TZ                 |TIMESTAMP0_WITH_TZ_UTC|TIMESTAMP5_WITH_TZ                       |TIMESTAMP5_WITH_TZ_UTC   |TIMESTAMP8_WITH_TZ                          |TIMESTAMP8_WITH_TZ_UTC      |
-+--------------------------+---------------------+-------------------------+---------------------------+-----------------------------+-----------------------------------+----------------------+-----------------------------------------+-------------------------+--------------------------------------------+----------------------------+
-|2021-05-04 17:35:50.620944|2021-04-07 15:15:16.0|2021-04-07 15:15:16.03356|2021-04-07 15:15:16.0335610|2021-04-07 15:15:16.033561000|07-APR-21 03.15.16 PM ASIA/CALCUTTA|2021-04-07 09:45:16   |07-APR-21 03.15.16.03356 PM ASIA/CALCUTTA|2021-04-07 09:45:16.03356|07-APR-21 03.15.16.03356100 PM ASIA/CALCUTTA|2021-04-07 09:45:16.03356100|
-|2021-05-04 17:35:50.620944|2021-04-07 15:16:51.6|2021-04-07 15:16:51.60911|2021-04-07 15:16:51.6091090|2021-04-07 15:16:51.609109000|07-APR-21 03.16.52 PM ASIA/CALCUTTA|2021-04-07 09:46:52   |07-APR-21 03.16.51.60911 PM ASIA/CALCUTTA|2021-04-07 09:46:51.60911|07-APR-21 03.16.51.60910900 PM ASIA/CALCUTTA|2021-04-07 09:46:51.60910900|
-+--------------------------+---------------------+-------------------------+---------------------------+-----------------------------+-----------------------------------+----------------------+-----------------------------------------+-------------------------+--------------------------------------------+----------------------------+
 
-21/05/04 17:35:50 INFO targetjdbc.JDBCtoJDBC: Data after transformation using the SQL :
-SELECT
+21/05/04 17:35:50 INFO targetjdbc.JDBCtoJDBC: Saving data as temporary table:__source__ success
+21/05/04 17:35:50 INFO targetjdbc.JDBCtoJDBC: Executing tranformation sql:
         TO_TIMESTAMP(ingest_ts_utc) as ingest_ts_utc,
         TIMESTAMP_0 as timestamp_0,
         TIMESTAMP_5 as timestamp_5,
@@ -601,7 +615,7 @@ SELECT
         TIMESTAMP0_WITH_TZ as timestamp0_with_tz,TIMESTAMP0_WITH_TZ_utc as timestamp0_with_tz_utc,
         TIMESTAMP5_WITH_TZ as timestamp5_with_tz,TIMESTAMP5_WITH_TZ_utc as timestamp5_with_tz_utc,
         TIMESTAMP8_WITH_TZ as timestamp8_with_tz,TIMESTAMP8_WITH_TZ_utc as timestamp8_with_tz_utc
-        from __source__
+        from __source__ status:success
 
 +--------------------------+---------------------+-------------------------+---------------------------+-----------------------------+-----------------------------------+----------------------+-----------------------------------------+-------------------------+--------------------------------------------+----------------------------+
 |ingest_ts_utc             |timestamp_0          |timestamp_5              |timestamp_7                |timestamp_9                  |timestamp0_with_tz                 |timestamp0_with_tz_utc|timestamp5_with_tz                       |timestamp5_with_tz_utc   |timestamp8_with_tz                          |timestamp8_with_tz_utc      |
@@ -610,8 +624,7 @@ SELECT
 |2021-05-04 17:35:50.818643|2021-04-07 15:16:51.6|2021-04-07 15:16:51.60911|2021-04-07 15:16:51.6091090|2021-04-07 15:16:51.609109000|07-APR-21 03.16.52 PM ASIA/CALCUTTA|2021-04-07 09:46:52   |07-APR-21 03.16.51.60911 PM ASIA/CALCUTTA|2021-04-07 09:46:51.60911|07-APR-21 03.16.51.60910900 PM ASIA/CALCUTTA|2021-04-07 09:46:51.60910900|
 +--------------------------+---------------------+-------------------------+---------------------------+-----------------------------+-----------------------------------+----------------------+-----------------------------------------+-------------------------+--------------------------------------------+----------------------------+
 
-21/05/04 17:35:50 INFO targetjdbc.JDBCtoJDBC: Writing data to target table: pgdb.ora_to_postgres
-21/05/04 17:35:56 INFO targetjdbc.JDBCtoJDBC: Showing data in target table  : pgdb.ora_to_postgres
+21/05/04 17:35:50 INFO targetjdbc.JDBCtoJDBC: Write data to table/object ora_to_postgres completed with status:success
 +--------------------------+---------------------+-------------------------+---------------------------+-----------------------------+-----------------------------------+----------------------+-----------------------------------------+-------------------------+--------------------------------------------+----------------------------+
 |ingest_ts_utc             |timestamp_0          |timestamp_5              |timestamp_7                |timestamp_9                  |timestamp0_with_tz                 |timestamp0_with_tz_utc|timestamp5_with_tz                       |timestamp5_with_tz_utc   |timestamp8_with_tz                          |timestamp8_with_tz_utc      |
 +--------------------------+---------------------+-------------------------+---------------------------+-----------------------------+-----------------------------------+----------------------+-----------------------------------------+-------------------------+--------------------------------------------+----------------------------+
@@ -623,7 +636,8 @@ SELECT
 #### Postgres to Salesforce Connector
 While writing to Salesforce,below are the pre-requisites one must take care of:
 1. A salesforce object/dataset must be available at Salesforce as spark will not create an object automatically.
-2. Also the columns/fields in source data or dataframe must match the fileds in the destination salesforce object
+2. Also the columns/fields in source data or dataframe must match the fileds in the destination salesforce object.
+3. Reference: https://github.com/springml/spark-salesforce
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -652,12 +666,113 @@ postgresSalesForce
 postgresSalesForce.stop()
 ```
 
+### NOSQL Source
+
+#### MongoDB to Postgres Connector
+The sourceObject in case of mongo is nothing but the collection name person in db spear.
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import java.util.Properties
+import org.apache.spark.sql.{Column, DataFrame, SaveMode}
+
+val properties = new Properties()
+  properties.put("driver", "org.postgresql.Driver");
+  properties.put("user", "postgres_user")
+  properties.put("password", "mysecretpassword")
+  properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
+
+Logger.getLogger("com.github").setLevel(Level.INFO)  
+
+val mongoToPostgresConnector = SpearConnector
+    .createConnector("Mongo-Postgres")
+    .source(sourceType = "nosql", sourceFormat = "mongo")
+    .target(targetType = "relational", targetFormat = "jdbc")
+    .getConnector
+
+mongoToPostgresConnector.setVeboseLogging(true)
+
+mongoToPostgresConnector
+    .source(sourceObject = "spear.person",Map("uri" -> "mongodb://mongo:27017"))
+    .saveAs("_mongo_staging_")
+    .transformSql(
+      """
+        |select cast(id as INT) as person_id,
+        |cast (name as STRING) as person_name,
+        |cast (sal as FLOAT) as salary
+        |from _mongo_staging_ """.stripMargin)
+    .targetJDBC("mongo_data",properties,SaveMode.Overwrite)
+
+mongoToPostgresConnector.stop()    
+```
+
+### Output
+
+```commandline
+21/05/29 14:29:09 INFO targetjdbc.NOSQLtoJDBC: Connector to Target: JDBC with Format: jdbc from Source Object: spear.person with Format: mongo started running!!
+21/05/29 14:29:09 INFO targetjdbc.NOSQLtoJDBC: Reading source object: spear.person with format: mongo status:success
++--------------------------+---+------+------+
+|_id                       |id |name  |sal   |
++--------------------------+---+------+------+
+|[60b219a429ff3ceddd1dd59d]|1.0|Anu   |5000.0|
+|[60b219f729ff3ceddd1dd59e]|2.0|Deep  |6000.0|
+|[60b2379429ff3ceddd1dd59f]|3.0|Rami  |6000.0|
+|[60b237e629ff3ceddd1dd5a0]|4.0|Raj   |6000.0|
+|[60b2381d29ff3ceddd1dd5a1]|6.0|Rahul |6000.0|
+|[60b2381d29ff3ceddd1dd5a2]|5.0|Ravi  |7000.0|
+|[60b2383d29ff3ceddd1dd5a3]|7.0|Kalyan|8000.0|
+|[60b2383d29ff3ceddd1dd5a4]|8.0|Rajesh|9000.0|
+|[60b2385e29ff3ceddd1dd5a5]|8.0|Nav   |6000.0|
+|[60b2385e29ff3ceddd1dd5a6]|9.0|Ravi  |7000.0|
++--------------------------+---+------+------+
+
+21/05/29 14:29:10 INFO targetjdbc.NOSQLtoJDBC: Saving data as temporary table:_mongo_staging_ success
+21/05/29 14:29:10 INFO targetjdbc.NOSQLtoJDBC: Executing tranformation sql:
+select cast(id as INT) as person_id,
+cast (name as STRING) as person_name,
+cast (sal as FLOAT) as salary
+from _mongo_staging_  status :success
++---------+-----------+------+
+|person_id|person_name|salary|
++---------+-----------+------+
+|1        |Anu        |5000.0|
+|2        |Deep       |6000.0|
+|3        |Rami       |6000.0|
+|4        |Raj        |6000.0|
+|6        |Rahul      |6000.0|
+|5        |Ravi       |7000.0|
+|7        |Kalyan     |8000.0|
+|8        |Rajesh     |9000.0|
+|8        |Nav        |6000.0|
+|9        |Ravi       |7000.0|
++---------+-----------+------+
+
+21/05/29 14:29:10 INFO targetjdbc.NOSQLtoJDBC: Write data to table/object mongo_data completed with status:success
++---------+-----------+------+
+|person_id|person_name|salary|
++---------+-----------+------+
+|1        |Anu        |5000.0|
+|2        |Deep       |6000.0|
+|3        |Rami       |6000.0|
+|4        |Raj        |6000.0|
+|6        |Rahul      |6000.0|
+|5        |Ravi       |7000.0|
+|7        |Kalyan     |8000.0|
+|8        |Rajesh     |9000.0|
+|8        |Nav        |6000.0|
+|9        |Ravi       |7000.0|
++---------+-----------+------+
+```
+
 ### Streaming source
 
 ![image](https://user-images.githubusercontent.com/59328701/119257031-1cca7c80-bbe1-11eb-94ff-9b135bac11b5.png)
 
 
 #### Kafka to Postgres Connector
+
+For real -time streaming form kafka/twitter etc.., a schema must be necessarily provided for seamlesa streaming.
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -676,7 +791,7 @@ val streamTOPostgres=SpearConnector
    .createConnector(name="StreamKafkaToPostgresconnector")
    .source(sourceType = "stream",sourceFormat = "kafka")
    .target(targetType = "relational",targetFormat = "jdbc")
-   .getConnector
+   .getConnector  
 
 val schema = StructType(
     Array(StructField("id", StringType),
@@ -692,9 +807,15 @@ streamTOPostgres
 streamTOPostgres.stop()
 ```
 
-### Target FS (HDFS)
+## Target FS (HDFS)
 
-![image](https://user-images.githubusercontent.com/59328701/119257299-433ce780-bbe2-11eb-8de0-9d0dc7bb1cdc.png)
+Using Spear-framework you an write connectors to File Systems both hadoop(HDFS) or any cloud file system(S3/GCS/adls etc).For HDFS as file system spark will create a table in hive and for that the database specified must exist in hive .Spark will not create the database,it just creates a table within that database. 
+
+Points to be remembered:
+1. While writing to hdfs using spear ,the destination file path is not mandatory.If specified an external table will be created on top of that path else a managed table will be created in hive.
+
+
+![image](https://user-images.githubusercontent.com/59328701/120101434-b2c35180-c163-11eb-877d-80218cf3e47a.png)
 
 ### JDBC source
 
@@ -717,7 +838,7 @@ val postgresToHiveConnector = SpearConnector
 postgresToHiveConnector.setVeboseLogging(true)  
 
 postgresToHiveConnector
-  .source("source_db.instance", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres", "password" -> "test", "url" -> "jdbc:postgresql://postgres-host:5433/source_db"))
+  .source("mytable", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://postgres:5432/pgdb"))
   .saveAs("__tmp__")
   .transformSql(
     """
@@ -739,7 +860,8 @@ postgresToHiveConnector.stop()
 ### Output
 
 ```commandline
-21/05/01 10:39:20 INFO targetFS.JDBCtoFS: Reading source data from table: source_db.instance
+21/05/30 10:37:00 INFO targetFS.JDBCtoFS: Connector to Target: File System with Format: parquet from Source Object: mytable with Format: jdbc started running!!
+21/05/30 10:37:00 INFO targetFS.JDBCtoFS: Reading source table: mytable with format: jdbc status:success
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 |uuid                                 |type_id    |factory_message_process_id   |factory_uuid                        |factory_id    |   engine_id      |topic                      |status_code_id|cru_by|cru_ts                    |
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
@@ -749,32 +871,15 @@ postgresToHiveConnector.stop()
 |59d9b23e-ff93-4351-af7e-0a95ec4fde65|10         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_authtoken           |5             |ABCDE |2021-04-27 10:17:50.441147|
 |111eeff6-c61d-402e-9e70-615cf80d3016|10         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_authtoken           |5             |ABCDE |2021-04-27 10:18:02.439379|
 |2870ff43-73c9-424e-9f3c-c89ac4dda278|10         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_authtoken           |5             |ABCDE |2021-04-27 10:18:14.5242  |
-|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_errorbot            |5             |ABCDE |2021-04-27 10:21:17.098984|
+|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_errorbox            |5             |ABCDE |2021-04-27 10:21:17.098984|
 |534a2af0-af74-4633-8603-926070afd76f|16         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_filter_resolver_jdbc|5             |ABCDE |2021-04-27 10:21:17.223042|
-|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_errorbot            |5             |ABCDE |2021-04-27 10:21:17.437489|
+|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_errorbox            |5             |ABCDE |2021-04-27 10:21:17.437489|
 |6db9c72f-85b0-4254-bc2f-09dc1e63e6f3|9          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_flowcontroller      |5             |ABCDE |2021-04-27 10:21:17.780313|
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 only showing top 10 rows
 
-21/05/01 10:39:31 INFO targetFS.JDBCtoFS: Data is saved as a temporary table by name: __tmp__
-21/05/01 10:39:31 INFO targetFS.JDBCtoFS: showing saved data from temporary table with name: __tmp__
-+------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
-|uuid                                |type_id    |factory_message_process_id    |factory_uuid                        |factory_id    | engine_id        |topic                      |status_code_id|cru_by|cru_ts                    |
-+------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
-|null                                |1          |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |factory_2_2                |5             |ABCDE |2021-04-27 10:17:37.529195|
-|null                                |1          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |factory_1_1                |5             |ABCDE |2021-04-27 10:17:37.533318|
-|null                                |1          |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |factory_3_3                |5             |ABCDE |2021-04-27 10:17:37.535323|
-|59d9b23e-ff93-4351-af7e-0a95ec4fde65|10         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_authtoken           |5             |ABCDE |2021-04-27 10:17:50.441147|
-|111eeff6-c61d-402e-9e70-615cf80d3016|10         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_authtoken           |5             |ABCDE |2021-04-27 10:18:02.439379|
-|2870ff43-73c9-424e-9f3c-c89ac4dda278|10         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_authtoken           |5             |ABCDE |2021-04-27 10:18:14.5242  |
-|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_errorbot            |5             |ABCDE |2021-04-27 10:21:17.098984|
-|534a2af0-af74-4633-8603-926070afd76f|16         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_filter_resolver_jdbc|5             |ABCDE |2021-04-27 10:21:17.223042|
-|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_errorbot            |5             |ABCDE |2021-04-27 10:21:17.437489|
-|6db9c72f-85b0-4254-bc2f-09dc1e63e6f3|9          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_flowcontroller      |5             |ABCDE |2021-04-27 10:21:17.780313|
-+------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
-only showing top 10 rows
-
-21/05/01 10:39:33 INFO targetFS.JDBCtoFS: Data after transformation using the SQL :
+21/05/30 10:37:00 INFO targetFS.JDBCtoFS: Saving data as temporary table:__tmp__ success
+21/05/30 10:37:00 INFO targetFS.JDBCtoFS: Executing tranformation sql:
 select cast( uuid as string) as uuid,
 cast( type_id as bigint ) as type_id,
 cast( factory_message_process_id as bigint) as factory_message_process_id,
@@ -784,7 +889,7 @@ cast( workflow_engine_id as bigint ) as workflow_engine_id,
 cast( topic as string ) as topic,
 cast( status_code_id as int) as status_code_id,
 cast( cru_by as string ) as cru_by,cast( cru_ts as timestamp) as cru_ts
-from __tmp__
+from __tmp__ success
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 |uuid                                |type_id|factory_message_process_id        |factory_uuid                        |factory_id    |engine_id         |topic                      |status_code_id|cru_by|cru_ts                    |
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
@@ -794,16 +899,14 @@ from __tmp__
 |59d9b23e-ff93-4351-af7e-0a95ec4fde65|10         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_authtoken           |5             |ABCDE |2021-04-27 10:17:50.441147|
 |111eeff6-c61d-402e-9e70-615cf80d3016|10         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_authtoken           |5             |ABCDE |2021-04-27 10:18:02.439379|
 |2870ff43-73c9-424e-9f3c-c89ac4dda278|10         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_authtoken           |5             |ABCDE |2021-04-27 10:18:14.5242  |
-|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_errorbot            |5             |ABCDE |2021-04-27 10:21:17.098984|
+|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_errorbox            |5             |ABCDE |2021-04-27 10:21:17.098984|
 |534a2af0-af74-4633-8603-926070afd76f|16         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_filter_resolver_jdbc|5             |ABCDE |2021-04-27 10:21:17.223042|
-|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_errorbot            |5             |ABCDE |2021-04-27 10:21:17.437489|
+|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_errorbox            |5             |ABCDE |2021-04-27 10:21:17.437489|
 |6db9c72f-85b0-4254-bc2f-09dc1e63e6f3|9          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_flowcontroller      |5             |ABCDE |2021-04-27 10:21:17.780313|
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 only showing top 10 rows
 
-21/05/01 10:39:35 INFO targetFS.JDBCtoFS: Writing data to target file: /tmp/ingest_test.db
-21/05/01 10:39:35 INFO targetFS.JDBCtoFS: Saving data to table:ingest_test.postgres_data
-21/05/01 10:39:35 INFO targetFS.JDBCtoFS: Target Data in table:ingest_test.postgres_data
+21/05/30 10:37:01 INFO targetFS.JDBCtoFS: Write data to target path: /tmp/ingest_test.db with format: jdbc and saved as table ingest_test.postgres_data completed with status:success
 
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 |uuid                                |type_id    |factory_message_process_id    |factory_uuid                        |factory_id    |        engine_id |topic                      |status_code_id|cru_by|cru_ts                    |
@@ -814,9 +917,9 @@ only showing top 10 rows
 |59d9b23e-ff93-4351-af7e-0a95ec4fde65|10         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_authtoken           |5             |ABCDE |2021-04-27 10:17:50.441147|
 |111eeff6-c61d-402e-9e70-615cf80d3016|10         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_authtoken           |5             |ABCDE |2021-04-27 10:18:02.439379|
 |2870ff43-73c9-424e-9f3c-c89ac4dda278|10         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_authtoken           |5             |ABCDE |2021-04-27 10:18:14.5242  |
-|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_errorbot            |5             |ABCDE |2021-04-27 10:21:17.098984|
+|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_errorbox            |5             |ABCDE |2021-04-27 10:21:17.098984|
 |534a2af0-af74-4633-8603-926070afd76f|16         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_filter_resolver_jdbc|5             |ABCDE |2021-04-27 10:21:17.223042|
-|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_errorbot            |5             |ABCDE |2021-04-27 10:21:17.437489|
+|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_errorbox            |5             |ABCDE |2021-04-27 10:21:17.437489|
 |6db9c72f-85b0-4254-bc2f-09dc1e63e6f3|9          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_flowcontroller      |5             |ABCDE |2021-04-27 10:21:17.780313|
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 only showing top 10 rows
@@ -957,18 +1060,18 @@ Spark cannot read a salesforce object directly if specified,You must always use 
 
   salseforceToHiveConnector.sourceSql(Map( "login"-> "https://login.salesforce.com","username" -> "user", "password" -> "pass"),
     """select
-		  |    Id,
-		  |    name,
-		  |    OwnerId,
-		  |    age__c,
-		  |    gender__c,
-		  |    guardianname__c,
-		  |    ingest_ts_utc__c,
-		  |    name_siml_score__c,
-		  |    year_of_birth__c,
-		  |    LastModifiedById,
-		  |    LastModifiedDate
-		  |    from sales_test__c""".stripMargin).saveAs("__temp__")
+          |    Id,
+          |    name,
+          |    OwnerId,
+          |    age__c,
+          |    gender__c,
+          |    guardianname__c,
+          |    ingest_ts_utc__c,
+          |    name_siml_score__c,
+          |    year_of_birth__c,
+          |    LastModifiedById,
+          |    LastModifiedDate
+          |    from sales_test__c""".stripMargin).saveAs("__temp__")
     .transformSql("""select
       |    Id,
       |    name,
@@ -1112,9 +1215,10 @@ streamTOHdfs
 
 streamTOHdfs.stop()
 ```
-### Cloud source
 
-#### S3 to Hive COnnector
+## Cloud source
+
+#### S3 to Hive Connector
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -1141,7 +1245,11 @@ spark.sparkContext.hadoopConfiguration.set("fs.s3a.secret.key", "******")
 ```
 
 
-### Target FS (Cloud)
+## Target FS (Cloud)
+We can also write to Cloud File Systems using Spear. Below are few of the connectors to Cloud from different sources.
+
+![image](https://user-images.githubusercontent.com/59328701/120101557-2ebd9980-c164-11eb-95b6-1925bd68d673.png)
+
 
 ### JDBC source
 
@@ -1281,6 +1389,50 @@ postgresToGCSConnector
 postgresToGCSConnector.stop()
 ```
 
+### Output
+```commandline
+21/05/29 08:27:33 INFO targetFS.JDBCtoFS: Connector to Target: File System with Format: parquet from Source Object: mytable with Format: jdbc started running!!
+21/05/29 08:27:33 INFO targetFS.JDBCtoFS: Reading source table: mytable with format: jdbc status:success
++----------+-----+-----------+
+|state_code|party|total_votes|
++----------+-----+-----------+
+|AL        |Dem  |793620     |
+|MN        |Grn  |13045      |
+|NY        |GOP  |2226637    |
+|AZ        |Lib  |27523      |
+|MI        |CST  |16792      |
+|ID        |Dem  |212560     |
+|ID        |GOP  |420750     |
+|ID        |Ind  |2495       |
+|WA        |CST  |7772       |
+|HI        |Grn  |3121       |
++----------+-----+-----------+
+only showing top 10 rows
+
+21/05/29 08:27:33 INFO targetFS.JDBCtoFS: Saving data as temporary table:__tmp__ success
+21/05/29 08:27:33 INFO targetFS.JDBCtoFS: Executing tranformation sql:
+select *
+from __tmp__ status :success
++----------+-----+-----------+
+|state_code|party|total_votes|
++----------+-----+-----------+
+|AL        |Dem  |793620     |
+|MN        |Grn  |13045      |
+|NY        |GOP  |2226637    |
+|AZ        |Lib  |27523      |
+|MI        |CST  |16792      |
+|ID        |Dem  |212560     |
+|ID        |GOP  |420750     |
+|ID        |Ind  |2495       |
+|WA        |CST  |7772       |
+|HI        |Grn  |3121       |
++----------+-----+-----------+
+only showing top 10 rows
+
+21/05/29 08:27:51 INFO targetFS.JDBCtoFS: Write data to target path: gs://testbucketspear/mytable_data with format: parquet completed with status:success
+```
+
+
 #### Salesforce to S3 Connector
 
 ```
@@ -1403,5 +1555,249 @@ only showing top 10 rows
 only showing top 10 rows
 
 21/05/29 07:08:41 INFO targetFS.JDBCtoFS: Write data to target path: s3a://testbucketspear/salesforcedata with format: parquet completed with status:success
+
+```
+
+## Target NOSQL
+Spear framework supports writing data to NOSQL Databases like mongodb/cassandra etc..
+
+### File source
+
+![image](https://user-images.githubusercontent.com/59328701/120101839-c2439a00-c165-11eb-96ce-a26cb8518372.png)
+
+#### CSV to MongoDB Connector
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import java.util.Properties
+import org.apache.spark.sql.{Column, DataFrame, SaveMode}
+
+val mongoProps=new Properties()
+  mongoProps.put("uri","mongodb://mongo:27017")
+
+val csvMongoConnector = SpearConnector
+    .createConnector("CSVTOMONGO")
+    .source(sourceType = "file", sourceFormat = "csv")
+    .target(targetType = "nosql", targetFormat = "mongo")
+    .getConnector
+csvMongoConnector.setVeboseLogging(true)
+  csvMongoConnector
+    .source(sourceObject = "file:///opt/spear-framework/data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
+    .saveAs("__tmp__")
+    .transformSql(
+      """select state_code,party,
+        |sum(votes) as total_votes
+        |from __tmp__
+        |group by state_code,party""".stripMargin)
+    .targetNoSQL("ingest.csvdata",mongoProps,SaveMode.Overwrite)
+
+csvMongoConnector.stop()
+```
+
+
+##### Output
+
+````commandline
+
+21/05/30 11:18:02 INFO targetNoSQL.FilettoNoSQL: Connector to Target: NoSQL DB with Format: mongo from Source: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with Format: csv started running !!
+21/05/30 11:18:04 INFO targetNoSQL.FilettoNoSQL: Reading source file: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with format: csv status:success
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+|country_id|state_code|country_name|country_total_votes|party|first_name|last_name|votes|
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+|1         |AK        |Alasaba     |220596             |Dem  |Barack    |Obama    |91696|
+|2         |AK        |Akaskak     |220596             |Dem  |Barack    |Obama    |91696|
+|3         |AL        |Autauga     |23909              |Dem  |Barack    |Obama    |6354 |
+|4         |AK        |Akaska      |220596             |Dem  |Barack    |Obama    |91696|
+|5         |AL        |Baldwin     |84988              |Dem  |Barack    |Obama    |18329|
+|6         |AL        |Barbour     |11459              |Dem  |Barack    |Obama    |5873 |
+|7         |AL        |Bibb        |8391               |Dem  |Barack    |Obama    |2200 |
+|8         |AL        |Blount      |23980              |Dem  |Barack    |Obama    |2961 |
+|9         |AL        |Bullock     |5318               |Dem  |Barack    |Obama    |4058 |
+|10        |AL        |Butler      |9483               |Dem  |Barack    |Obama    |4367 |
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+only showing top 10 rows
+
+21/05/30 11:18:04 INFO targetNoSQL.FilettoNoSQL: Saving data as temporary table:__tmp__ success
+21/05/30 11:18:04 INFO targetNoSQL.FilettoNoSQL: Executing tranformation sql: select state_code,party,
+sum(votes) as total_votes
+from __tmp__
+group by state_code,party status :success
++----------+-----+-----------+
+|state_code|party|total_votes|
++----------+-----+-----------+
+|AL        |Dem  |793620     |
+|NY        |GOP  |2226637    |
+|MI        |CST  |16792      |
+|ID        |GOP  |420750     |
+|ID        |Ind  |2495       |
+|WA        |CST  |7772       |
+|HI        |Grn  |3121       |
+|MS        |RP   |969        |
+|MN        |Grn  |13045      |
+|ID        |Dem  |212560     |
++----------+-----+-----------+
+only showing top 10 rows
+
+21/05/30 11:18:08 INFO targetNoSQL.FilettoNoSQL: Write data to object ingest.csvdata completed with status:success
++----------+-----+-----------+
+|state_code|party|total_votes|
++----------+-----+-----------+
+|AL        |Dem  |793620     |
+|NY        |GOP  |2226637    |
+|MI        |CST  |16792      |
+|ID        |GOP  |420750     |
+|ID        |Ind  |2495       |
+|WA        |CST  |7772       |
+|HI        |Grn  |3121       |
+|MS        |RP   |969        |
+|MN        |Grn  |13045      |
+|ID        |Dem  |212560     |
++----------+-----+-----------+
+only showing top 10 rows
+
+````
+
+
+### JDBC source
+
+![image](https://user-images.githubusercontent.com/59328701/120101743-2d40a100-c165-11eb-9ad9-76c7334b6996.png)
+
+#### Salesforce to Cassandra Connector
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import java.util.Properties
+import org.apache.spark.sql.{Column, DataFrame, SaveMode}
+
+val cassandraProps=new Properties()
+  cassandraProps.put("spark.cassandra.connection.host","cassandra")
+
+
+Logger.getLogger("com.github").setLevel(Level.INFO)
+val salseforceToCassandraConnector = SpearConnector
+    .createConnector("Salesforce-Mongo")
+    .source(sourceType = "relational", sourceFormat = "soql")
+    .target(targetType = "nosql", targetFormat = "cassandra")
+    .getConnector
+
+salseforceToCassandraConnector.setVeboseLogging(true)
+
+salseforceToCassandraConnector
+ .sourceSql(Map( "login"-> "https://login.salesforce.com","username" -> "salesforce", "password" -> "salesforce"),
+    """select
+      |    Id,
+      |    name,
+      |    OwnerId,
+      |    age__c,
+      |    gender__c,
+      |    guardianname__c,
+      |    ingest_ts_utc__c,
+      |    name_siml_score__c,
+      |    year_of_birth__c,
+      |    LastModifiedById,
+      |    LastModifiedDate
+      |    from spark_sale_test__c""".stripMargin)
+    .saveAs("__temp__")
+    .transformSql("""select
+      |    cast (Id as STRING) as id,
+      |    name,
+      |    cast (OwnerId as STRING) as ownerid,
+      |    age__c,
+      |    gender__c
+      |    from __temp__""".stripMargin)
+   .targetNoSQL("ingest.salesforcedata_new",cassandraProps,SaveMode.Append)
+
+salseforceToCassandraConnector.stop()   
+```
+
+
+
+##### Output
+
+```commandline
+21/05/30 11:23:54 INFO targetNoSQL.JDBCtoNoSQL: Connector from Source sql: select
+    Id,
+    name,
+    OwnerId,
+    age__c,
+    gender__c,
+    guardianname__c,
+    ingest_ts_utc__c,
+    name_siml_score__c,
+    year_of_birth__c,
+    LastModifiedById,
+    LastModifiedDate
+    from spark_sale_test__c with Format: soql started running!!
+21/05/30 11:24:17 INFO targetNoSQL.JDBCtoNoSQL: Executing source sql query: select
+    Id,
+    name,
+    OwnerId,
+    age__c,
+    gender__c,
+    guardianname__c,
+    ingest_ts_utc__c,
+    name_siml_score__c,
+    year_of_birth__c,
+    LastModifiedById,
+    LastModifiedDate
+    from spark_sale_test__c with format: soql status:success
++----------------------------+------------------+------+---------+------------------+---------------+----------------+------------------+------------------+---------------------+------------+
+|LastModifiedDate            |OwnerId           |age__c|gender__c|name_siml_score__c|guardianname__c|year_of_birth__c|Id                |LastModifiedById  |ingest_ts_utc__c     |Name        |
++----------------------------+------------------+------+---------+------------------+---------------+----------------+------------------+------------------+---------------------+------------+
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |F        |0.583333          |prahlad ram    |1962.0          |a045g000001RNLnAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|magi devi   |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |M        |1.0               |kisan lal      |1959.0          |a045g000001RNLoAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|bhanwar lal |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |F        |1.0               |bhagwan singh  |1967.0          |a045g000001RNLpAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|chain kanvar|
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |M        |null              |pepa ram       |1998.0          |a045g000001RNLqAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|baga ram    |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |M        |0.333333          |sataram        |1974.0          |a045g000001RNLrAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|prabhu ram  |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |M        |0.357143          |jiyaram        |1981.0          |a045g000001RNLsAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|karna ram   |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |F        |1.0               |hameera ram    |1992.0          |a045g000001RNLtAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|vimla       |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |F        |0.6               |shyam singh    |1987.0          |a045g000001RNLuAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|brij kanvar |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |F        |1.0               |viramaram      |1936.0          |a045g000001RNLvAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|javarodevi  |
+|2021-03-10T10:42:59.000+0000|0055g0000043QwfAAE|null  |M        |0.583333          |bagataram      |1981.0          |a045g000001RNLwAAO|0055g0000043QwfAAE|2020-05-20 16:01:25.0|arjun ram   |
++----------------------------+------------------+------+---------+------------------+---------------+----------------+------------------+------------------+---------------------+------------+
+only showing top 10 rows
+
+21/05/30 11:24:17 INFO targetNoSQL.JDBCtoNoSQL: Saving data as temporary table:__temp__ success
+21/05/30 11:24:17 INFO targetNoSQL.JDBCtoNoSQL: Executing tranformation sql: select
+    cast (Id as STRING) as id,
+    name,
+    cast (OwnerId as STRING) as ownerid,
+    age__c,
+    gender__c
+    from __temp__ status :success
++------------------+------------+------------------+------+---------+
+|id                |name        |ownerid           |age__c|gender__c|
++------------------+------------+------------------+------+---------+
+|a045g000001RNLnAAO|magi devi   |0055g0000043QwfAAE|null  |F        |
+|a045g000001RNLoAAO|bhanwar lal |0055g0000043QwfAAE|null  |M        |
+|a045g000001RNLpAAO|chain kanvar|0055g0000043QwfAAE|null  |F        |
+|a045g000001RNLqAAO|baga ram    |0055g0000043QwfAAE|null  |M        |
+|a045g000001RNLrAAO|prabhu ram  |0055g0000043QwfAAE|null  |M        |
+|a045g000001RNLsAAO|karna ram   |0055g0000043QwfAAE|null  |M        |
+|a045g000001RNLtAAO|vimla       |0055g0000043QwfAAE|null  |F        |
+|a045g000001RNLuAAO|brij kanvar |0055g0000043QwfAAE|null  |F        |
+|a045g000001RNLvAAO|javarodevi  |0055g0000043QwfAAE|null  |F        |
+|a045g000001RNLwAAO|arjun ram   |0055g0000043QwfAAE|null  |M        |
++------------------+------------+------------------+------+---------+
+only showing top 10 rows
+
+21/05/30 11:24:22 INFO targetNoSQL.JDBCtoNoSQL: Write data to object ingest.salesforcedata_new completed with status:success
++------------------+------------+------------------+------+---------+
+|id                |name        |ownerid           |age__c|gender__c|
++------------------+------------+------------------+------+---------+
+|a045g000001RNLnAAO|magi devi   |0055g0000043QwfAAE|null  |F        |
+|a045g000001RNLoAAO|bhanwar lal |0055g0000043QwfAAE|null  |M        |
+|a045g000001RNLpAAO|chain kanvar|0055g0000043QwfAAE|null  |F        |
+|a045g000001RNLqAAO|baga ram    |0055g0000043QwfAAE|null  |M        |
+|a045g000001RNLrAAO|prabhu ram  |0055g0000043QwfAAE|null  |M        |
+|a045g000001RNLsAAO|karna ram   |0055g0000043QwfAAE|null  |M        |
+|a045g000001RNLtAAO|vimla       |0055g0000043QwfAAE|null  |F        |
+|a045g000001RNLuAAO|brij kanvar |0055g0000043QwfAAE|null  |F        |
+|a045g000001RNLvAAO|javarodevi  |0055g0000043QwfAAE|null  |F        |
+|a045g000001RNLwAAO|arjun ram   |0055g0000043QwfAAE|null  |M        |
++------------------+------------+------------------+------+---------+
+only showing top 10 rows
 
 ```
