@@ -48,6 +48,8 @@ object ConnectorCommon {
         } else {
           SpearConnector.spark.read.format(SpearCommons.SalesforceFormat).option("saql", s"$sqlText").options(params).load()
         }
+      case "hive" =>
+        SpearConnector.spark.sql(s"$sqlText")
       case _ =>
         SpearConnector.spark.read.format(sourceFormat).option("dbtable", s"($sqlText)temp").options(params).load()
     }
