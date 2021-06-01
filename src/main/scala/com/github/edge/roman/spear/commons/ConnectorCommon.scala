@@ -35,6 +35,8 @@ object ConnectorCommon {
     sourceFormat match {
       case "soql" | "saql" =>
         throw new NoSuchMethodException(s"Salesforce object ${sourceObject} cannot be loaded directly.Instead use sourceSql function with soql/saql query to load the data")
+      case "hive" =>
+         SpearConnector.spark.read.table(sourceObject)
       case _ =>
         SpearConnector.spark.read.format(sourceFormat).option("dbtable", sourceObject).options(params).load()
     }
