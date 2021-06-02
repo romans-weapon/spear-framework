@@ -39,7 +39,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=hive
   spear-container:
-    image: "spearframework/spark-hadoop-hive:2.0"
+    image: "spearframework/spark-hadoop-hive:v2.0"
     hostname: "hadoop.spark"
     container_name: "spear"
     restart: always
