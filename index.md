@@ -24,6 +24,7 @@ Below is the code and design quality score for Spear framework given by Code Ins
         - [JDBC Source](#jdbc-source)
             + [Oracle to Postgres Connector](#oracle-to-postgres-connector)
             + [Postgres to Salesforce Connector](#postgres-to-salesforce-connector)
+            + [Hive to Postgres Connector](#hive-to-postgres-connector)
         - [NOSQL Source](#nosql-source)
             + [MongoDB to Postgres Connector](#mongodb-to-postgres-connector)
         - [Streaming Source](#streaming-source)
@@ -668,6 +669,46 @@ postgresSalesForce
         |from __tmp__""".stripMargin)
     .targetJDBC(tableName = "Sample__c", targetproperties, SaveMode.Overwrite)
 postgresSalesForce.stop()
+```
+
+#### Hive to postgres connector
+When working with Hive, one must instantiate SparkSession with Hive support.Spark connects to the Hive metastore directly via a HiveContext It does not use JDBC.The configuration of Hive is done by placing your hive-site.xml, core-site.xml (for security configuration), and hdfs-site.xml (for HDFS configuration) file in conf/ folder of spark.
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import java.util.Properties
+import org.apache.spark.sql.{Column, DataFrame, SaveMode}
+
+val properties = new Properties()
+  properties.put("driver", "org.postgresql.Driver");
+  properties.put("user", "postgres_user")
+  properties.put("password", "mysecretpassword")
+  properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
+
+Logger.getLogger("com.github").setLevel(Level.INFO)
+
+val hiveJdbcConnector = SpearConnector
+    .createConnector("HIVETOPOSTGRES")
+    .source(sourceType = "relational", sourceFormat = "hive")
+    .target(targetType = "relational", targetFormat = "jdbc")
+    .getConnector
+
+hiveJdbcConnector.setVeboseLogging(true)      
+
+hiveJdbcConnector
+    .source("persons")
+    .saveAs("__hive_staging__")
+    .transformSql("""select 
+      |    id,
+      |    cast (name as STRING) as name,
+      |    cast (ownerid as STRING) as ownerid,
+      |    age__c as age,
+      |    cast (gender__c as STRING) as gender 
+      |    from __hive_staging___""".stripMargin)
+    .targetJDBC("test",properties,SaveMode.Overwrite)
+hiveJdbcConnector.stop()    
+
 ```
 
 ### NOSQL Source
