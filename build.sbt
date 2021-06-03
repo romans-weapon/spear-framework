@@ -22,7 +22,6 @@ libraryDependencies ++= Seq(
   "com.google.cloud" % "google-cloud-storage" % "1.114.0",
   "com.google.cloud" % "google-cloud-nio" % "0.30.0-alpha",
   "com.microsoft.azure" % "azure-storage" % "4.0.0",
-  "org.antlr" % "stringtemplate" % "4.0",
   "org.mongodb.spark" %% "mongo-spark-connector" % "2.4.2",
 
   "org.postgresql" % "postgresql" % "42.2.5" % Test,
@@ -34,3 +33,16 @@ assemblyMergeStrategy in assembly := {
   case x => MergeStrategy.first
 }
 assemblyJarName in assembly := "spear-framework-1.0.jar"
+
+ThisBuild / developers := List(
+  Developer(
+    id    = "anudeep",
+    name  = "Anudeep Konaboina",
+    email = "krantianudeep@gmail.com",
+    url   = url("https://github.com/AnudeepKonaboina/spear-framework")
+  )
+)
+
+ThisBuild / description := "Rapid ETL-connectors/pipeline development with minimal code leveraged on top of Apache Spark"
+ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / homepage := Some(url("https://github.com/AnudeepKonaboina/spear-framework"))
