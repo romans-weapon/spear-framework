@@ -1,4 +1,8 @@
+ThisBuild / organizationName := "Romans Weapon"
+ThisBuild / organization := "io.github.romans-weapon"
+ThisBuild / organizationHomepage := Some(url("https://github.com/romans-weapon"))
 ThisBuild / name := "spear-framework"
+ThisBuild / version := "2.4-1.0"
 
 lazy val scala212 = "2.12.12"
 lazy val scala211 = "2.11.12"
@@ -34,15 +38,35 @@ assemblyMergeStrategy in assembly := {
 }
 assemblyJarName in assembly := "spear-framework-1.0.jar"
 
+resolvers +=
+  "Sonatype OSS Snapshots" at "https://s01.oss.sonatype.org/service/local/repositories/releases/content"
+
+ThisBuild / scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/romans-weapon/spear-framework"),
+    "scm:git@github.com:romans-weapon/spear-framework.git"
+  )
+)
 ThisBuild / developers := List(
   Developer(
     id    = "anudeep",
     name  = "Anudeep Konaboina",
     email = "krantianudeep@gmail.com",
-    url   = url("https://github.com/AnudeepKonaboina/spear-framework")
+    url   = url("https://github.com/romans-weapon")
   )
 )
 
 ThisBuild / description := "Rapid ETL-connectors/pipeline development with minimal code leveraged on top of Apache Spark"
 ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
-ThisBuild / homepage := Some(url("https://github.com/AnudeepKonaboina/spear-framework"))
+ThisBuild / homepage := Some(url("https://github.com/romans-weapon/spear-framework"))
+
+// Remove all additional repository other than Maven Central from POM
+credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credentials")
+ThisBuild / pomIncludeRepository := { _ => false }
+ThisBuild / publishTo := {
+  val nexus = "https://s01.oss.sonatype.org/"
+  if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+}
+ThisBuild / publishMavenStyle := true
+updateOptions := updateOptions.value.withGigahorse(false)
