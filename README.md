@@ -8,11 +8,13 @@
 
 The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
-## Table of Contents
+# Table of Contents
 - [Introduction](#introduction)
 - [Design and Code Quality](#design-and-code-quality)
-- [Pre-Requisites](#pre-requisites)
 - [Getting started with Spear](#getting-started-with-spear)
+    * [Maven dependency for Spear](#maven-dependency-for-spear)
+    * [Spark shell package for Spear](#spark-shell-package-for-spear)
+    * [Docker container setup for Spear](#docker-container-setup-for-spear)
 - [Develop your first connector using Spear](#develop-your-first-connector-using-spear)
 - [Example Connectors](#example-connectors)
     * [Target JDBC](#target-jdbc)
@@ -35,65 +37,36 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
 - [Contributions and License](#contributions-and-license)
 - [More about Spear](#more-about-spear)
 
-## Introduction
+# Introduction
 
 Spear Framework provides the developers thae ability to write connectors (ETL jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination with very minimal code.
 
 ![image](https://user-images.githubusercontent.com/59328701/120106134-84507100-c179-11eb-9624-7a1504c8a083.png)
 
-## Design and Code Quality
+# Design and Code Quality
 
 ![image](https://user-images.githubusercontent.com/59328701/120107447-aac4db00-c17e-11eb-815e-ff18381767ab.png)
 
 
-## Pre-Requisites
-Following are the pre-requisites you need for playing around with spear:
+# Getting Started with Spear
+You can get started with spear using any of the below methods:
 
-1. Need to have a linux machine with 16GB Ram and 4 CPU's for better performance
-2. Install docker and docker-compose using the below steps
+### Maven dependency for Spear
+
+You can add spear-framework as maven dependency in your projects build.sbt file as show below
 ```commandline
-#To install docker on centos:
-============================
-sudo yum remove docker \
-                  docker-client \
-                  docker-client-latest \
-                  docker-common \
-                  docker-latest \
-                  docker-latest-logrotate \
-                  docker-logrotate \
-                  docker-engine
-sudo yum install -y yum-utils
-sudo yum-config-manager \
-    --add-repo \
-    https://download.docker.com/linux/centos/docker-ce.repo
-
-sudo yum install docker-ce docker-ce-cli containerd.io
-sudo systemctl start docker
-
-#To install docker ubuntu:
-=========================
-sudo apt-get remove docker docker-engine docker.io containerd runc
-
-sudo apt-get update
-sudo apt-get install \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release
-    
-sudo apt-get install docker.io
-sudo systemctl start docker
-
-#install docker-compose:
-=======================
-sudo curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
+libraryDependencies += "io.github.romans-weapon" %% "spear-framework" % "0.1.0"
 ```
 
-## Getting Started with Spear
+### Spark shell package for Spear
 
-Below are the steps to setup spear on any machine having docker and docker-compose installed:
+You can also add it as a package while staring spark-shell along with other packages.
+```commandline
+spark-shell --packages "io.github.romans-weapon:spear-framework_2.11:0.1.0"
+```
+
+### Docker container setup for Spear
+Below are the simple steps to setup spear on any machine having docker and docker-compose installed :
 
 1. Clone the repository from git and navigate to project directory
 ```commandline
@@ -108,19 +81,21 @@ sh setup.sh
 3. Once the setup is completed run the below commands for starting spear-framework on spark:
 ```commandline
 ->Enter into spark-conatiner using the comamnd:
-user@node~$ docker exec -it spark bash
+user@node~$ docker exec -it spear bash
+```
 
-->Run `spear-shell` to start the shell:
+4.Run `spear-shell` inside the conatiner to start the shell:
+```
 root@hadoop # spear-shell
 ```
 
-**NOTE**: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source
-and write it to HDFS so that it gives you complete environment to play with spear-framework.
+**NOTE**: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source and write it to HDFS so that it gives you complete environment to play with spear-framework.
+Also it has a postgres database and a NO-SQL database mongodb as well which you can use it as a source or as a desination for writing and testing your connector.
 
-4. Start writing your own single line connectors and explore .To understand how to write a connector [click here](develop-your-first-connector-using-spear)
+5. Start writing your own connectors and explore .To understand how to write a connector [click here](develop-your-first-connector-using-spear)
 
 
-## Develop your first connector using Spear
+# Develop your first connector using Spear
 
 Below are the steps to write any connector:
 
@@ -129,9 +104,9 @@ Below are the steps to write any connector:
 import com.github.edge.roman.spear.SpearConnector
 
 val connector = SpearConnector
-  .createConnector(name="defaultconnector")//give a name to your connector(any name)
+  .createConnector(name="defaultconnector")                //give a name to your connector(any name)
   .source(sourceType = "relational", sourceFormat = "jdbc")//source type and format for loading data  
-  .target(targetType = "FS", targetFormat = "parquet")//target type and format for writing data to dest.
+  .target(targetType = "FS", targetFormat = "parquet")     //target type and format for writing data to dest.
   .getConnector 
 
 Below table shows all the supported source and destination types.
@@ -156,19 +131,24 @@ Below are the source and destination type combinations that spear-framework supp
 2. Write the connector logic using the connector object.
 
 ```commandline
+-> Souce object and connection profile needs to be specified for reading data from source
 connector
-   //souce object and connection profile needs to be specified
-  .source(sourceObject="can be <filename/tablename/topic/api>", <connection profile Map((key->value))>) (or) .sourceSql(<connection profile>,sql text)
-  //creates a temporary table on the source data with the given alias name which can be used for further transformations
+  .source(sourceObject="<filename/tablename/topic/api>", <source_connection_profile Map((key->value))>) 
+  (or) 
+  .sourceSql(<connection profile>,<sql_text>)
+  
+->The saveAs api creates a temporary table on the source data with the given alias name which can be used for further transformations
   .saveAs("<alias temporary table name>")
-  //apply custom tranformations on the loaded source data.(optional/can be applied only if necessary)
-  .transformSql("<transformations to be applied on source data>")
-  //target details where you want to load the data.
+
+->apply custom tranformations on the loaded source data.(optional/can be applied only if necessary)
+  .transformSql("<transformation sql to be applied on source data>")
+
+->target details where you want to load the data.
   .targetFS(destinationFilePath = "<hdfs /s3/gcs file path>", saveAsTable = "<tablename>", <Savemode can be overwrite/append/ignore>) 
   (or)
   .targetJDBC(tableName=<table_name>, properties, <Savemode can be overwrite/append/ignore>)
   (or)
-  .targetNoSQL(<nosql_obj_name>,cassandraProps,<Savemode can be overwrite/append/ignore>)
+  .targetNoSQL(<nosql_obj_name>,properties,<Savemode can be overwrite/append/ignore>)
 ```
 
 3. On completion stop the connector.
@@ -179,13 +159,13 @@ connector.stop()
 ```
 
 4. Enable verbose logging
-   To get the output df at each stage in your connector you can explicitly enable verbose logging as below on top of connector object.This is completely optional.
+   To get the output df at each stage in your connector you can explicitly enable verbose logging as below after creating a connector object.This is completely optional.
 
 ```commandline
 connector.setVeboseLogging(true) //default value is false.
 ```
 
-Diagramatic Representation:
+## Diagramatic Representation:
 ![image](https://user-images.githubusercontent.com/59328701/119258939-7afb5d80-bbe9-11eb-837f-02515cb7cf74.png)
 
 ## Example Connectors
