@@ -5,7 +5,7 @@
 [![GitHub tag](https://img.shields.io/github/v/release/AnudeepKonaboina/spear-framework)](https://github.com/AnudeepKonaboina/spear-framework/tags)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.romans-weapon/spear-framework_2.11.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.romans-weapon%22%20AND%20a:%22spear-framework_2.11%22)
-[![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](hhttps://romans-weapon.github.io/spear-framework/)
+[![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://romans-weapon.github.io/spear-framework/)
 
 The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
