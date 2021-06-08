@@ -48,29 +48,24 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends AbstractTarge
     this
   }
 
-  override def targetFS(destinationFilePath: String, tableName: String, saveMode: SaveMode): Unit = {
+  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
     this.df.writeStream
       .foreachBatch { (batchDF: DataFrame, _: Long) =>
         if (destinationFilePath.isEmpty) {
-          batchDF.write.format(destFormat).mode(saveMode).saveAsTable(tableName)
+          if (saveAsTable.isEmpty) {
+            throw new Exception("Neither file_path nor table_name is provided for streaming data to destination")
+          } else {
+            batchDF.write.format(destFormat).mode(saveMode).saveAsTable(saveAsTable)
+          }
         } else {
-          batchDF.write.format(destFormat).mode(saveMode).option("path", destinationFilePath).saveAsTable(tableName)
+          if (saveAsTable.isEmpty) {
+            batchDF.write.format(destFormat).mode(saveMode).option("path", destinationFilePath).save()
+          } else {
+            batchDF.write.format(destFormat).mode(saveMode).option("path", destinationFilePath).saveAsTable(saveAsTable)
+          }
         }
-        val targetDF = SpearConnector.spark.sql("select * from " + tableName)
+        val targetDF = SpearConnector.spark.sql("select * from " + saveAsTable)
         targetDF.show(this.numRows, false)
-      }.start()
-      .awaitTermination()
-  }
-
-
-  override def targetFS(destinationFilePath: String, saveMode: SaveMode): Unit = {
-    this.df.writeStream
-      .foreachBatch { (batchDF: DataFrame, _: Long) =>
-        if (destinationFilePath.isEmpty) {
-          throw new Exception("Empty file path specified:" + destinationFilePath)
-        } else {
-          batchDF.write.format(destFormat).mode(saveMode).option("path", destinationFilePath).save()
-        }
       }.start()
       .awaitTermination()
   }

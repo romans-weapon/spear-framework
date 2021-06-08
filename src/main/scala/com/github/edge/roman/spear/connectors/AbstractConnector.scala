@@ -27,11 +27,11 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 
 import java.util.Properties
 
-abstract class AbstractConnector(sourceFormat: String, destFormat: String) extends Connector {
+abstract class AbstractConnector(sourceFormat: String) extends Connector {
   val logger: Logger = Logger.getLogger(this.getClass.getName)
   var df: DataFrame = _
   var verboseLogging: Boolean = false
-  var numRows:Int = SpearCommons.ShowNumRows
+  var numRows: Int = SpearCommons.ShowNumRows
 
   def setVeboseLogging(enable: Boolean): Unit = {
     this.verboseLogging = enable
@@ -61,10 +61,6 @@ abstract class AbstractConnector(sourceFormat: String, destFormat: String) exten
     this
   }
 
-  def toDF: DataFrame = this.df
-
-  def stop(): Unit = SpearConnector.spark.stop()
-
   override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = {
     val paramsWithSchema = params + (SpearCommons.CustomSchema -> schema.toString())
     source(sourceObject, paramsWithSchema)
@@ -89,5 +85,23 @@ abstract class AbstractConnector(sourceFormat: String, destFormat: String) exten
     this.df.sqlContext.sql(sqlText)
   }
 
+  override def executeQuery(sqlText: String): Connector = {
+    this.df = SpearConnector.spark.sql(sqlText)
+    logger.info(s"Executing spark sql: ${sqlText} status :${SpearCommons.SuccessStatus}")
+    show()
+    this
+  }
+
+  override def targets(targets: Unit*): Unit = {
+    targets.foreach(target => {
+      target
+    })
+  }
+
+  def toDF: DataFrame = this.df
+
+  def stop(): Unit = SpearConnector.spark.stop()
+
   def show(): Unit = if (this.verboseLogging) this.df.show(this.numRows, false)
+
 }

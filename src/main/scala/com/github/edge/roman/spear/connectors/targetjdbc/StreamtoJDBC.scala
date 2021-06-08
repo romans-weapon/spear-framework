@@ -50,7 +50,7 @@ class StreamtoJDBC(sourceFormat: String, destFormat: String) extends AbstractTar
   }
 
 
-  override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = {
+  override def targetJDBC(tableName: String,destFormat: String, props: Properties, saveMode: SaveMode): Unit = {
     this.df.writeStream
       .foreachBatch { (batchDF: DataFrame, _: Long) =>
         batchDF.write

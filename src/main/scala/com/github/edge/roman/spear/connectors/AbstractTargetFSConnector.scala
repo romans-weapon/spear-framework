@@ -25,30 +25,31 @@ import org.apache.spark.sql.SaveMode
 
 import java.util.Properties
 
-abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String, destFormat: String) with Connector {
+abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
-  override def targetFS(destinationFilePath: String, tableName: String, saveMode: SaveMode): Unit = {
+  override def targetFS(destinationFilePath: String, destFormat: String=destFormat,saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
     if (destinationFilePath.isEmpty) {
-      this.df.write.format(destFormat).mode(saveMode).saveAsTable(tableName)
+      if (saveAsTable.isEmpty) {
+        throw new Exception("Neither file_path nor table_name is provided for landing data to destination")
+      } else {
+        this.df.write.format(destFormat).mode(saveMode).saveAsTable(saveAsTable)
+        logger.info(s"Write data to default path with format: ${sourceFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
+        show()
+      }
     } else {
-      this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(tableName)
+      if (saveAsTable.isEmpty) {
+        this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
+        logger.info(s"Write data to target path: ${destinationFilePath} with format: ${destFormat} completed with status:${SpearCommons.SuccessStatus}")
+      } else {
+        this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
+        logger.info(s"Write data to target path: ${destinationFilePath} with format: ${sourceFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
+        show()
+      }
     }
-    logger.info(s"Write data to target path: ${destinationFilePath} with format: ${sourceFormat} and saved as table ${tableName} completed with status:${SpearCommons.SuccessStatus}")
-    show()
   }
 
-  override def targetFS(destinationPath: String, saveMode: SaveMode): Unit = {
-    if (destinationPath.isEmpty) {
-      throw new Exception("Empty file path specified:" + destinationPath)
-    } else {
-      this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationPath).save()
-      logger.info(s"Write data to target path: ${destinationPath} with format: ${destFormat} completed with status:${SpearCommons.SuccessStatus}")
-    }
-  }
 
-  def targetFS(destinationPath: String, params: Map[String, String]): Unit = ???
+  override def targetJDBC(tableName: String, destFormat: String,props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetJDBC() not compatible for given targetType FS")
 
-  override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetJDBC() not compatible for given targetType FS")
-
-  override def targetNoSQL(tableName: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetNoSQL() not compatible for given targetType FS")
+  override def targetNoSQL(tableName: String,destFormat: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetNoSQL() not compatible for given targetType FS")
 }

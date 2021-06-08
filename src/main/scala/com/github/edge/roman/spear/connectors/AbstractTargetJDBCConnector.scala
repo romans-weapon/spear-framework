@@ -26,9 +26,9 @@ import org.apache.spark.sql.SaveMode
 import java.util.Properties
 
 
-abstract class AbstractTargetJDBCConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String, destFormat: String) with Connector {
+abstract class AbstractTargetJDBCConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
-  override def targetJDBC(tableName: String, props: Properties, saveMode: SaveMode): Unit = {
+  override def targetJDBC(tableName: String, destFormat: String =destFormat, props: Properties, saveMode: SaveMode): Unit = {
     destFormat match {
       case "soql" =>
         this.df.write.format(SpearCommons.SalesforceFormat)
@@ -47,11 +47,7 @@ abstract class AbstractTargetJDBCConnector(sourceFormat: String, destFormat: Str
     show()
   }
 
-  override def targetFS(destinationFilePath: String, saveAsTable: String, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType 'relational'")
+  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, saveMode: SaveMode, params: Map[String, String]): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType 'relational'")
 
-  override def targetFS(destinationFilePath: String, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType 'relational'")
-
-  override def targetFS(destinationFilePath: String, params: Map[String, String]): Unit = throw new NoSuchMethodException("method targetFS() not compatible for given targetType 'relational'")
-
-  override def targetNoSQL(tableName: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetNoSQL() not compatible for given targetType FS")
+  override def targetNoSQL(tableName: String, destFormat: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetNoSQL() not compatible for given targetType FS")
 }

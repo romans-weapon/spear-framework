@@ -76,51 +76,34 @@ class FStoFS(sourceFormat: String, destFormat: String) extends AbstractTargetFSC
     this
   }
 
-  override def targetFS(destinationPath: String, params: Map[String, String]): Unit = {
+  override def targetFS(destinationFilePath: String,destForeamt:String, saveAsTable: String, saveMode: SaveMode, params: Map[String, String]): Unit = {
     destFormat match {
       case SpearCommons.LOCAL =>
-        localFSUtil.uploadFile(destinationPath, size, inputStream)
+        localFSUtil.uploadFile(destinationFilePath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
       case SpearCommons.AWS =>
-        s3Util.configureClient(params)
-        s3Util.uploadFile(destinationPath, size, inputStream)
+        if (params.nonEmpty)
+          s3Util.configureClient(params)
+        s3Util.uploadFile(destinationFilePath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
       case SpearCommons.GCS =>
-        gcsUtil.configureClient(params)
-        gcsUtil.uploadFile(destinationPath, size, inputStream)
+        if (params.nonEmpty)
+          gcsUtil.configureClient(params)
+        gcsUtil.uploadFile(destinationFilePath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
       case SpearCommons.ADLS =>
-        adlsUtil.configureClient(params)
-        adlsUtil.uploadFile(destinationPath, size, inputStream)
+        if (params.nonEmpty)
+          adlsUtil.configureClient(params)
+        adlsUtil.uploadFile(destinationFilePath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
       case SpearCommons.HDFS =>
-        hdfsUtil.configureClient(params)
-        hdfsUtil.uploadFile(destinationPath, size, inputStream)
+        if (params.nonEmpty)
+          hdfsUtil.configureClient(params)
+        hdfsUtil.uploadFile(destinationFilePath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
       case _ =>
         throw new Exception("Invalid destination type provided or Not Supported.")
     }
   }
-
-  override def targetFS(destinationPath: String, saveMode: SaveMode): Unit = {
-    destFormat match {
-      case SpearCommons.LOCAL =>
-        localFSUtil.uploadFile(destinationPath, size, inputStream)
-        logger.info(SpearCommons.FileUploadSuccess)
-      case SpearCommons.AWS =>
-        s3Util.uploadFile(destinationPath, size, inputStream)
-        logger.info(SpearCommons.FileUploadSuccess)
-      case SpearCommons.GCS =>
-        gcsUtil.uploadFile(destinationPath, size, inputStream)
-        logger.info(SpearCommons.FileUploadSuccess)
-      case SpearCommons.ADLS =>
-        adlsUtil.uploadFile(destinationPath, size, inputStream)
-        logger.info(SpearCommons.FileUploadSuccess)
-      case SpearCommons.HDFS =>
-        hdfsUtil.uploadFile(destinationPath, size, inputStream)
-        logger.info(SpearCommons.FileUploadSuccess)
-      case _ =>
-        throw new Exception("Invalid destination type provided or Not Supported...")
-    }
-  }
 }
+
