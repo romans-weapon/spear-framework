@@ -97,7 +97,7 @@ abstract class AbstractConnector(sourceFormat: String) extends Connector {
     this
   }
 
-  override def targets(targets: Unit*): Unit = _
+  override def targets(targets: Unit*): Unit = {}
 
   def toDF: DataFrame = this.df
 
