@@ -2024,8 +2024,3 @@ only showing top 10 rows
 only showing top 10 rows
 ````
 
-```html
-<head>
-  <meta name="google-site-verification" content="AIib8yydajMxnig8gCg_5McucvQQErDdfhOwVPZBkkE" />
-</head>
-```
