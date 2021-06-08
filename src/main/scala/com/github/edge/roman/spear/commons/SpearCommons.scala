@@ -24,4 +24,11 @@ object SpearCommons {
   val Password = "password"
   val ShowNumRows = 10
   val NoSql = "nosql"
+  val Parquet = "parquet"
+  val Avro = "avro"
+  val Jdbc ="jdbc"
+  val Mongo="mongo"
+  val Cassandra="cassandra"
+  val Nosql="nosql"
+  val Star="*"
 }
