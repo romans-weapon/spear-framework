@@ -1,4 +1,3 @@
-<meta name="google-site-verification" content="AIib8yydajMxnig8gCg_5McucvQQErDdfhOwVPZBkkE" />
 
 # Spear Framework - Introduction
 The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
@@ -2024,3 +2023,9 @@ only showing top 10 rows
 +------------------+-------------+------------------+----+------+
 only showing top 10 rows
 ````
+
+```html
+<head>
+  <meta name="google-site-verification" content="AIib8yydajMxnig8gCg_5McucvQQErDdfhOwVPZBkkE" />
+</head>
+```
