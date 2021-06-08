@@ -1,10 +1,11 @@
 # Spear Framework
 
 [![Build Status](https://github.com/AnudeepKonaboina/spear-framework/workflows/spear-framework-build/badge.svg)](https://github.com/AnudeepKonaboina/spear-framework/actions)
-[![Code Quality Grade](https://www.code-inspector.com/project/22855/status/svg)](https://www.code-inspector.com/project/22940/status/svg)
+[![Code Quality Grade](https://www.code-inspector.com/project/23492/status/svg)](https://www.code-inspector.com/project/23492/status/svg)
 [![GitHub tag](https://img.shields.io/github/v/release/AnudeepKonaboina/spear-framework)](https://github.com/AnudeepKonaboina/spear-framework/tags)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://anudeepkonaboina.github.io/spear-framework/)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.romans-weapon/spear-framework_2.11.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.romans-weapon%22%20AND%20a:%22spear-framework_2.11%22)
+[![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://romans-weapon.github.io/spear-framework/)
 
 The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
@@ -35,7 +36,7 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
          - [File Source](#file-source)
              + [CSV to MongoDB Connector](#csv-to-mongodb-connector)    
 - [Contributions and License](#contributions-and-license)
-- [More about Spear](#more-about-spear)
+- [Visit Website](#visit-website)
 
 # Introduction
 
@@ -277,7 +278,7 @@ only showing top 10 rows
 only showing top 10 rows
 
 ```
-A lot of connectors from other file source to JDBC destination are avaialble [here](https://anudeepkonaboina.github.io/spear-framework/).
+A lot of connectors from other file source to JDBC destination are avaialble [here](https://romans-weapon.github.io/spear-framework/).
 
 
 ### JDBC source
@@ -799,7 +800,7 @@ only showing top 10 rows
 only showing top 10 rows
 
 ````
-Other connectors with NO-SQL destination are avaialble [here](https://anudeepkonaboina.github.io/spear-framework/).
+Other connectors with NO-SQL destination are avaialble [here](https://romans-weapon.github.io/spear-framework/).
 
 
 ## Contributions and License
@@ -810,5 +811,5 @@ Anudeep Konaboina <krantianudeep@gmail.com>
 #### Contributor
 Kayan Deshi <kalyan.mgit@gmail.com>
 
-## More about Spear
-To explore various connectors written for data movement from different sources to differnrt targets, visit github page [here](https://anudeepkonaboina.github.io/spear-framework/)
+## Visit Website
+Watch example connectors from different sources to differnrt targets, visit github page [here](https://romans-weapon.github.io/spear-framework/)

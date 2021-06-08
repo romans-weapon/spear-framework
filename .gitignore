@@ -133,4 +133,5 @@ flycheck_*.el
 # directory configuration
 .dir-locals.el
 
+#bsp file
 .bsp
