@@ -92,11 +92,12 @@ abstract class AbstractConnector(sourceFormat: String) extends Connector {
     this
   }
 
-  override def targets(targets: Unit*): Unit = {
-    targets.foreach(target => {
-      target
-    })
+  def branch: Connector = {
+    this.df.cache()
+    this
   }
+
+  override def targets(targets: Unit*): Unit = _
 
   def toDF: DataFrame = this.df
 

@@ -49,6 +49,8 @@ trait Connector {
 
   def saveAs(alias: String): Connector
 
+  def branch: Connector
+
   def toDF: DataFrame
 
   def cacheData(): Connector

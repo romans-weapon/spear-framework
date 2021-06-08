@@ -23,8 +23,9 @@ import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
 import com.github.edge.roman.spear.connectors.{AbstractMultiTargetConnector, AbstractTargetFSConnector}
 
 class NOSQLtoAny(sourceFormat: String) extends AbstractMultiTargetConnector(sourceFormat){
+
   override def source(objectName: String, params: Map[String, String]): NOSQLtoAny = {
-    logger.info(s"Connector  to multiTargets from Source Object: ${objectName} with Format: ${sourceFormat} started running!!")
+    logger.info(s"Connector  to multiTargets from No-SQL source object: ${objectName} with Format: ${sourceFormat} started running!!")
     this.df = ConnectorCommon.sourceNOSQL(sourceObject = objectName, sourceFormat, params)
     logger.info(s"Reading source object: ${objectName} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
     if (this.verboseLogging) this.df.show(this.numRows, false)
