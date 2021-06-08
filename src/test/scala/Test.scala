@@ -28,7 +28,7 @@ class Test extends FunSuite with BeforeAndAfter {
   csvJdbcConnector
     .source(sourceObject = "data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
     .saveAs("__tmp__")
-    .targetJDBC(tableName = "test_table", properties, SaveMode.Overwrite)
+    .targetJDBC(objectName = "test_table", props = properties, saveMode = SaveMode.Overwrite)
 
   runTests(fileDF("data/us-election-2012-results-by-county.csv"), tableDf("test_table", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://localhost:5432/pgdb")), "csvtopostgresconnector")
 
