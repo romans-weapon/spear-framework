@@ -2204,7 +2204,7 @@ Spear also provides you the scope to write to multiple targets using the branch 
   .multiTarget //use multitarget instead of target(<type>,<format>)  
   .getConnector
  ```
-2. Give the target type in the connector logic while writing to the target as shown in the example below
+2. Give the destination format in the connector logic while writing to the target as shown in the example below
 3. Use the branch api for branching the intermediate df to different targets.
 
 Below is the diagramatic representation of the branch api and example connector for the same
@@ -2242,13 +2242,16 @@ csvMultiTargetConnector
   .saveAs("_staging_")
   .branch
   .targets(
+  //Target-1 mongo target ---give target format while defing the target as shown below
     csvMultiTargetConnector.targetNoSQL(objectName = "ingest.mongo", destFormat = "mongo", props = mongoProps, SaveMode.Overwrite),
+  //Target-2 transform and write to Hive  
     csvMultiTargetConnector.transformSql(
       """select state_code,party,
         |sum(votes) as total_votes
         |from _staging_
         |group by state_code,party""".stripMargin)
       .targetFS(destinationFilePath = "tmp/ingest/transformed_new", destFormat = "parquet", saveAsTable = "ingest.transformed_new"),
+   //Target-3 postgres target   
     csvMultiTargetConnector.targetJDBC(objectName = "mytable", destFormat = "jdbc", properties, SaveMode.Overwrite)
   )
 csvMultiTargetConnector.stop()
