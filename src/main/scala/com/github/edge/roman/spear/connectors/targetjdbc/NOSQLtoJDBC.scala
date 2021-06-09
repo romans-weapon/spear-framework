@@ -25,6 +25,7 @@ import com.github.edge.roman.spear.connectors.AbstractTargetJDBCConnector
 
 
 class NOSQLtoJDBC(sourceFormat: String, destFormat: String) extends AbstractTargetJDBCConnector(sourceFormat, destFormat) {
+
   override def source(sourceObject: String, params: Map[String, String]): Connector = {
     logger.info(s"Connector to Target: JDBC with Format: ${destFormat} from Source Object: ${sourceObject} with Format: ${sourceFormat} started running!!")
     this.df = ConnectorCommon.sourceNOSQL(sourceObject = sourceObject, sourceFormat, params)

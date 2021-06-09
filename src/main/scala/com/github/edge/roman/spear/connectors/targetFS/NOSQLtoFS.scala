@@ -23,6 +23,7 @@ import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
 import com.github.edge.roman.spear.connectors.AbstractTargetFSConnector
 
 class NOSQLtoFS(sourceFormat: String, destFormat: String) extends AbstractTargetFSConnector(sourceFormat, destFormat) {
+
   override def source(objectName: String, params: Map[String, String]): NOSQLtoFS = {
     logger.info(s"Connector to Target: File System with Format: ${destFormat} from Source Object: ${objectName} with Format: ${sourceFormat} started running!!")
     this.df = ConnectorCommon.sourceNOSQL(sourceObject = objectName, sourceFormat, params)

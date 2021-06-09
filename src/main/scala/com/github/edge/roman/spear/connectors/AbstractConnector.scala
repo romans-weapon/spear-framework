@@ -29,9 +29,9 @@ import java.util.Properties
 
 abstract class AbstractConnector(sourceFormat: String) extends Connector {
   val logger: Logger = Logger.getLogger(this.getClass.getName)
+  val numRows: Int = SpearCommons.ShowNumRows
   var df: DataFrame = _
   var verboseLogging: Boolean = false
-  var numRows: Int = SpearCommons.ShowNumRows
 
   def setVeboseLogging(enable: Boolean): Unit = {
     this.verboseLogging = enable
@@ -98,7 +98,13 @@ abstract class AbstractConnector(sourceFormat: String) extends Connector {
     this
   }
 
-  override def targets(targets: Unit*): Unit = {}
+  override def targets(targets: Unit*): Unit = {
+    /**
+     * take multiple targets as params and since all the params are function calls to write data
+     * to target these will be executed one after the other form left to right as per the scala rules.
+     */
+
+  }
 
   def toDF: DataFrame = this.df
 

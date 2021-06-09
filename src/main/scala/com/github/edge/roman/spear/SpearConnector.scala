@@ -62,6 +62,7 @@ object SpearConnector {
       this
     }
 
+    //connectors for source-dest combination supported by spear
     def getConnector: AbstractConnector = {
       (sourceType, destType) match {
         case (SpearCommons.File, SpearCommons.Relational) => new FiletoJDBC(sourceFormat, destFormat)

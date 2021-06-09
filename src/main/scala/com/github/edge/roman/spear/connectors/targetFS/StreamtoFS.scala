@@ -19,7 +19,7 @@
 
 package com.github.edge.roman.spear.connectors.targetFS
 
-import com.github.edge.roman.spear.commons.ConnectorCommon
+import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
 import com.github.edge.roman.spear.connectors.AbstractTargetFSConnector
 import com.github.edge.roman.spear.{Connector, SpearConnector}
 import org.apache.spark.sql.types.StructType
@@ -48,10 +48,11 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends AbstractTarge
     this
   }
 
-  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
+  override def targetFS(destinationFilePath: Option[String], destFormat: String, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
+    val destPath = destinationFilePath.getOrElse("")
     this.df.writeStream
       .foreachBatch { (batchDF: DataFrame, _: Long) =>
-        if (destinationFilePath.isEmpty) {
+        if (destPath.isEmpty) {
           if (saveAsTable.isEmpty) {
             throw new Exception("Neither file_path nor table_name is provided for streaming data to destination")
           } else {
@@ -59,14 +60,14 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends AbstractTarge
           }
         } else {
           if (saveAsTable.isEmpty) {
-            batchDF.write.format(destFormat).mode(saveMode).option("path", destinationFilePath).save()
+            batchDF.write.format(destFormat).mode(saveMode).option("path", destPath).save()
           } else {
-            batchDF.write.format(destFormat).mode(saveMode).option("path", destinationFilePath).saveAsTable(saveAsTable)
+            batchDF.write.format(destFormat).mode(saveMode).option("path", destPath).saveAsTable(saveAsTable)
           }
         }
-        val targetDF = SpearConnector.spark.sql("select * from " + saveAsTable)
-        targetDF.show(this.numRows, false)
       }.start()
       .awaitTermination()
+    logger.info(s"Streaming data to target path: ${destPath} with format: ${destFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
+    show()
   }
 }
