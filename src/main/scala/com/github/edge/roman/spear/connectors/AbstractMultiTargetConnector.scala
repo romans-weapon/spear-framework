@@ -28,7 +28,7 @@ import scala.collection.JavaConverters._
 import java.util.Properties
 
 abstract class AbstractMultiTargetConnector(sourceFormat: String) extends AbstractConnector(sourceFormat: String) {
-  var dfTransformed: DataFrame = _
+  var dfTransformed: DataFrame = SpearConnector.spark.emptyDataFrame
   var is_transformed: Boolean = false
 
   override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
