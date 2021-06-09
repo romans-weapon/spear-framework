@@ -35,7 +35,7 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
     * [Target NOSQL](#target-nosql) 
          - [File Source](#file-source)
              + [CSV to MongoDB Connector](#csv-to-mongodb-connector)
-- [Other Functionalites of Spear]
+- [Other Functionalites of Spear](#other-functionalities-of-spear)
     * [Merge using executeQuery API](#merge-using-executequery-api) 
     * [Write to multi-targets using branch API](#write-to-multi-targets-using-branch-api) 
 - [Contributions and License](#contributions-and-license)
