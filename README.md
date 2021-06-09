@@ -35,7 +35,7 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
     * [Target NOSQL](#target-nosql) 
          - [File Source](#file-source)
              + [CSV to MongoDB Connector](#csv-to-mongodb-connector)
-- [Other Functionalites of Spear](#other-functionalities-of-spear)
+- [Other Functionalities of Spear](#other-functionalities-of-spear)
     * [Merge using executeQuery API](#merge-using-executequery-api) 
     * [Write to multi-targets using branch API](#write-to-multi-targets-using-branch-api) 
 - [Contributions and License](#contributions-and-license)
@@ -805,8 +805,8 @@ only showing top 10 rows
 ````
 Other connectors with NO-SQL destination are avaialble [here](https://romans-weapon.github.io/spear-framework/).
 
-## Other Functionalites of Spear
-This section describes other functionalities of spear
+## Other Functionalities of Spear
+This section describes other functionalities which you can use with spear
 
 ### Merge using executeQuery API
 When you want to merge or join two sources of the same type and then tranform and load the resultant data you can use the executeQuery() function of spear.Below is the example
@@ -848,7 +848,7 @@ see more detailed explanation about executeQuery AP1 with diagrams [here](https:
 
 ### Write to multi-targets using branch API
 
-```
+```scala
 import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import java.util.Properties
@@ -877,7 +877,7 @@ csvMultiTargetConnector
   .saveAs("_table_")
   .branch
   .targets(
-     csvMultiTargetConnector.targetFS(destinationFilePath = "", destFormat = "parquet", saveAsTable = "ingest.raw", saveMode = SaveMode.Overwrite) //target -1
+     csvMultiTargetConnector.targetFS(destinationFilePath = "", destFormat = "parquet", saveAsTable = "ingest.raw", saveMode = SaveMode.Overwrite) -- //target -1
     //target -2
     ....
     //target -n
