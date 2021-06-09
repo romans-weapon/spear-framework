@@ -31,9 +31,8 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
   var dfTransformed: DataFrame = SpearConnector.spark.emptyDataFrame
   var is_transformed: Boolean = false
 
-  override def targetFS(destinationFilePath: Option[String] = None, destFormat: String, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
-    val destinationPath = destinationFilePath.getOrElse("")
-    if (destinationPath.isEmpty) {
+  override def targetFS(destinationFilePath: String = "", destFormat: String, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
+    if (destinationFilePath.isEmpty) {
       if (saveAsTable.isEmpty) {
         throw new Exception("Neither file_path nor table_name is provided for landing data to destination")
       } else {
@@ -50,22 +49,22 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
     } else {
       if (saveAsTable.isEmpty) {
         if (is_transformed) {
-          dfTransformed.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationPath).save()
+          dfTransformed.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
           is_transformed = false
           dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
-          this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationPath).save()
+          this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
         }
-        logger.info(s"Write data to target path: ${destinationPath} with format: ${destFormat} completed with status:${SpearCommons.SuccessStatus}")
+        logger.info(s"Write data to target path: ${destinationFilePath} with format: ${destFormat} completed with status:${SpearCommons.SuccessStatus}")
       } else {
         if (is_transformed) {
-          dfTransformed.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationPath).saveAsTable(saveAsTable)
+          dfTransformed.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
           is_transformed = false
           dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
-          this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationPath).saveAsTable(saveAsTable)
+          this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
         }
-        logger.info(s"Write data to target path: ${destinationPath} with format: ${destFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
+        logger.info(s"Write data to target path: ${destinationFilePath} with format: ${destFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
         show()
       }
     }
@@ -149,7 +148,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
             .save()
         }
     }
-    logger.info(s"Write data to object ${objectName} completed with status:${SpearCommons.SuccessStatus} ")
+    logger.info(s"Write data to destination: ${destFormat} for object: ${objectName} completed with status:${SpearCommons.SuccessStatus} ")
     show()
   }
 

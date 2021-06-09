@@ -76,31 +76,30 @@ class FStoFS(sourceFormat: String, destFormat: String) extends AbstractTargetFSC
     this
   }
 
-  override def targetFS(destinationFilePath: Option[String], destForeamt: String, saveAsTable: String, saveMode: SaveMode, params: Map[String, String]): Unit = {
-    val destPath = destinationFilePath.orNull
+  override def targetFS(destinationFilePath:String, destForeamt: String, saveAsTable: String, saveMode: SaveMode, params: Map[String, String]): Unit = {
     destFormat match {
       case SpearCommons.LOCAL =>
-        localFSUtil.uploadFile(destPath, size, inputStream)
+        localFSUtil.uploadFile(destinationFilePath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
       case SpearCommons.AWS =>
         if (params.nonEmpty)
           s3Util.configureClient(params)
-        s3Util.uploadFile(destPath, size, inputStream)
+        s3Util.uploadFile(destinationFilePath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
       case SpearCommons.GCS =>
         if (params.nonEmpty)
           gcsUtil.configureClient(params)
-        gcsUtil.uploadFile(destPath, size, inputStream)
+        gcsUtil.uploadFile(destinationFilePath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
       case SpearCommons.ADLS =>
         if (params.nonEmpty)
           adlsUtil.configureClient(params)
-        adlsUtil.uploadFile(destPath, size, inputStream)
+        adlsUtil.uploadFile(destinationFilePath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
       case SpearCommons.HDFS =>
         if (params.nonEmpty)
           hdfsUtil.configureClient(params)
-        hdfsUtil.uploadFile(destPath, size, inputStream)
+        hdfsUtil.uploadFile(destinationFilePath, size, inputStream)
         logger.info(SpearCommons.FileUploadSuccess)
       case _ =>
         throw new Exception("Invalid destination type provided or Not Supported.")

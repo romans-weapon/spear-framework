@@ -49,7 +49,7 @@ abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: St
     show()
   }
 
-  override def targetFS(destinationFilePath: Option[String], destFormat: String, saveAsTable: String, saveMode: SaveMode, params: Map[String, String]): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType nosql")
+  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, saveMode: SaveMode, params: Map[String, String]): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType nosql")
 
   override def targetJDBC(tableName: String, destFormat: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetJDBC() not compatible for given targetType nosql")
 }

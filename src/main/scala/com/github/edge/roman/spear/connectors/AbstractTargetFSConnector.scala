@@ -27,9 +27,8 @@ import java.util.Properties
 
 abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
-  override def targetFS(destinationFilePath: Option[String] = None, destFormat: String = destFormat, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
-    val destinationPath = destinationFilePath.getOrElse("")
-    if (destinationPath.isEmpty) {
+  override def targetFS(destinationFilePath: String = "", destFormat: String = destFormat, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
+    if (destinationFilePath.isEmpty) {
       if (saveAsTable.isEmpty) {
         throw new Exception("Neither file_path nor table_name is provided for landing data to destination")
       } else {
@@ -39,11 +38,11 @@ abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: Strin
       }
     } else {
       if (saveAsTable.isEmpty) {
-        this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationPath).save()
-        logger.info(s"Write data to target path: ${destinationPath} with format: ${destFormat} completed with status:${SpearCommons.SuccessStatus}")
+        this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
+        logger.info(s"Write data to target path: ${destinationFilePath} with format: ${destFormat} completed with status:${SpearCommons.SuccessStatus}")
       } else {
-        this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationPath).saveAsTable(saveAsTable)
-        logger.info(s"Write data to target path: ${destinationPath} with format: ${destFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
+        this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
+        logger.info(s"Write data to target path: ${destinationFilePath} with format: ${destFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
         show()
       }
     }

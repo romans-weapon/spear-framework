@@ -48,11 +48,10 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends AbstractTarge
     this
   }
 
-  override def targetFS(destinationFilePath: Option[String], destFormat: String, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
-    val destPath = destinationFilePath.getOrElse("")
+  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
     this.df.writeStream
       .foreachBatch { (batchDF: DataFrame, _: Long) =>
-        if (destPath.isEmpty) {
+        if (destinationFilePath.isEmpty) {
           if (saveAsTable.isEmpty) {
             throw new Exception("Neither file_path nor table_name is provided for streaming data to destination")
           } else {
@@ -60,14 +59,14 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends AbstractTarge
           }
         } else {
           if (saveAsTable.isEmpty) {
-            batchDF.write.format(destFormat).mode(saveMode).option("path", destPath).save()
+            batchDF.write.format(destFormat).mode(saveMode).option("path", destinationFilePath).save()
           } else {
-            batchDF.write.format(destFormat).mode(saveMode).option("path", destPath).saveAsTable(saveAsTable)
+            batchDF.write.format(destFormat).mode(saveMode).option("path", destinationFilePath).saveAsTable(saveAsTable)
           }
         }
       }.start()
       .awaitTermination()
-    logger.info(s"Streaming data to target path: ${destPath} with format: ${destFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
+    logger.info(s"Streaming data to target path: ${destinationFilePath} with format: ${destFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
     show()
   }
 }

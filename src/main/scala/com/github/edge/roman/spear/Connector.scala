@@ -39,7 +39,7 @@ trait Connector {
 
   def targets(targets: Unit*): Unit
 
-  def targetFS(destinationFilePath: Option[String] , destFormat: String = SpearCommons.Parquet, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit
+  def targetFS(destinationFilePath: String , destFormat: String = SpearCommons.Parquet, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit
 
   def targetNoSQL(objectName: String, destFormat: String = SpearCommons.NoSql, props: Properties, saveMode: SaveMode): Unit
 
