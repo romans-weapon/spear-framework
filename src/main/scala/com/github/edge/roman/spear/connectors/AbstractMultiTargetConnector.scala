@@ -45,7 +45,6 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
           this.df.write.format(destFormat).mode(saveMode).saveAsTable(saveAsTable)
         }
         logger.info(s"Write data to default path with format: ${sourceFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
-        show()
       }
     } else {
       if (saveAsTable.isEmpty) {
