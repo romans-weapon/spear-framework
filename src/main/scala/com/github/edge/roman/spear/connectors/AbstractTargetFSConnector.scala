@@ -27,7 +27,7 @@ import java.util.Properties
 
 abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
-  override def targetFS(destinationFilePath: String = "", destFormat: String = destFormat, saveAsTable: String="", saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
+  override def targetFS(destinationFilePath: String , destFormat: String = destFormat, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
     if (destinationFilePath.isEmpty) {
       if (saveAsTable.isEmpty) {
         throw new Exception("Neither file_path nor table_name is provided for landing data to destination")

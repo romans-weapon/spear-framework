@@ -31,7 +31,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
   var dfTransformed: DataFrame = SpearConnector.spark.emptyDataFrame
   var is_transformed: Boolean = false
 
-  override def targetFS(destinationFilePath: String = "", destFormat: String, saveAsTable: String="", saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
+  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
 
     if (destinationFilePath.isEmpty) {
       if (saveAsTable.isEmpty) {
