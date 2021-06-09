@@ -18,7 +18,7 @@
  */
 package com.github.edge.roman.spear.connectors
 
-import com.github.edge.roman.spear.Connector
+import com.github.edge.roman.spear.{Connector, SpearConnector}
 import com.github.edge.roman.spear.commons.SpearCommons
 import com.mongodb.spark.MongoSpark
 import com.mongodb.spark.config.WriteConfig
@@ -40,7 +40,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
         if (is_transformed) {
           dfTransformed.write.format(destFormat).mode(saveMode).saveAsTable(saveAsTable)
           is_transformed = false
-          dfTransformed = _
+          dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
           this.df.write.format(destFormat).mode(saveMode).saveAsTable(saveAsTable)
         }
@@ -52,7 +52,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
         if (is_transformed) {
           dfTransformed.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
           is_transformed = false
-          dfTransformed = _
+          dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
           this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
         }
@@ -61,7 +61,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
         if (is_transformed) {
           dfTransformed.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
           is_transformed = false
-          dfTransformed = _
+          dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
           this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
         }
@@ -80,7 +80,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
             .option(SpearCommons.Password, props.get(SpearCommons.Password).toString)
             .option("sfObject", tableName).save()
           is_transformed = false
-          dfTransformed = _
+          dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
           this.df.write.format(SpearCommons.SalesforceFormat)
             .option(SpearCommons.Username, props.get(SpearCommons.Username).toString)
@@ -94,7 +94,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
             .option(SpearCommons.Password, props.get(SpearCommons.Password).toString)
             .option("datasetName", tableName).save()
           is_transformed = false
-          dfTransformed = _
+          dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
           this.df.write.format(SpearCommons.SalesforceFormat)
             .option(SpearCommons.Username, props.get(SpearCommons.Username).toString)
@@ -105,7 +105,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
         if (is_transformed) {
           dfTransformed.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
           is_transformed = false
-          dfTransformed = _
+          dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
           this.df.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
         }
@@ -122,7 +122,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
             Map("uri" -> props.get("uri").toString.concat(s"/${objectName}")))
           MongoSpark.save(dfTransformed.write.format("mongo").options(props.asScala).mode(saveMode), writeConfig)
           is_transformed = false
-          dfTransformed = _
+          dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
           val writeConfig = WriteConfig(
             Map("uri" -> props.get("uri").toString.concat(s"/${objectName}")))
@@ -138,7 +138,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
             .mode(saveMode)
             .save()
           is_transformed = false
-          dfTransformed = _
+          dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
           val destdetailsArr = objectName.split("\\.")
           val keySpace = destdetailsArr(0)
