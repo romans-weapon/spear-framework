@@ -53,8 +53,11 @@ Below is the code and design quality score for Spear framework given by Code Ins
              + [Salesforce to Cassandra Connector](#salesforce-to-cassandra-connector)
          - [NOSQL Source](#nosql-source)
              + [Cassandra to Mongo Connector](#cassandra-to-mongo-connector)
-
-
+- [Other Functionalities of Spear](#other-functionalities-of-spear)
+    * [Merge using executeQuery API](#merge-using-executequery-api) 
+         - [Postgres to Hive Connector With executeQuery AP1](#postgres-to-hive-connector-with-executequery-api)
+    * [Multi-targets using branch API](#multi-targets-using-branch-api)
+         - [CSV to Multi-Targets With branch AP1](#csv-to-multi-targets-with-branch-api)
 
 # Getting Started with Spear
 
@@ -80,7 +83,8 @@ user@node~$ docker exec -it spear bash
 [root@hadoop /]# spear-shell
 ```
 NOTE: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source
-and write it to HDFS so that it gives you complete environment to play with spear-framework.
+and write it to HDFS so that it gives you complete environment to play with spear-framework and is not recomended for heavy load.
+You need to go for a spark cluster for that requirement.
 
 5. Start writing your own single line connectors and explore .To understand how to write a connector [click here](https://github.com/AnudeepKonaboina/spear-framework/tree/main#develop-your-first-connector-using-spear)
 
@@ -2023,4 +2027,346 @@ only showing top 10 rows
 +------------------+-------------+------------------+----+------+
 only showing top 10 rows
 ````
+# Other Functionalities of Spear
+
+## Merge using executeQuery API
+
+Using the executeQuery API in spear you can run the join query for merging two sources and then apply required transformations before 
+writing it into the target as show in the below diagram.
+
+### Postgres to Hive Connector With executeQuery API
+
+![image](https://user-images.githubusercontent.com/59328701/121384858-436d0f00-c966-11eb-8153-2b88e8946a91.png)
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.sql.SaveMode
+
+Logger.getLogger("com.github").setLevel(Level.INFO)
+val postgresToHiveConnector = SpearConnector
+  .createConnector("PostgresToHiveConnector")
+  .source(sourceType = "relational", sourceFormat = "jdbc")
+  .target(targetType = "FS", targetFormat = "parquet")
+  .getConnector
+
+//source-df-1
+postgresToHiveConnector
+  .source("emp", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://postgres:5432/pgdb"))
+  .saveAs("employee")
+
+//source-df-2 with filters
+postgresToHiveConnector
+  .source("dept", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://postgres:5432/pgdb"))
+  .saveAs("department")
+  .transformSql(
+    """
+      |select  deptno,
+      | dname
+      | from department
+      | where deptno in (20,30)""".stripMargin).saveAs("dept_filtered_data")
+
+//executeQuery() api for runing join on the two df's
+postgresToHiveConnector
+  .executeQuery(
+    """
+      |select e.empno as id,
+      |e.ename as name,
+      |e.job as designation,e.sal as salary,
+      |d.dname as department
+      |from employee e inner join dept_filtered_data d
+      |on e.deptno = d.deptno
+      |""".stripMargin).saveAs("emp_dept")
+  .transformSql(
+    """
+      |select id,name,
+      |department,salary
+      |from emp_dept
+      |where salary < 3000""".stripMargin)
+  .targetFS(destinationFilePath = "/tmp/ingest", destFormat = "parquet", saveAsTable = "ingest.emp_sal_report", saveMode = SaveMode.Overwrite)
+
+postgresToHiveConnector.stop()
+```
+#### Output
+```commandline
+21/06/09 15:43:59 INFO targetFS.JDBCtoFS: Connector to Target: File System with Format: parquet from Source Object: emp with Format: jdbc started running!!
+21/06/09 15:43:59 INFO targetFS.JDBCtoFS: Reading source table: emp with format: jdbc status:success
++-----+------+---------+----+----------+-------+-------+------+
+|empno|ename |job      |mgr |hiredate  |sal    |comm   |deptno|
++-----+------+---------+----+----------+-------+-------+------+
+|7369 |SMITH |CLERK    |7902|1980-12-17|800.00 |null   |20    |
+|7499 |ALLEN |SALESMAN |7698|1981-02-20|1600.00|300.00 |30    |
+|7521 |WARD  |SALESMAN |7698|1981-02-22|1250.00|500.00 |30    |
+|7566 |JONES |MANAGER  |7839|1981-04-02|2975.00|null   |20    |
+|7654 |MARTIN|SALESMAN |7698|1981-09-28|1250.00|1400.00|30    |
+|7698 |BLAKE |MANAGER  |7839|1981-05-01|2850.00|null   |30    |
+|7782 |CLARK |MANAGER  |7839|1981-06-09|2450.00|null   |10    |
+|7788 |SCOTT |ANALYST  |7566|1987-04-19|3000.00|null   |20    |
+|7839 |KING  |PRESIDENT|null|1981-11-17|5000.00|null   |10    |
+|7844 |TURNER|SALESMAN |7698|1981-09-08|1500.00|0.00   |30    |
++-----+------+---------+----+----------+-------+-------+------+
+only showing top 10 rows
+
+21/06/09 15:44:00 INFO targetFS.JDBCtoFS: Saving data as temporary table:employee success
+21/06/09 15:44:00 INFO targetFS.JDBCtoFS: Connector to Target: File System with Format: parquet from Source Object: dept with Format: jdbc started running!!
+21/06/09 15:44:00 INFO targetFS.JDBCtoFS: Reading source table: dept with format: jdbc status:success
++------+----------+--------+
+|deptno|dname     |loc     |
++------+----------+--------+
+|10    |ACCOUNTING|NEW YORK|
+|20    |RESEARCH  |DALLAS  |
+|30    |SALES     |CHICAGO |
+|40    |OPERATIONS|BOSTON  |
++------+----------+--------+
+
+21/06/09 15:44:00 INFO targetFS.JDBCtoFS: Saving data as temporary table:department success
+21/06/09 15:44:00 INFO targetFS.JDBCtoFS: Executing transformation sql:
+select  deptno,
+ dname
+ from department
+ where deptno in (20,30) status :success
++------+--------+
+|deptno|dname   |
++------+--------+
+|20    |RESEARCH|
+|30    |SALES   |
++------+--------+
+
+21/06/09 15:44:00 INFO targetFS.JDBCtoFS: Saving data as temporary table:dept_filtered_data success
+21/06/09 15:44:00 INFO targetFS.JDBCtoFS: Executing spark sql:
+select e.empno as id,
+e.ename as name,
+e.job as designation,e.sal as salary,
+d.dname as department
+from employee e inner join dept_filtered_data d
+on e.deptno = d.deptno
+ status :success
++----+------+-----------+-------+----------+
+|id  |name  |designation|salary |department|
++----+------+-----------+-------+----------+
+|7499|ALLEN |SALESMAN   |1600.00|SALES     |
+|7521|WARD  |SALESMAN   |1250.00|SALES     |
+|7654|MARTIN|SALESMAN   |1250.00|SALES     |
+|7698|BLAKE |MANAGER    |2850.00|SALES     |
+|7844|TURNER|SALESMAN   |1500.00|SALES     |
+|7900|JAMES |CLERK      |950.00 |SALES     |
+|7369|SMITH |CLERK      |800.00 |RESEARCH  |
+|7566|JONES |MANAGER    |2975.00|RESEARCH  |
+|7788|SCOTT |ANALYST    |3000.00|RESEARCH  |
+|7876|ADAMS |CLERK      |1100.00|RESEARCH  |
++----+------+-----------+-------+----------+
+only showing top 10 rows
+
+21/06/09 15:44:01 INFO targetFS.JDBCtoFS: Saving data as temporary table:emp_dept success
+21/06/09 15:44:01 INFO targetFS.JDBCtoFS: Executing transformation sql:
+select id,name,
+department,salary
+from emp_dept
+where salary < 3000 status :success
++----+------+----------+-------+
+|id  |name  |department|salary |
++----+------+----------+-------+
+|7499|ALLEN |SALES     |1600.00|
+|7521|WARD  |SALES     |1250.00|
+|7654|MARTIN|SALES     |1250.00|
+|7698|BLAKE |SALES     |2850.00|
+|7844|TURNER|SALES     |1500.00|
+|7900|JAMES |SALES     |950.00 |
+|7369|SMITH |RESEARCH  |800.00 |
+|7566|JONES |RESEARCH  |2975.00|
+|7876|ADAMS |RESEARCH  |1100.00|
++----+------+----------+-------+
+
+21/06/09 15:44:05 INFO targetFS.JDBCtoFS: Write data to target path: /tmp/ingest with format: parquet and saved as table ingest.emp_sal_report completed with status:success
++----+------+----------+-------+
+|id  |name  |department|salary |
++----+------+----------+-------+
+|7499|ALLEN |SALES     |1600.00|
+|7521|WARD  |SALES     |1250.00|
+|7654|MARTIN|SALES     |1250.00|
+|7698|BLAKE |SALES     |2850.00|
+|7844|TURNER|SALES     |1500.00|
+|7900|JAMES |SALES     |950.00 |
+|7369|SMITH |RESEARCH  |800.00 |
+|7566|JONES |RESEARCH  |2975.00|
+|7876|ADAMS |RESEARCH  |1100.00|
++----+------+----------+-------+
+```
+
+## Multi-targets using branch API
+
+Spear also provides you the scope to write to multiple targets using the branch api.Below are the points to remember while writing to multiple targets using spear 
+1. While creating connector object use the multitarget option instaed of target used in case of single target
+ ```scala
+ val multiTargetConnector = SpearConnector
+  .createConnector("<name>")
+  .source(sourceType = "<type>", sourceFormat = "<format>")
+  .multiTarget //use multitarget instead of target(<type>,<format>)  
+  .getConnector
+ ```
+2. Give the target type in the connector logic while writing to the target as shown in the example below
+3. Use the branch api for branching the intermediate df to different targets.
+
+Below is the diagramatic representation of the branch api and example connector for the same
+
+### CSV to Multi-Targets With branch AP1
+
+![image](https://user-images.githubusercontent.com/59328701/121397077-a57f4180-c971-11eb-8d64-fb44c362ab74.png)
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import java.util.Properties
+import org.apache.spark.sql.{Column, DataFrame, SaveMode}
+
+Logger.getLogger("com.github").setLevel(Level.INFO)
+val properties = new Properties()
+properties.put("driver", "org.postgresql.Driver")
+properties.put("user", "postgres_user")
+properties.put("password", "mysecretpassword")
+properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
+
+val mongoProps = new Properties()
+mongoProps.put("uri", "mongodb://mongodb:27017")
+
+val csvMultiTargetConnector = SpearConnector
+  .createConnector("csv-mongo-hive-")
+  .source(sourceType = "file", sourceFormat = "csv")
+  .multiTarget
+  .getConnector
+
+csvMultiTargetConnector.setVeboseLogging(true)
+
+csvMultiTargetConnector
+  .source(sourceObject = "file:///opt/spear-framework/data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
+  .saveAs("_staging_")
+  .branch
+  .targets(
+    csvMultiTargetConnector.targetNoSQL(objectName = "ingest.mongo", destFormat = "mongo", props = mongoProps, SaveMode.Overwrite),
+    csvMultiTargetConnector.transformSql(
+      """select state_code,party,
+        |sum(votes) as total_votes
+        |from _staging_
+        |group by state_code,party""".stripMargin)
+      .targetFS(destinationFilePath = "tmp/ingest/transformed_new", destFormat = "parquet", saveAsTable = "ingest.transformed_new"),
+    csvMultiTargetConnector.targetJDBC(objectName = "mytable", destFormat = "jdbc", properties, SaveMode.Overwrite)
+  )
+csvMultiTargetConnector.stop()
+```
+
+#### Output
+
+```commandline
+21/06/09 13:33:52 INFO targetAny.FiletoAny: Connector to multiTargets from source:file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with Format: csv started running !!
+21/06/09 13:33:52 INFO targetAny.FiletoAny: Reading source file: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with format: csv status:success
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+|country_id|state_code|country_name|country_total_votes|party|first_name|last_name|votes|
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+|1         |AK        |Alasaba     |220596             |Dem  |Barack    |Obama    |91696|
+|2         |AK        |Akaskak     |220596             |Dem  |Barack    |Obama    |91696|
+|3         |AL        |Autauga     |23909              |Dem  |Barack    |Obama    |6354 |
+|4         |AK        |Akaska      |220596             |Dem  |Barack    |Obama    |91696|
+|5         |AL        |Baldwin     |84988              |Dem  |Barack    |Obama    |18329|
+|6         |AL        |Barbour     |11459              |Dem  |Barack    |Obama    |5873 |
+|7         |AL        |Bibb        |8391               |Dem  |Barack    |Obama    |2200 |
+|8         |AL        |Blount      |23980              |Dem  |Barack    |Obama    |2961 |
+|9         |AL        |Bullock     |5318               |Dem  |Barack    |Obama    |4058 |
+|10        |AL        |Butler      |9483               |Dem  |Barack    |Obama    |4367 |
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+only showing top 10 rows
+
+21/06/09 13:33:52 INFO targetAny.FiletoAny: Saving data as temporary table:_table_ success
+21/06/09 13:33:52 INFO targetAny.FiletoAny: caching intermediate Dataframe status :success
+21/06/09 13:33:53 INFO targetAny.FiletoAny: Write data to table/object mytable completed with status:success
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+|country_id|state_code|country_name|country_total_votes|party|first_name|last_name|votes|
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+|1         |AK        |Alasaba     |220596             |Dem  |Barack    |Obama    |91696|
+|2         |AK        |Akaskak     |220596             |Dem  |Barack    |Obama    |91696|
+|3         |AL        |Autauga     |23909              |Dem  |Barack    |Obama    |6354 |
+|4         |AK        |Akaska      |220596             |Dem  |Barack    |Obama    |91696|
+|5         |AL        |Baldwin     |84988              |Dem  |Barack    |Obama    |18329|
+|6         |AL        |Barbour     |11459              |Dem  |Barack    |Obama    |5873 |
+|7         |AL        |Bibb        |8391               |Dem  |Barack    |Obama    |2200 |
+|8         |AL        |Blount      |23980              |Dem  |Barack    |Obama    |2961 |
+|9         |AL        |Bullock     |5318               |Dem  |Barack    |Obama    |4058 |
+|10        |AL        |Butler      |9483               |Dem  |Barack    |Obama    |4367 |
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+only showing top 10 rows
+
+21/06/09 13:33:53 INFO targetAny.FiletoAny: Executing transformation sql: select state_code,party,
+sum(votes) as total_votes
+from _table_
+group by state_code,party status :success
++----------+-----+-----------+
+|state_code|party|total_votes|
++----------+-----+-----------+
+|WA        |Dem  |1588309    |
+|IN        |GOP  |1412620    |
+|NC        |Lib  |44798      |
+|PA        |Grn  |20710      |
+|LA        |Lib  |18135      |
+|ID        |GOP  |420750     |
+|ID        |Ind  |2495       |
+|WA        |CST  |7772       |
+|HI        |Grn  |3121       |
+|MS        |RP   |969        |
++----------+-----+-----------+
+only showing top 10 rows
+
+only showing top 10 rows
+
+21/06/09 13:34:06 INFO targetAny.FiletoAny: Write data to target path: tmp/ingest/transformed with format: parquet and saved as table ingest.transformed completed with status:success
++----------+-----+-----------+
+|state_code|party|total_votes|
++----------+-----+-----------+
+|WA        |Dem  |1588309    |
+|IN        |GOP  |1412620    |
+|NC        |Lib  |44798      |
+|PA        |Grn  |20710      |
+|LA        |Lib  |18135      |
+|ID        |GOP  |420750     |
+|ID        |Ind  |2495       |
+|WA        |CST  |7772       |
+|HI        |Grn  |3121       |
+|MS        |RP   |969        |
++----------+-----+-----------+
+only showing top 10 rows
+
+only showing top 10 rows
+
+21/06/09 13:34:07 INFO targetAny.FiletoAny: Write data to default path with format: csv and saved as table ingest.raw completed with status:success
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+|country_id|state_code|country_name|country_total_votes|party|first_name|last_name|votes|
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+|1         |AK        |Alasaba     |220596             |Dem  |Barack    |Obama    |91696|
+|2         |AK        |Akaskak     |220596             |Dem  |Barack    |Obama    |91696|
+|3         |AL        |Autauga     |23909              |Dem  |Barack    |Obama    |6354 |
+|4         |AK        |Akaska      |220596             |Dem  |Barack    |Obama    |91696|
+|5         |AL        |Baldwin     |84988              |Dem  |Barack    |Obama    |18329|
+|6         |AL        |Barbour     |11459              |Dem  |Barack    |Obama    |5873 |
+|7         |AL        |Bibb        |8391               |Dem  |Barack    |Obama    |2200 |
+|8         |AL        |Blount      |23980              |Dem  |Barack    |Obama    |2961 |
+|9         |AL        |Bullock     |5318               |Dem  |Barack    |Obama    |4058 |
+|10        |AL        |Butler      |9483               |Dem  |Barack    |Obama    |4367 |
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+only showing top 10 rows
+
+21/06/09 13:34:09 INFO targetAny.FiletoAny: Write data to destination: mongo for object: ingest.data_mongo completed with status:success
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+|country_id|state_code|country_name|country_total_votes|party|first_name|last_name|votes|
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+|1         |AK        |Alasaba     |220596             |Dem  |Barack    |Obama    |91696|
+|2         |AK        |Akaskak     |220596             |Dem  |Barack    |Obama    |91696|
+|3         |AL        |Autauga     |23909              |Dem  |Barack    |Obama    |6354 |
+|4         |AK        |Akaska      |220596             |Dem  |Barack    |Obama    |91696|
+|5         |AL        |Baldwin     |84988              |Dem  |Barack    |Obama    |18329|
+|6         |AL        |Barbour     |11459              |Dem  |Barack    |Obama    |5873 |
+|7         |AL        |Bibb        |8391               |Dem  |Barack    |Obama    |2200 |
+|8         |AL        |Blount      |23980              |Dem  |Barack    |Obama    |2961 |
+|9         |AL        |Bullock     |5318               |Dem  |Barack    |Obama    |4058 |
+|10        |AL        |Butler      |9483               |Dem  |Barack    |Obama    |4367 |
++----------+----------+------------+-------------------+-----+----------+---------+-----+
+only showing top 10 rows
+```
 
