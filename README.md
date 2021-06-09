@@ -34,7 +34,10 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
         + [Oracle to S3 Connector](#oracle-to-s3-connector)
     * [Target NOSQL](#target-nosql) 
          - [File Source](#file-source)
-             + [CSV to MongoDB Connector](#csv-to-mongodb-connector)    
+             + [CSV to MongoDB Connector](#csv-to-mongodb-connector)
+- [Other Functionalites of Spear]
+    * [Merge using executeQuery API](#merge-using-executequery-api) 
+    * [Write to multi-targets using branch API](#write-to-multi-targets-using-branch-api) 
 - [Contributions and License](#contributions-and-license)
 - [Visit Website](#visit-website)
 
@@ -801,6 +804,87 @@ only showing top 10 rows
 
 ````
 Other connectors with NO-SQL destination are avaialble [here](https://romans-weapon.github.io/spear-framework/).
+
+## Other Functionalites of Spear
+This section describes other functionalities of spear
+
+### Merge using executeQuery API
+When you want to merge or join two sources of the same type and then tranform and load the resultant data you can use the executeQuery() function of spear.Below is the example
+
+```scala
+
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.sql.SaveMode
+
+Logger.getLogger("com.github").setLevel(Level.INFO)
+val postgresToHiveConnector = SpearConnector
+  .createConnector("PostgresToHiveConnector")
+  .source(sourceType = "relational", sourceFormat = "jdbc")
+  .target(targetType = "FS", targetFormat = "parquet")
+  .getConnector
+
+postgresToHiveConnector
+  .source("table1", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://postgres:5432/pgdb"))
+  .saveAs("tmp")
+
+postgresToHiveConnector
+  .source("table2", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://postgres:5432/pgdb"))
+  .saveAs("tmp2")
+  
+
+postgresToHiveConnector.executeQuery(
+  """
+  //execute join query between the loaded sources
+   """.stripMargin)
+  .saveAs("result")
+  .transformSql(
+    """
+    //tranform sql
+    """.stripMargin)
+  .targetFS(destinationFilePath = "/tmp/ingest", destFormat = "parquet", saveAsTable = "target", saveMode = SaveMode.Overwrite)
+```
+see more detailed explanation about executeQuery AP1 with diagrams [here](https://romans-weapon.github.io/spear-framework/)
+
+### Write to multi-targets using branch API
+
+```
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import java.util.Properties
+import org.apache.spark.sql.{Column, DataFrame, SaveMode}
+
+Logger.getLogger("com.github").setLevel(Level.INFO)
+val properties = new Properties()
+properties.put("driver", "org.postgresql.Driver")
+properties.put("user", "postgres_user")
+properties.put("password", "mysecretpassword")
+properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
+
+val mongoProps = new Properties()
+mongoProps.put("uri", "mongodb://mongodb:27017")
+
+val csvMultiTargetConnector = SpearConnector
+  .createConnector("CSV-Any")
+  .source(sourceType = "file", sourceFormat = "csv")
+  .multiTarget  //For multi target use multitarget intsead of target and provide the dest-format along with the target definition in the connector logic
+  .getConnector
+
+csvMultiTargetConnector.setVeboseLogging(true)
+
+csvMultiTargetConnector
+  .source(sourceObject = "file:///opt/spear-framework/data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
+  .saveAs("_table_")
+  .branch
+  .targets(
+     csvMultiTargetConnector.targetFS(destinationFilePath = "", destFormat = "parquet", saveAsTable = "ingest.raw", saveMode = SaveMode.Overwrite) //target -1
+    //target -2
+    ....
+    //target -n
+  )
+
+```
+see more detailed explanation about multi-destinations with diagrams [here](https://romans-weapon.github.io/spear-framework/)
 
 
 ## Contributions and License
