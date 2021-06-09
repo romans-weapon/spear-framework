@@ -76,7 +76,7 @@ abstract class AbstractConnector(sourceFormat: String) extends Connector {
 
   override def transformSql(sqlText: String): Connector = {
     this.df = this.df.sqlContext.sql(sqlText)
-    logger.info(s"Executing tranformation sql: ${sqlText} status :${SpearCommons.SuccessStatus}")
+    logger.info(s"Executing transformation sql: ${sqlText} status :${SpearCommons.SuccessStatus}")
     show()
     this
   }
@@ -94,6 +94,7 @@ abstract class AbstractConnector(sourceFormat: String) extends Connector {
 
   def branch: Connector = {
     this.df.cache()
+    logger.info(s"caching intermediate Dataframe status :${SpearCommons.SuccessStatus}")
     this
   }
 

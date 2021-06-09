@@ -29,7 +29,7 @@ import scala.collection.JavaConverters._
 import java.util.Properties
 
 abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
-  override def targetNoSQL(objectName: String,destFormat: String=destFormat, props: Properties, saveMode: SaveMode): Unit = {
+  override def targetNoSQL(objectName: String, destFormat: String = destFormat, props: Properties, saveMode: SaveMode): Unit = {
     destFormat match {
       case "mongo" =>
         val writeConfig = WriteConfig(
@@ -44,11 +44,11 @@ abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: St
           .mode(saveMode)
           .save()
     }
-    logger.info(s"Write data to object ${objectName} completed with status:${SpearCommons.SuccessStatus} ")
+    logger.info(s"Write data to destination: ${destFormat} for object: ${objectName} completed with status:${SpearCommons.SuccessStatus} ")
     show()
   }
 
-  override def targetFS(destinationFilePath: String,destFormat: String, saveAsTable: String, saveMode: SaveMode,params: Map[String, String]): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType nosql")
+  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, saveMode: SaveMode, params: Map[String, String]): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType nosql")
 
-  override def targetJDBC(tableName: String,destFormat: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetJDBC() not compatible for given targetType nosql")
+  override def targetJDBC(tableName: String, destFormat: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetJDBC() not compatible for given targetType nosql")
 }

@@ -33,7 +33,7 @@ abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: Strin
         throw new Exception("Neither file_path nor table_name is provided for landing data to destination")
       } else {
         this.df.write.format(destFormat).mode(saveMode).saveAsTable(saveAsTable)
-        logger.info(s"Write data to default path with format: ${sourceFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
+        logger.info(s"Write data to default path with format: ${destFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
         show()
       }
     } else {
@@ -42,7 +42,7 @@ abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: Strin
         logger.info(s"Write data to target path: ${destinationFilePath} with format: ${destFormat} completed with status:${SpearCommons.SuccessStatus}")
       } else {
         this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
-        logger.info(s"Write data to target path: ${destinationFilePath} with format: ${sourceFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
+        logger.info(s"Write data to target path: ${destinationFilePath} with format: ${destFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
         show()
       }
     }
