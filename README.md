@@ -7,7 +7,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.romans-weapon/spear-framework_2.11.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.romans-weapon%22%20AND%20a:%22spear-framework_2.11%22)
 [![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://romans-weapon.github.io/spear-framework/)
 
-The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
+The spear-framework provides scope to write simple ETL/ELT-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
 # Table of Contents
 - [Introduction](#introduction)
@@ -43,7 +43,7 @@ The spear-framework provides scope to write simple ETL-connectors/pipelines for 
 
 # Introduction
 
-Spear Framework provides the developers thae ability to write connectors (ETL jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination with very minimal code.
+Spear Framework provides the developers thae ability to write connectors (ETL/ELT jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination with very minimal code.
 
 ![image](https://user-images.githubusercontent.com/59328701/120106134-84507100-c179-11eb-9624-7a1504c8a083.png)
 
@@ -59,14 +59,14 @@ You can get started with spear using any of the below methods:
 
 You can add spear-framework as maven dependency in your projects build.sbt file as show below
 ```commandline
-libraryDependencies += "io.github.romans-weapon" %% "spear-framework" % "2.4-1.0"
+libraryDependencies += "io.github.romans-weapon" %% "spear-framework" % "2.4-2.0"
 ```
 
 ### Spark shell package for Spear
 
 You can also add it as a package while staring spark-shell along with other packages.
 ```commandline
-spark-shell --packages "io.github.romans-weapon:spear-framework_2.11:2.4-1.0"
+spark-shell --packages "io.github.romans-weapon:spear-framework_2.11:2.4-2.0"
 ```
 
 ### Docker container setup for Spear
@@ -82,13 +82,12 @@ git clone https://github.com/AnudeepKonaboina/spear-framework.git && cd spear-fr
 sh setup.sh
 ```
 
-3. Once the setup is completed run the below commands for starting spear-framework on spark:
+3. Once the setup is completed run the below command for entering into the container
 ```commandline
-->Enter into spark-conatiner using the comamnd:
 user@node~$ docker exec -it spear bash
 ```
 
-4.Run `spear-shell` inside the conatiner to start the shell:
+4. Run `spear-shell` inside the conatiner to start the shell
 ```
 root@hadoop # spear-shell
 ```
@@ -103,7 +102,9 @@ Also it has a postgres database and a NO-SQL database mongodb as well which you 
 
 Below are the steps to write any connector:
 
-1. Get the suitable connector object using Spearconnector by providing the source and destination details as shown below:
+1. Get the suitable connector object using Spearconnector by providing the source and destination details as shown below:\
+
+a. For connectors from single source to single destination below is how you create a connector object
 ```commandline
 import com.github.edge.roman.spear.SpearConnector
 
@@ -112,10 +113,18 @@ val connector = SpearConnector
   .source(sourceType = "relational", sourceFormat = "jdbc")//source type and format for loading data  
   .target(targetType = "FS", targetFormat = "parquet")     //target type and format for writing data to dest.
   .getConnector 
-
-Below table shows all the supported source and destination types.
 ```
-Below are the source and destination type combinations that spear-framework supports:
+b. For connectors from a source to multiple targets below is how you create a connector object
+
+```commandline
+val multiTargetConnector = SpearConnector
+  .createConnector(name="defaultconnector")                //give a name to your connector(any name)
+  .source(sourceType = "relational", sourceFormat = "jdbc")//source type and format for loading data  
+  .multitarget                                             //use multitarget in case of more than on destinations
+  .getConnector 
+```
+
+2. Below are the source and destination type combinations that spear-framework supports:
 ```commandline
 |source type  | dest. type    | description                                                | 
 |------------ |:-------------:|:-----------------------------------------------------------:
@@ -132,7 +141,7 @@ Below are the source and destination type combinations that spear-framework supp
 ```
 
 
-2. Write the connector logic using the connector object.
+3. Write the connector logic using the connector object in step 1.
 
 ```commandline
 -> Souce object and connection profile needs to be specified for reading data from source
@@ -153,6 +162,15 @@ connector
   .targetJDBC(tableName=<table_name>, properties, <Savemode can be overwrite/append/ignore>)
   (or)
   .targetNoSQL(<nosql_obj_name>,properties,<Savemode can be overwrite/append/ignore>)
+  
+ ->for multitarget use the branch api.The dest format will be given whithin the target which will be shown in the examples below.
+   .branch
+   .targets(
+   //target-1
+   //target-2
+   ..
+   //target-n
+   )
 ```
 
 3. On completion stop the connector.
@@ -163,7 +181,7 @@ connector.stop()
 ```
 
 4. Enable verbose logging
-   To get the output df at each stage in your connector you can explicitly enable verbose logging as below after creating a connector object.This is completely optional.
+   To get the output df at each stage in your connector you can explicitly enable verbose logging as below as soon as you a connector object.This is completely optional.
 
 ```commandline
 connector.setVeboseLogging(true) //default value is false.
@@ -173,7 +191,7 @@ connector.setVeboseLogging(true) //default value is false.
 ![image](https://user-images.githubusercontent.com/59328701/119258939-7afb5d80-bbe9-11eb-837f-02515cb7cf74.png)
 
 ## Example Connectors
-Connector is basically the logic/code which allows you to create a pipeline from source to target using the spear framework using which you can ingest data from any source to any destination.
+Connector is basically the logic/code which allows you to create a pipeline from source to target using the spear framework, using which you can write data from any source to any destination.
 
 ### Target JDBC
 Spear framework supports writing data to any RDBMS with jdbc as destination(postgres/oracle/msql etc..)  from various sources like a file(csv/json/filesystem etc..)/database(RDBMS/cloud db etc..)/streaming(kafka/dir path etc..).Given below are examples of few connectors with JDBC as target.Below examples are written for postgresql as JDBC target,but this can be extended for any jdbc target.
@@ -216,7 +234,7 @@ csvJdbcConnector
       |sum(votes) as total_votes
       |from __tmp__
       |group by state_code,party""".stripMargin)
-  .targetJDBC(tableName="mytable", properties, SaveMode.Overwrite)
+  .targetJDBC(objectName="mytable", props=peproperties, saveMode=SaveMode.Overwrite)
 csvJdbcConnector.stop()
 ```
 
@@ -281,12 +299,13 @@ only showing top 10 rows
 only showing top 10 rows
 
 ```
-A lot of connectors from other file source to JDBC destination are avaialble [here](https://romans-weapon.github.io/spear-framework/).
+A lot of connectors from other file source to JDBC destination are avaialble [here](https://romans-weapon.github.io/spear-framework/#file-source).
 
 
 ### JDBC source
 
 #### Oracle to Postgres Connector
+This example shows the usage of sourceSql api for reading from source with filters applied on the source query as ahown below.
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -344,7 +363,7 @@ oracleTOPostgresConnector
       |        TIMESTAMP8_WITH_LTZ as timestamp8_with_ltz,TIMESTAMP8_WITH_LTZ_utc as timestamp8_with_ltz_utc
       |        from __source__
       |""".stripMargin)
-  .targetJDBC(tableName = "pgdb.ora_to_postgres", properties, SaveMode.Overwrite)
+  .targetJDBC(objectName = "pgdb.ora_to_postgres", props=properties, saveMode=SaveMode.Overwrite)
 
 oracleTOPostgresConnector.stop()
 
@@ -402,7 +421,7 @@ SELECT
 |2021-05-04 17:35:52.709503|2021-04-07 15:16:51.6|2021-04-07 15:16:51.60911|2021-04-07 15:16:51.6091090|2021-04-07 15:16:51.609109000|07-APR-21 03.16.52 PM ASIA/CALCUTTA|2021-04-07 09:46:52   |07-APR-21 03.16.51.60911 PM ASIA/CALCUTTA|2021-04-07 09:46:51.60911|07-APR-21 03.16.51.60910900 PM ASIA/CALCUTTA|2021-04-07 09:46:51.60910900|
 +--------------------------+---------------------+-------------------------+---------------------------+-----------------------------+-----------------------------------+----------------------+-----------------------------------------+-------------------------+--------------------------------------------+----------------------------+
 ```
-More connectors from other JDBC sources to JDBC destination are avaialble [here](https://anudeepkonaboina.github.io/spear-framework/).
+More connectors from other JDBC sources to JDBC destination are avaialble [here](https://romans-weapon.github.io/spear-framework/#jdbc-source).
 
 
 ### Streaming source
@@ -477,7 +496,7 @@ postgresToHiveConnector
       |cast( status_code_id as int) as status_code_id,
       |cast( cru_by as string ) as cru_by,cast( cru_ts as timestamp) as cru_ts 
       |from __tmp__""".stripMargin)
-  .targetFS(destinationFilePath = "/tmp/ingest_test.db", saveAsTable = "ingest_test.postgres_data", SaveMode.Overwrite)
+  .targetFS(destinationFilePath = "/tmp/ingest_test.db", saveAsTable = "ingest_test.postgres_data", saveMode=SaveMode.Overwrite)
 
 postgresToHiveConnector.stop()
 ```
@@ -495,9 +514,9 @@ postgresToHiveConnector.stop()
 |59d9b23e-ff93-4351-af7e-0a95ec4fde65|10         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_authtoken           |5             |ABCDE |2021-04-27 10:17:50.441147|
 |111eeff6-c61d-402e-9e70-615cf80d3016|10         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_authtoken           |5             |ABCDE |2021-04-27 10:18:02.439379|
 |2870ff43-73c9-424e-9f3c-c89ac4dda278|10         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_authtoken           |5             |ABCDE |2021-04-27 10:18:14.5242  |
-|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_errorbot            |5             |ABCDE |2021-04-27 10:21:17.098984|
+|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_error              |5             |ABCDE |2021-04-27 10:21:17.098984|
 |534a2af0-af74-4633-8603-926070afd76f|16         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_filter_resolver_jdbc|5             |ABCDE |2021-04-27 10:21:17.223042|
-|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_errorbot            |5             |ABCDE |2021-04-27 10:21:17.437489|
+|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_error               |5             |ABCDE |2021-04-27 10:21:17.437489|
 |6db9c72f-85b0-4254-bc2f-09dc1e63e6f3|9          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_flowcontroller      |5             |ABCDE |2021-04-27 10:21:17.780313|
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 only showing top 10 rows
@@ -513,9 +532,9 @@ only showing top 10 rows
 |59d9b23e-ff93-4351-af7e-0a95ec4fde65|10         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_authtoken           |5             |ABCDE |2021-04-27 10:17:50.441147|
 |111eeff6-c61d-402e-9e70-615cf80d3016|10         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_authtoken           |5             |ABCDE |2021-04-27 10:18:02.439379|
 |2870ff43-73c9-424e-9f3c-c89ac4dda278|10         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_authtoken           |5             |ABCDE |2021-04-27 10:18:14.5242  |
-|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_errorbot            |5             |ABCDE |2021-04-27 10:21:17.098984|
+|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_error            |5             |ABCDE |2021-04-27 10:21:17.098984|
 |534a2af0-af74-4633-8603-926070afd76f|16         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_filter_resolver_jdbc|5             |ABCDE |2021-04-27 10:21:17.223042|
-|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_errorbot            |5             |ABCDE |2021-04-27 10:21:17.437489|
+|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_error            |5             |ABCDE |2021-04-27 10:21:17.437489|
 |6db9c72f-85b0-4254-bc2f-09dc1e63e6f3|9          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_flowcontroller      |5             |ABCDE |2021-04-27 10:21:17.780313|
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 only showing top 10 rows
@@ -540,9 +559,9 @@ from __tmp__
 |59d9b23e-ff93-4351-af7e-0a95ec4fde65|10         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_authtoken           |5             |ABCDE |2021-04-27 10:17:50.441147|
 |111eeff6-c61d-402e-9e70-615cf80d3016|10         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_authtoken           |5             |ABCDE |2021-04-27 10:18:02.439379|
 |2870ff43-73c9-424e-9f3c-c89ac4dda278|10         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_authtoken           |5             |ABCDE |2021-04-27 10:18:14.5242  |
-|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_errorbot            |5             |ABCDE |2021-04-27 10:21:17.098984|
+|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_error               |5             |ABCDE |2021-04-27 10:21:17.098984|
 |534a2af0-af74-4633-8603-926070afd76f|16         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_filter_resolver_jdbc|5             |ABCDE |2021-04-27 10:21:17.223042|
-|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_errorbot            |5             |ABCDE |2021-04-27 10:21:17.437489|
+|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_error               |5             |ABCDE |2021-04-27 10:21:17.437489|
 |6db9c72f-85b0-4254-bc2f-09dc1e63e6f3|9          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_flowcontroller      |5             |ABCDE |2021-04-27 10:21:17.780313|
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 only showing top 10 rows
@@ -560,13 +579,15 @@ only showing top 10 rows
 |59d9b23e-ff93-4351-af7e-0a95ec4fde65|10         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_authtoken           |5             |ABCDE |2021-04-27 10:17:50.441147|
 |111eeff6-c61d-402e-9e70-615cf80d3016|10         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_authtoken           |5             |ABCDE |2021-04-27 10:18:02.439379|
 |2870ff43-73c9-424e-9f3c-c89ac4dda278|10         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_authtoken           |5             |ABCDE |2021-04-27 10:18:14.5242  |
-|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_errorbot            |5             |ABCDE |2021-04-27 10:21:17.098984|
+|58fe7575-9c4f-471e-8893-9bc39b4f1be4|18         |1619518658043                 |5ef4bcb3-f064-4532-ad4f-5e8b68c33f70|3             |3                 |bale_3_error               |5             |ABCDE |2021-04-27 10:21:17.098984|
 |534a2af0-af74-4633-8603-926070afd76f|16         |1619518657679                 |b218b4a2-2723-4a51-a83b-1d9e5e1c79ff|2             |2                 |bale_2_filter_resolver_jdbc|5             |ABCDE |2021-04-27 10:21:17.223042|
-|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_errorbot            |5             |ABCDE |2021-04-27 10:21:17.437489|
+|9971130b-9ae1-4a53-89ce-aa1932534956|18         |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_error               |5             |ABCDE |2021-04-27 10:21:17.437489|
 |6db9c72f-85b0-4254-bc2f-09dc1e63e6f3|9          |1619518657481                 |ec65395c-fdbc-4697-ac91-bc72447ae7cf|1             |1                 |bale_1_flowcontroller      |5             |ABCDE |2021-04-27 10:21:17.780313|
 +------------------------------------+-----------+------------------------------+------------------------------------+--------------+------------------+---------------------------+--------------+------+--------------------------+
 only showing top 10 rows
 ```
+
+More connectors to target FileSystem HDFS are avaialable [here](https://romans-weapon.github.io/spear-framework/#target-fs-hdfs).
 
 ### Streaming source
 
@@ -649,7 +670,7 @@ oracleTOS3Connector
       |        TIMESTAMP8_WITH_TZ as timestamp8_with_tz,TIMESTAMP8_WITH_TZ_utc as timestamp8_with_tz_utc
       |        from __source__
       |""".stripMargin)
-  .targetFS(destinationFilePath="s3a://destination/data",SaveMode.Overwrite)
+  .targetFS(destinationFilePath="s3a://destination/data", saveMode=SaveMode.Overwrite)
 
 oracleTOS3Connector.stop()
 ```
@@ -707,6 +728,8 @@ user@node:~$ aws s3 ls s3://destination/data
 
 ```
 
+More connectors to target FileSystem Cloud (s3/gcs/adls..ect) are avaialable [here](https://romans-weapon.github.io/spear-framework/#target-fs-cloud).
+
 ## Target NOSQL
 
 ### File source
@@ -736,7 +759,7 @@ csvMongoConnector.setVeboseLogging(true)
         |sum(votes) as total_votes
         |from __tmp__
         |group by state_code,party""".stripMargin)
-    .targetNoSQL("ingest.csvdata",mongoProps,SaveMode.Overwrite)
+    .targetNoSQL(objectName="ingest.csvdata",props=mongoProps,saveMode=SaveMode.Overwrite)
 
 csvMongoConnector.stop()
 ```
@@ -803,7 +826,7 @@ only showing top 10 rows
 only showing top 10 rows
 
 ````
-Other connectors with NO-SQL destination are avaialble [here](https://romans-weapon.github.io/spear-framework/).
+Other connectors with NO-SQL as destination are avaialble [here](https://romans-weapon.github.io/spear-framework/#target-nosql).
 
 ## Other Functionalities of Spear
 This section describes other functionalities which you can use with spear
@@ -844,7 +867,7 @@ postgresToHiveConnector.executeQuery(
     """.stripMargin)
   .targetFS(destinationFilePath = "/tmp/ingest", destFormat = "parquet", saveAsTable = "target", saveMode = SaveMode.Overwrite)
 ```
-see more detailed explanation about executeQuery AP1 with diagrams [here](https://romans-weapon.github.io/spear-framework/)
+See more detailed explanation about executeQuery AP1 with diagrams [here](https://romans-weapon.github.io/spear-framework/#merge-using-executequery-api)
 
 ### Write to multi-targets using branch API
 
@@ -884,7 +907,7 @@ csvMultiTargetConnector
   )
 
 ```
-see more detailed explanation about multi-destinations with diagrams [here](https://romans-weapon.github.io/spear-framework/)
+See more detailed explanation about multi-destinations with diagrams [here](https://romans-weapon.github.io/spear-framework/#multi-targets-using-branch-api)
 
 
 ## Contributions and License
@@ -896,4 +919,4 @@ Anudeep Konaboina <krantianudeep@gmail.com>
 Kayan Deshi <kalyan.mgit@gmail.com>
 
 ## Visit Website
-Watch example connectors from different sources to differnrt targets, visit github page [here](https://romans-weapon.github.io/spear-framework/)
+Watch example connectors from different sources to different targets, visit github page [here](https://romans-weapon.github.io/spear-framework/)
