@@ -2403,7 +2403,8 @@ only showing top 10 rows
 
 This is an example which demonstrates the combination of both the previous features of executeQuery and batch API.
 
-![image](https://user-images.githubusercontent.com/59328701/121482929-3e9e6e80-c9eb-11eb-893a-4bd7b04b771d.png)
+![image](https://user-images.githubusercontent.com/59328701/121520738-e5493600-ca10-11eb-9f72-4a0703360a76.png)
+
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
