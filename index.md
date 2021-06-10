@@ -14,6 +14,9 @@ Below is the code and design quality score for Spear framework given by Code Ins
 
 # Connectors developed using Spear
 - [Getting started with Spear](#getting-started-with-spear)
+    * [Maven dependency for Spear](#maven-dependency-for-spear)
+    * [Spark shell package for Spear](#spark-shell-package-for-spear)
+    * [Docker container setup for Spear](#docker-container-setup-for-spear)
 - [Connectors built using spear](#connectors-built-using-spear)
     * [Target JDBC](#target-jdbc)
         - [File Source](#file-source)
@@ -63,7 +66,22 @@ Below is the code and design quality score for Spear framework given by Code Ins
 
 # Getting Started with Spear
 
-Below are the steps to setup spear on any machine having docker and docker-compose installed:
+### Maven dependency for Spear
+
+You can add spear-framework as maven dependency in your projects build.sbt file as show below
+```commandline
+libraryDependencies += "io.github.romans-weapon" %% "spear-framework" % "2.4-2.0"
+```
+
+### Spark shell package for Spear
+
+You can also add it as a package while staring spark-shell along with other packages.
+```commandline
+spark-shell --packages "io.github.romans-weapon:spear-framework_2.11:2.4-2.0"
+```
+
+### Docker container setup for Spear
+Below are the simple steps to setup spear on any machine having docker and docker-compose installed :
 
 1. Clone the repository from git and navigate to project directory
 ```commandline
@@ -84,11 +102,11 @@ user@node~$ docker exec -it spear bash
 ```
 root@hadoop # spear-shell
 ```
-NOTE: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source
-and write it to HDFS so that it gives you complete environment to play with spear-framework and is not recomended for heavy load.
-You need to go for a spark cluster for that requirement.
 
-5. Start writing your own single line connectors and explore .To understand how to write a connector [click here](https://github.com/AnudeepKonaboina/spear-framework/tree/main#develop-your-first-connector-using-spear)
+**NOTE**: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source and write it to HDFS so that it gives you complete environment to play with spear-framework.
+Also it has a postgres database and a NO-SQL database mongodb as well which you can use it as a source or as a desination for writing and testing your connector.
+
+5. Start writing your own connectors and explore .To understand how to write a connector [click here](develop-your-first-connector-using-spear)
 
 # Connectors built using Spear
 Connector is basically the logic/code which allows you to create a pipeline from source to target using the spear framework using which you can ingest data from any source to any destination.
