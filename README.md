@@ -97,7 +97,6 @@ Also it has a postgres database and a NO-SQL database mongodb as well which you 
 
 5. Start writing your own connectors and explore .To understand how to write a connector [click here](develop-your-first-connector-using-spear)
 
-
 # Develop your first connector using Spear
 
 Below are the steps to write any connector:
@@ -619,8 +618,6 @@ streamTOHdfs
 streamTOHdfs.stop()
 ```
 
-
-
 ### Target FS (Cloud)
 
 #### Oracle To S3 Connector
@@ -917,6 +914,7 @@ Software Licensed under the [Apache License 2.0](LICENSE)
 Anudeep Konaboina <krantianudeep@gmail.com>
 #### Contributor
 Kayan Deshi <kalyan.mgit@gmail.com>
+
 
 ## Visit Website
 Watch example connectors from different sources to different targets, visit github page [here](https://romans-weapon.github.io/spear-framework/)
