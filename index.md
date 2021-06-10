@@ -1,6 +1,6 @@
 
 # Spear Framework - Introduction
-The spear-framework provides scope to write simple ETL-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
+The spear-framework provides scope to write simple ETL/ELT-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
 ![image](https://user-images.githubusercontent.com/59328701/120106134-84507100-c179-11eb-9624-7a1504c8a083.png)
 
@@ -57,7 +57,9 @@ Below is the code and design quality score for Spear framework given by Code Ins
     * [Merge using executeQuery API](#merge-using-executequery-api) 
          - [Postgres to Hive Connector With executeQuery AP1](#postgres-to-hive-connector-with-executequery-api)
     * [Multi-targets using branch API](#multi-targets-using-branch-api)
-         - [CSV to Multi-Targets With branch AP1](#csv-to-multi-targets-with-branch-api)
+         - [CSV to Multi-Target Connector With branch API](#csv-to-multi-target-connector-with-branch-api)
+    * [Merge and batch API combination](#merge-and-batch-api-combination) 
+         - [Multi-source to Multi-Target Connector](#multi-source-to-multi-target-connector)
 
 # Getting Started with Spear
 
@@ -73,14 +75,14 @@ git clone https://github.com/AnudeepKonaboina/spear-framework.git && cd spear-fr
 sh setup.sh
 ```
 
-3. Once the setup is completed run enter into spark-conatiner using the command
+3. Once the setup is completed run the below command for entering into the container
 ```commandline
 user@node~$ docker exec -it spear bash
-[root@hadoop /]#
 ```
-4. Run spear-shell to start the shell
-```commandline
-[root@hadoop /]# spear-shell
+
+4. Run `spear-shell` inside the conatiner to start the shell
+```
+root@hadoop # spear-shell
 ```
 NOTE: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source
 and write it to HDFS so that it gives you complete environment to play with spear-framework and is not recomended for heavy load.
@@ -138,7 +140,7 @@ csvJdbcConnector
       |sum(votes) as total_votes
       |from __tmp__
       |group by state_code,party""".stripMargin)
-  .targetJDBC(tableName="mytable", properties, SaveMode.Overwrite)
+  .targetJDBC(objectName="mytable", props=properties, saveMode=SaveMode.Overwrite)
 csvJdbcConnector.stop()
 ```
 
@@ -233,7 +235,7 @@ jsonJdbcConnector
   .source("file:///opt/spear-framework/data/data.json", Map("multiline" -> "true"))
   .saveAs("__tmptable__")
   .transformSql("select cast(id*10 as integer) as type_id,type from __tmptable__ ")
-  .targetJDBC(tableName = "json_to_jdbc", properties, SaveMode.Overwrite)
+  .targetJDBC(objectName = "json_to_jdbc", props=properties, saveMode=SaveMode.Overwrite)
 jsonJdbcConnector.stop()
 ```
 
@@ -311,7 +313,8 @@ xmlJdbcConnector
   .source("file:///opt/spear-framework/data/data.xml", Map("rootTag" -> "employees", "rowTag" -> "details"))
   .saveAs("tmp")
   .transformSql("select * from tmp ")
-  .targetJDBC(tableName="xml_to_jdbc", properties, SaveMode.Overwrite)
+  .targetJDBC(objectName="xml_to_jdbc", props=properties, saveMode=SaveMode.Overwrite)
+
 xmlJdbcConnector.stop()
 ```
 
@@ -393,7 +396,7 @@ avroJdbcConnector
         |country,email,
         |salary
         |from __transformed_table__""".stripMargin)
-    .targetJDBC(tableName = "avro_data", properties, SaveMode.Overwrite)  
+    .targetJDBC(objectName = "avro_data", props=properties, saveMode=SaveMode.Overwrite)  
 
 avroJdbcConnector.stop()
 ```
@@ -508,7 +511,7 @@ parquetJdbcConnector
   .source("file:///opt/spear-framework/data/sample.parquet")
   .saveAs("__tmp__")
   .transformSql("""select flow1,occupancy1,speed1 from __tmp__""")
-  .targetJDBC(tableName="user_data", properties, SaveMode.Overwrite)
+  .targetJDBC(objectName="user_data", props=properties, saveMode=SaveMode.Overwrite)
 
 parquetJdbcConnector.stop()
 ```
@@ -589,7 +592,7 @@ oracleTOPostgresConnector
       |        TIMESTAMP8_WITH_LTZ as timestamp8_with_ltz,TIMESTAMP8_WITH_LTZ_utc as timestamp8_with_ltz_utc
       |        from __source__
       |""".stripMargin)
-  .targetJDBC(tableName = "ora_to_postgres", properties, SaveMode.Overwrite)
+  .targetJDBC(objectNameName = "ora_to_postgres", props=properties, saveMode=SaveMode.Overwrite)
 
 oracleTOPostgresConnector.stop()
 
@@ -672,12 +675,14 @@ postgresSalesForce
         |select person_id as person_id__c,
         |name as person_name__c
         |from __tmp__""".stripMargin)
-    .targetJDBC(tableName = "Sample__c", targetproperties, SaveMode.Overwrite)
+    .targetJDBC(objectName = "Sample__c", props=targetproperties, saveMode=SaveMode.Overwrite)
+
 postgresSalesForce.stop()
 ```
 
 #### Hive to postgres connector
-When working with Hive, one must instantiate SparkSession with Hive support.Spark connects to the Hive metastore directly via a HiveContext It does not use JDBC.The configuration of Hive is done by placing your hive-site.xml, core-site.xml (for security configuration), and hdfs-site.xml (for HDFS configuration) file in conf/ folder of spark.
+When working with Hive, one must instantiate SparkSession with Hive support.Spear does all that internally
+Spark connects to the Hive metastore directly via a HiveContext It does not use JDBC.The configuration of Hive is done by placing your hive-site.xml, core-site.xml (for security configuration), and hdfs-site.xml (for HDFS configuration) file in conf/ folder of spark.
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -711,7 +716,7 @@ hiveJdbcConnector
       |    age__c as age,
       |    cast (gender__c as STRING) as gender 
       |    from __hive_staging___""".stripMargin)
-    .targetJDBC("test",properties,SaveMode.Overwrite)
+    .targetJDBC(objectName="test",props=properties,saveMode=SaveMode.Overwrite)
 hiveJdbcConnector.stop()    
 
 ```
@@ -755,7 +760,7 @@ mongoToPostgresConnector
         |cast (name as STRING) as person_name,
         |cast (sal as FLOAT) as salary
         |from _mongo_staging_ """.stripMargin)
-    .targetJDBC("mongo_data",properties,SaveMode.Overwrite)
+    .targetJDBC(objectName="mongo_data", props=properties, saveMode=SaveMode.Overwrite)
 
 mongoToPostgresConnector.stop()    
 ```
@@ -855,7 +860,7 @@ streamTOPostgres
     .source(sourceObject = "stream_topic",Map("kafka.bootstrap.servers"-> "kafka:9092","failOnDataLoss"->"true","startingOffsets"-> "earliest"),schema)
     .saveAs("__tmp2__")
     .transformSql("select cast (id as INT) as id, name from __tmp2__")
-    .targetJDBC(tableName="person", properties, SaveMode.Append)
+    .targetJDBC(objectName="person", props=properties, saveMode=SaveMode.Append)
 
 streamTOPostgres.stop()
 ```
@@ -1029,7 +1034,7 @@ oraToHiveConnector
       |        cast(NUMBER_TYPE_13_7 as DECIMAL(13,7)) as number_type_13_7
       |        from __TF_SOURCE_TABLE__
       |""".stripMargin)
-  .targetFS(destinationFilePath = "/tmp/ingest_test.db", saveAsTable = "ingest_test.ora_data", SaveMode.Overwrite)
+  .targetFS(destinationFilePath = "/tmp/ingest_test.db", saveAsTable = "ingest_test.ora_data", saveMode=SaveMode.Overwrite)
 oraToHiveConnector.stop()
 
 ```
@@ -1138,7 +1143,7 @@ Spark cannot read a salesforce object directly if specified,You must always use 
       |    LastModifiedById,
       |    cast(unix_timestamp(LastModifiedDate,"yyyy-MM-dd") AS timestamp) as LastModifiedDate
       |    from __temp__""".stripMargin)
-    .targetFS("/user/hive/metastore/salseforce.db",saveAsTable="salseforce.transform_hive",SaveMode.Overwrite)
+    .targetFS(destinationFilePath="/user/hive/metastore/salseforce.db",saveAsTable="salseforce.transform_hive",saveMode=SaveMode.Overwrite)
     
     salseforceToHiveConnector.stop()
 ```
@@ -1263,7 +1268,8 @@ mongoToHiveConnector
         |cast (name as STRING) as person_name,
         |cast (sal as FLOAT) as salary
         |from _mongo_staging_ """.stripMargin)
-    .targetFS(destinationFilePath = "/tmp/mongo.db",saveAsTable="mongohive" ,SaveMode.Overwrite) 
+    .targetFS(destinationFilePath = "/tmp/mongo.db",saveAsTable="mongohive" , saveMode=SaveMode.Overwrite) 
+
 mongoToHiveConnector.stop()    
 ```
 
@@ -1295,7 +1301,7 @@ streamTOHdfs
   .source(sourceObject = "stream_topic",Map("kafka.bootstrap.servers"-> "kafka:9092","failOnDataLoss"->"true","startingOffsets"-> "earliest"),schema)
   .saveAs("__tmp2__")
   .transformSql("select cast (id as INT), name as __tmp2__")
-  .targetFS(destinationFilePath = "/tmp/ingest_test.db", saveAsTable = "ingest_test.ora_data", SaveMode.Append)
+  .targetFS(destinationFilePath = "/tmp/ingest_test.db", saveAsTable = "ingest_test.ora_data", saveMode=SaveMode.Append)
 
 streamTOHdfs.stop()
 ```
@@ -1317,7 +1323,7 @@ spark.sparkContext.hadoopConfiguration.set("fs.s3a.secret.key", "******")
     .target(targetType = "FS", targetFormat = "parquet")
     .getConnector
  s3ToHiveConnector.source("s3a://testbucketspear/salesforcedata")
-.targetFS(destinationFilePath = "",saveAsTable="ingest_test.salesforce",SaveMode.Overwrite)
+.targetFS(destinationFilePath = "",saveAsTable="ingest_test.salesforce",saveMode=SaveMode.Overwrite)
 
 s3ToHiveConnector.stop()
 ```
@@ -1386,7 +1392,7 @@ oracleTOS3Connector
       |        TIMESTAMP8_WITH_TZ as timestamp8_with_tz,TIMESTAMP8_WITH_TZ_utc as timestamp8_with_tz_utc
       |        from __source__
       |""".stripMargin)
-  .targetFS(destinationFilePath="s3a://destination/data",SaveMode.Overwrite)
+  .targetFS(destinationFilePath="s3a://destination/data",saveMode=SaveMode.Overwrite)
 
 oracleTOS3Connector.stop()
 ```
@@ -1470,7 +1476,7 @@ postgresToGCSConnector
       """
         |select *
         |from __tmp__""".stripMargin)
-    .targetFS(destinationFilePath = "gs://testbucketspear/ora_data", SaveMode.Overwrite)
+    .targetFS(destinationFilePath = "gs://testbucketspear/ora_data", saveMode=SaveMode.Overwrite)
 
 postgresToGCSConnector.stop()
 ```
@@ -1562,7 +1568,7 @@ salseforceToS3Connector.setVeboseLogging(true)
       |    LastModifiedById,
       |    cast(unix_timestamp(LastModifiedDate,"yyyy-MM-dd") AS timestamp) as LastModifiedDate
       |    from __temp__""".stripMargin)
-    .targetFS(destinationFilePath = "s3a://testbucketspear/salesforcedata", SaveMode.Overwrite)
+    .targetFS(destinationFilePath = "s3a://testbucketspear/salesforcedata", saveMode=SaveMode.Overwrite)
     
 salseforceToS3Connector.stop()
 ```
@@ -1678,7 +1684,7 @@ csvMongoConnector.setVeboseLogging(true)
         |sum(votes) as total_votes
         |from __tmp__
         |group by state_code,party""".stripMargin)
-    .targetNoSQL("ingest.csvdata",mongoProps,SaveMode.Overwrite)
+    .targetNoSQL(objectName="ingest.csvdata",props=mongoProps,saveMode=SaveMode.Overwrite)
 
 csvMongoConnector.stop()
 ```
@@ -1778,7 +1784,7 @@ cqlsh:ingest>    CREATE TABLE salesforcedata_new(
 
 Write connector:
 ```scala
- com.github.edge.roman.spear.SpearConnector
+import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import java.util.Properties
 import org.apache.spark.sql.{Column, DataFrame, SaveMode}
@@ -1819,7 +1825,7 @@ salseforceToCassandraConnector
       |    age__c,
       |    gender__c
       |    from __temp__""".stripMargin)
-   .targetNoSQL("ingest.salesforcedata_new",cassandraProps,SaveMode.Append)
+   .targetNoSQL(objectName="ingest.salesforcedata_new",props=cassandraProps,saveMode=SaveMode.Append)
 
 salseforceToCassandraConnector.stop()   
 ```
@@ -1959,7 +1965,7 @@ cassandraTOMongoConnector
       |    age__c as age,
       |    cast (gender__c as STRING) as gender 
       |    from __cassandra_temp__""".stripMargin)
-   .targetNoSQL("ingest.cassandra_data_mongo",mongoProps,SaveMode.Overwrite)
+   .targetNoSQL(objectName="ingest.cassandra_data_mongo",props=mongoProps,saveMode=SaveMode.Overwrite)
    
 cassandraTOMongoConnector.stop()   
 ```
@@ -2029,14 +2035,14 @@ only showing top 10 rows
 ````
 # Other Functionalities of Spear
 
-## Merge using executeQuery API
+## Merge using executeQuery API 
 
 Using the executeQuery API in spear you can run the join query for merging two sources and then apply required transformations before 
 writing it into the target as show in the below diagram.
 
 ### Postgres to Hive Connector With executeQuery API
 
-![image](https://user-images.githubusercontent.com/59328701/121384858-436d0f00-c966-11eb-8153-2b88e8946a91.png)
+![image](https://user-images.githubusercontent.com/59328701/121480303-8b347a80-c9e8-11eb-8b42-61a9d39b29c1.png)
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -2209,9 +2215,9 @@ Spear also provides you the scope to write to multiple targets using the branch 
 
 Below is the diagramatic representation of the branch api and example connector for the same
 
-### CSV to Multi-Targets With branch AP1
+### CSV to Multi-Target Connector With branch API
 
-![image](https://user-images.githubusercontent.com/59328701/121397077-a57f4180-c971-11eb-8d64-fb44c362ab74.png)
+![image](https://user-images.githubusercontent.com/59328701/121474612-ef077500-c9e1-11eb-9e95-d8f82ce310e1.png)
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
@@ -2373,3 +2379,166 @@ only showing top 10 rows
 only showing top 10 rows
 ```
 
+## Merge and batch API combination
+
+#### Multi-source to Multi-Target Connector
+
+This is an example which demonstrates the combination of both the previous features of executeQuery and batch API.
+
+![image](https://user-images.githubusercontent.com/59328701/121482929-3e9e6e80-c9eb-11eb-893a-4bd7b04b771d.png)
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.sql.SaveMode
+import java.util.Properties
+
+Logger.getLogger("com.github").setLevel(Level.INFO)
+
+val postgresJoinBatchConnector = SpearConnector
+  .createConnector("PostgresToHiveConnector")
+  .source(sourceType = "relational", sourceFormat = "jdbc")
+  .multiTarget
+  .getConnector
+
+postgresJoinBatchConnector.setVeboseLogging(true)
+//source-df-1
+postgresJoinBatchConnector
+  .source("emp", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://postgres:5432/pgdb"))
+  .saveAs("employee")
+
+//source-df-2 with filters
+postgresJoinBatchConnector
+  .source("dept", Map("driver" -> "org.postgresql.Driver", "user" -> "postgres_user", "password" -> "mysecretpassword", "url" -> "jdbc:postgresql://postgres:5432/pgdb"))
+  .saveAs("department")
+  .transformSql(
+    """
+      |select  deptno,
+      | dname
+      | from department
+      | where deptno in (20,30)""".stripMargin).saveAs("dept_filtered_data")
+
+//executeQuery() api for runing join on the two df's
+postgresJoinBatchConnector
+  .executeQuery(
+    """
+      |select e.empno as id,
+      |e.ename as name,
+      |e.job as designation,e.sal as salary,
+      |d.dname as department
+      |from employee e inner join dept_filtered_data d
+      |on e.deptno = d.deptno
+      |""".stripMargin).saveAs("emp_dept")
+  .transformSql(
+    """
+      |select id,name,
+      |department,salary
+      |from emp_dept
+      |where salary < 3000""".stripMargin)
+  .branch
+  .targets(
+    postgresJoinBatchConnector.targetNoSQL(objectName = "ingest.mongo_emp_sal_report", destFormat = "mongo", props = mongoProps, SaveMode.Overwrite),
+    postgresJoinBatchConnector.targetFS(destinationFilePath = "/tmp/ingest", destFormat = "parquet", saveAsTable = "ingest.emp_sal_report", saveMode = SaveMode.Overwrite)
+  )
+
+postgresJoinBatchConnector.stop()
+```
+
+#### Output
+
+```commandline
+
+21/06/09 18:40:17 INFO targetAny.JDBCtoAny: Connector  to multiTargets  from JDBC source object: emp with Format: jdbc started running!!
+21/06/09 18:40:17 INFO targetAny.JDBCtoAny: Reading source table: emp with format: jdbc status:success
++-----+------+---------+----+----------+-------+-------+------+
+|empno|ename |job      |mgr |hiredate  |sal    |comm   |deptno|
++-----+------+---------+----+----------+-------+-------+------+
+|7369 |SMITH |CLERK    |7902|1980-12-17|800.00 |null   |20    |
+|7499 |ALLEN |SALESMAN |7698|1981-02-20|1600.00|300.00 |30    |
+|7521 |WARD  |SALESMAN |7698|1981-02-22|1250.00|500.00 |30    |
+|7566 |JONES |MANAGER  |7839|1981-04-02|2975.00|null   |20    |
+|7654 |MARTIN|SALESMAN |7698|1981-09-28|1250.00|1400.00|30    |
+|7698 |BLAKE |MANAGER  |7839|1981-05-01|2850.00|null   |30    |
+|7782 |CLARK |MANAGER  |7839|1981-06-09|2450.00|null   |10    |
+|7788 |SCOTT |ANALYST  |7566|1987-04-19|3000.00|null   |20    |
+|7839 |KING  |PRESIDENT|null|1981-11-17|5000.00|null   |10    |
+|7844 |TURNER|SALESMAN |7698|1981-09-08|1500.00|0.00   |30    |
++-----+------+---------+----+----------+-------+-------+------+
+only showing top 10 rows
+
+21/06/09 18:40:17 INFO targetAny.JDBCtoAny: Saving data as temporary table:employee success
+21/06/09 18:40:17 INFO targetAny.JDBCtoAny: Connector  to multiTargets  from JDBC source object: dept with Format: jdbc started running!!
+21/06/09 18:40:17 INFO targetAny.JDBCtoAny: Reading source table: dept with format: jdbc status:success
++------+----------+--------+
+|deptno|dname     |loc     |
++------+----------+--------+
+|10    |ACCOUNTING|NEW YORK|
+|20    |RESEARCH  |DALLAS  |
+|30    |SALES     |CHICAGO |
+|40    |OPERATIONS|BOSTON  |
++------+----------+--------+
+
+21/06/09 18:40:17 INFO targetAny.JDBCtoAny: Saving data as temporary table:department success
+21/06/09 18:40:18 INFO targetAny.JDBCtoAny: Executing transformation sql:
+select  deptno,
+ dname
+ from department
+ where deptno in (20,30) status :success
++------+--------+
+|deptno|dname   |
++------+--------+
+|20    |RESEARCH|
+|30    |SALES   |
++------+--------+
+
+21/06/09 18:40:18 INFO targetAny.JDBCtoAny: Saving data as temporary table:dept_filtered_data success
+21/06/09 18:40:18 INFO targetAny.JDBCtoAny: Executing spark sql:
+select e.empno as id,
+e.ename as name,
+e.job as designation,e.sal as salary,
+d.dname as department
+from employee e inner join dept_filtered_data d
+on e.deptno = d.deptno
+ status :success
++----+------+-----------+-------+----------+
+|id  |name  |designation|salary |department|
++----+------+-----------+-------+----------+
+|7782|CLARK |MANAGER    |2450.00|ACCOUNTING|
+|7839|KING  |PRESIDENT  |5000.00|ACCOUNTING|
+|7934|MILLER|CLERK      |1300.00|ACCOUNTING|
+|7499|ALLEN |SALESMAN   |1600.00|SALES     |
+|7521|WARD  |SALESMAN   |1250.00|SALES     |
+|7654|MARTIN|SALESMAN   |1250.00|SALES     |
+|7698|BLAKE |MANAGER    |2850.00|SALES     |
+|7844|TURNER|SALESMAN   |1500.00|SALES     |
+|7900|JAMES |CLERK      |950.00 |SALES     |
+|7369|SMITH |CLERK      |800.00 |RESEARCH  |
++----+------+-----------+-------+----------+
+only showing top 10 rows
+
+21/06/09 18:40:18 INFO targetAny.JDBCtoAny: Saving data as temporary table:emp_dept success
+21/06/09 18:40:19 INFO targetAny.JDBCtoAny: Executing transformation sql:
+select id,name,
+department,salary
+from emp_dept
+where salary < 3000 status :success
++----+------+----------+-------+
+|id  |name  |department|salary |
++----+------+----------+-------+
+|7782|CLARK |ACCOUNTING|2450.00|
+|7934|MILLER|ACCOUNTING|1300.00|
+|7499|ALLEN |SALES     |1600.00|
+|7521|WARD  |SALES     |1250.00|
+|7654|MARTIN|SALES     |1250.00|
+|7698|BLAKE |SALES     |2850.00|
+|7844|TURNER|SALES     |1500.00|
+|7900|JAMES |SALES     |950.00 |
+|7369|SMITH |RESEARCH  |800.00 |
+|7566|JONES |RESEARCH  |2975.00|
++----+------+----------+-------+
+only showing top 10 rows
+
+21/06/09 18:40:19 INFO targetAny.JDBCtoAny: caching intermediate Dataframe status :success
+21/06/09 18:40:20 INFO targetAny.JDBCtoAny: Write data to object ingest.mongo_emp_sal_report completed with status:success
+21/06/09 18:40:23 INFO targetAny.JDBCtoAny: Write data to target path: /tmp/ingest with format: parquet and saved as table ingest.emp_sal_report completed with status:success
+```
