@@ -7,7 +7,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.romans-weapon/spear-framework_2.11.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.romans-weapon%22%20AND%20a:%22spear-framework_2.11%22)
 [![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://romans-weapon.github.io/spear-framework/)
 
-The spear-framework provides scope to write simple ETL/ELT-connectors/pipelines with minimal code running on Apache Spark for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data migration. Connectors which have the ability to extract and load any kind of data from various data-sources with custom tansformations applied on them can be written and executed seamlessly using spear connectors.
+The spear-framework provides scope to write simple ETL/ELT-connectors/pipelines on Apache Spark with minimal code for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data migration. Connectors which have the ability to extract and load any kind of data from various data-sources with custom tansformations applied on them, can be written and executed seamlessly using spear connectors.
 
 # Table of Contents
 - [Introduction](#introduction)
