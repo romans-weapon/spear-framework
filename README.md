@@ -7,7 +7,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.romans-weapon/spear-framework_2.11.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.romans-weapon%22%20AND%20a:%22spear-framework_2.11%22)
 [![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://romans-weapon.github.io/spear-framework/)
 
-The spear-framework provides scope to write simple ETL/ELT-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
+The spear-framework provides scope to write simple ETL/ELT-connectors/pipelines with minimal code running on Apache Spark for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data migration. Connectors which have the ability to extract and load any kind of data from various data-sources with custom tansformations applied on them can be written and executed seamlessly using spear connectors.
 
 # Table of Contents
 - [Introduction](#introduction)
@@ -43,13 +43,15 @@ The spear-framework provides scope to write simple ETL/ELT-connectors/pipelines 
 
 # Introduction
 
-Spear Framework provides the developers thae ability to write connectors (ETL/ELT jobs) from a source to a target,applying business logic/transformations over the soure data and writing it to the corresponding destination with very minimal code.
+Spear Framework provides the developers thae ability to write connectors (ETL/ELT jobs) from various source/s to target/s,applying business logic/transformations over the soure data and writing it to the corresponding destination with very minimal code.
 
 ![image](https://user-images.githubusercontent.com/59328701/120106134-84507100-c179-11eb-9624-7a1504c8a083.png)
 
 # Design and Code Quality
 
 ![image](https://user-images.githubusercontent.com/59328701/120107447-aac4db00-c17e-11eb-815e-ff18381767ab.png)
+
+More inforrmation about the code quality of the framework is available [here](https://frontend.code-inspector.com/public/project/23492/spear-framework/dashboard).
 
 
 # Getting Started with Spear
