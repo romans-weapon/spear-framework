@@ -25,23 +25,22 @@ import com.mongodb.spark.MongoSpark
 import com.mongodb.spark.config.WriteConfig
 import org.apache.spark.sql.SaveMode
 
-import scala.collection.JavaConverters._
 import java.util.Properties
 
 abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
-  override def targetNoSQL(objectName: String, destFormat: String = destFormat, props: Properties, saveMode: SaveMode): Unit = {
+  override def targetNoSQL(objectName: String, destFormat: String = destFormat, props: Map[String, String], saveMode: SaveMode): Unit = {
     destFormat match {
       case "mongo" =>
         val writeConfig = WriteConfig(
           Map("uri" -> props.get("uri").toString.concat(s"/${objectName}")))
-        MongoSpark.save(this.df.write.format("mongo").options(props.asScala).mode(saveMode), writeConfig)
+        MongoSpark.save(this.df.write.format("mongo").options(props).mode(saveMode), writeConfig)
       case "cassandra" =>
         val destdetailsArr = objectName.split("\\.")
         val keySpace = destdetailsArr(0)
         val tableName = destdetailsArr(1)
         this.df.write.format("org.apache.spark.sql.cassandra")
-          .options(Map("keyspace" -> keySpace, "table" -> tableName) ++ props.asScala)
+          .options(Map("keyspace" -> keySpace, "table" -> tableName) ++ props)
           .mode(saveMode)
           .save()
     }
@@ -49,7 +48,10 @@ abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: St
     show()
   }
 
-  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, saveMode: SaveMode, params: Map[String, String]): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType nosql")
+  //unsupported here
+  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType 'nosql' ")
 
-  override def targetJDBC(tableName: String, destFormat: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetJDBC() not compatible for given targetType nosql")
+  override def targetJDBC(tableName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetJDBC() not compatible for given targetType 'nosql' ")
+
+  override def targetGraphDB(objectName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetGraphDB() not compatible for given targetType 'nosql' ")
 }

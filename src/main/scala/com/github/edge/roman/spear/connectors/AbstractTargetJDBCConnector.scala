@@ -22,32 +22,36 @@ package com.github.edge.roman.spear.connectors
 import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.commons.SpearCommons
 import org.apache.spark.sql.SaveMode
+import scala.collection.JavaConverters._
 
 import java.util.Properties
 
 
 abstract class AbstractTargetJDBCConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
-  override def targetJDBC(tableName: String, destFormat: String = destFormat, props: Properties, saveMode: SaveMode): Unit = {
+  override def targetJDBC(tableName: String, destFormat: String = destFormat, params: Map[String, String], saveMode: SaveMode): Unit = {
     destFormat match {
       case "soql" =>
         this.df.write.format(SpearCommons.SalesforceFormat)
-          .option(SpearCommons.Username, props.get(SpearCommons.Username).toString)
-          .option(SpearCommons.Password, props.get(SpearCommons.Password).toString)
+          .options(params)
           .option("sfObject", tableName).save()
       case "saql" =>
         this.df.write.format(SpearCommons.SalesforceFormat)
-          .option(SpearCommons.Username, props.get(SpearCommons.Username).toString)
-          .option(SpearCommons.Password, props.get(SpearCommons.Password).toString)
+          .options(params)
           .option("datasetName", tableName).save()
       case _ =>
-        this.df.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
+        val props = new Properties()
+        props.putAll(params.mapValues(_.toString).asJava)
+        this.df.write.mode(saveMode).jdbc(params.get("url").toString, tableName, props)
     }
     logger.info(s"Write data to table/object ${tableName} completed with status:${SpearCommons.SuccessStatus} ")
     show()
   }
 
-  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, saveMode: SaveMode, params: Map[String, String]): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType 'relational'")
+  //un-supported here
+  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType 'relational' ")
 
-  override def targetNoSQL(tableName: String, destFormat: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetNoSQL() not compatible for given targetType FS")
+  override def targetNoSQL(tableName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetNoSQL() not compatible for given targetType 'relational' ")
+
+  override def targetGraphDB(objectName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetGraphDB() not compatible for given targetType 'relational' ")
 }

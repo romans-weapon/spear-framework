@@ -16,22 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package com.github.edge.roman.spear.connectors.targetNoSQL
+package com.github.edge.roman.spear.connectors.targetGraphDB
 
 import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
-import com.github.edge.roman.spear.connectors.AbstractTargetNoSQLConnector
+import com.github.edge.roman.spear.connectors.AbstractTargetGraphDBConnector
 
-class NoSQLtoNoSQL(sourceFormat: String, destFormat: String) extends AbstractTargetNoSQLConnector(sourceFormat, destFormat) {
+class NOSQLtoGraphDB(sourceFormat: String, destFormat: String) extends AbstractTargetGraphDBConnector(sourceFormat, destFormat) {
 
   override def source(sourceObject: String, params: Map[String, String]): Connector = {
-    logger.info(s"Connector to Target: NoSQL with Format: ${destFormat} from Source Object: ${sourceObject} with Format: ${sourceFormat} started running!!")
+    logger.info(s"Connector to Target: GraphDB with Format: ${destFormat} from Source Object: ${sourceObject} with Format: ${sourceFormat} started running!!")
     this.df = ConnectorCommon.sourceNOSQL(sourceObject = sourceObject, sourceFormat, params)
     logger.info(s"Reading source object: ${sourceObject} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
     if (this.verboseLogging) this.df.show(this.numRows, false)
     this
   }
 
-  override def sourceSql(params: Map[String, String], sqlText: String): Connector =throw new NoSuchMethodException(s"method sourceSql is not supported for given sourceType nosql for connector type NoSQLtoNoSQL" )
+  override def sourceSql(params: Map[String, String], sqlText: String): Connector =throw new NoSuchMethodException(s"method sourceSql is not supported for given sourceType nosql for connector type NOSQLtoGraphDB" )
 }

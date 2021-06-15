@@ -76,7 +76,7 @@ class FStoFS(sourceFormat: String, destFormat: String) extends AbstractTargetFSC
     this
   }
 
-  override def targetFS(destinationFilePath:String, destForeamt: String, saveAsTable: String, saveMode: SaveMode, params: Map[String, String]): Unit = {
+  override def targetFS(destinationFilePath:String, destFormat: String, saveAsTable: String, saveMode: SaveMode, params: Map[String, String]): Unit = {
     destFormat match {
       case SpearCommons.LOCAL =>
         localFSUtil.uploadFile(destinationFilePath, size, inputStream)

@@ -22,13 +22,15 @@ package com.github.edge.roman.spear.connectors
 import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
 import com.github.edge.roman.spear.{Connector, SpearConnector}
 import org.apache.log4j.Logger
+import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-import java.util.Properties
 
 abstract class AbstractConnector(sourceFormat: String) extends Connector {
-  val logger: Logger = Logger.getLogger(this.getClass.getName)
+  @transient lazy val logger: Logger = Logger.getLogger(this.getClass.getName)
+
+  //variables for spear
   val numRows: Int = SpearCommons.ShowNumRows
   var df: DataFrame = _
   var verboseLogging: Boolean = false
@@ -81,7 +83,7 @@ abstract class AbstractConnector(sourceFormat: String) extends Connector {
     this
   }
 
-  override def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit = {
+  override def targetSql(sqlText: String, params: Map[String, String], saveMode: SaveMode): Unit = {
     this.df.sqlContext.sql(sqlText)
   }
 
@@ -94,7 +96,7 @@ abstract class AbstractConnector(sourceFormat: String) extends Connector {
 
   def branch: Connector = {
     this.df.cache()
-    logger.info(s"caching intermediate Dataframe status :${SpearCommons.SuccessStatus}")
+    logger.info(s"Caching intermediate Dataframe completed with status :${SpearCommons.SuccessStatus}")
     this
   }
 
@@ -106,9 +108,13 @@ abstract class AbstractConnector(sourceFormat: String) extends Connector {
 
   }
 
-  def toDF: DataFrame = this.df
+  override def createUDF(fucntionName: String, function: UserDefinedFunction): UserDefinedFunction = {
+    SpearConnector.spark.sqlContext.udf.register(fucntionName, function)
+  }
 
-  def stop(): Unit = SpearConnector.spark.stop()
+  override def toDF: DataFrame = this.df
+
+  override def stop(): Unit = SpearConnector.spark.stop()
 
   def show(): Unit = if (this.verboseLogging) this.df.show(this.numRows, false)
 

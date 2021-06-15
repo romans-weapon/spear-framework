@@ -31,7 +31,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
   var dfTransformed: DataFrame = SpearConnector.spark.emptyDataFrame
   var is_transformed: Boolean = false
 
-  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
+  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, params: Map[String, String], saveMode: SaveMode): Unit = {
 
     if (destinationFilePath.isEmpty) {
       if (saveAsTable.isEmpty) {
@@ -69,39 +69,37 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
     }
   }
 
-  override def targetJDBC(tableName: String, destFormat: String, props: Properties, saveMode: SaveMode): Unit = {
+  override def targetJDBC(tableName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = {
     destFormat match {
       case "soql" =>
         if (is_transformed) {
           dfTransformed.write.format(SpearCommons.SalesforceFormat)
-            .option(SpearCommons.Username, props.get(SpearCommons.Username).toString)
-            .option(SpearCommons.Password, props.get(SpearCommons.Password).toString)
+            .options(params)
             .option("sfObject", tableName).save()
           is_transformed = false
           dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
           this.df.write.format(SpearCommons.SalesforceFormat)
-            .option(SpearCommons.Username, props.get(SpearCommons.Username).toString)
-            .option(SpearCommons.Password, props.get(SpearCommons.Password).toString)
+            .options(params)
             .option("sfObject", tableName).save()
         }
       case "saql" =>
         if (is_transformed) {
           dfTransformed.write.format(SpearCommons.SalesforceFormat)
-            .option(SpearCommons.Username, props.get(SpearCommons.Username).toString)
-            .option(SpearCommons.Password, props.get(SpearCommons.Password).toString)
+            .options(params)
             .option("datasetName", tableName).save()
           is_transformed = false
           dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
           this.df.write.format(SpearCommons.SalesforceFormat)
-            .option(SpearCommons.Username, props.get(SpearCommons.Username).toString)
-            .option(SpearCommons.Password, props.get(SpearCommons.Password).toString)
+            .options(params)
             .option("datasetName", tableName).save()
         }
       case _ =>
+        val props = new Properties()
+        props.putAll(params.mapValues(_.toString).asJava)
         if (is_transformed) {
-          dfTransformed.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
+          dfTransformed.write.mode(saveMode).jdbc(params.get("url").toString, tableName, props)
           is_transformed = false
           dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
@@ -111,19 +109,19 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
     logger.info(s"Write data to table/object ${tableName} completed with status:${SpearCommons.SuccessStatus} ")
   }
 
-  override def targetNoSQL(objectName: String, destFormat: String, props: Properties, saveMode: SaveMode): Unit = {
+  override def targetNoSQL(objectName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = {
     destFormat match {
       case "mongo" =>
         if (is_transformed) {
           val writeConfig = WriteConfig(
-            Map("uri" -> props.get("uri").toString.concat(s"/${objectName}")))
-          MongoSpark.save(dfTransformed.write.format("mongo").options(props.asScala).mode(saveMode), writeConfig)
+            Map("uri" -> params.get("uri").toString.concat(s"/${objectName}")))
+          MongoSpark.save(dfTransformed.write.format("mongo").options(params).mode(saveMode), writeConfig)
           is_transformed = false
           dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
           val writeConfig = WriteConfig(
-            Map("uri" -> props.get("uri").toString.concat(s"/${objectName}")))
-          MongoSpark.save(this.df.write.format("mongo").options(props.asScala).mode(saveMode), writeConfig)
+            Map("uri" -> params.get("uri").toString.concat(s"/${objectName}")))
+          MongoSpark.save(this.df.write.format("mongo").options(params).mode(saveMode), writeConfig)
         }
       case "cassandra" =>
         if (is_transformed) {
@@ -131,7 +129,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
           val keySpace = destdetailsArr(0)
           val tableName = destdetailsArr(1)
           dfTransformed.write.format("org.apache.spark.sql.cassandra")
-            .options(Map("keyspace" -> keySpace, "table" -> tableName) ++ props.asScala)
+            .options(Map("keyspace" -> keySpace, "table" -> tableName) ++ params)
             .mode(saveMode)
             .save()
           is_transformed = false
@@ -141,12 +139,31 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
           val keySpace = destdetailsArr(0)
           val tableName = destdetailsArr(1)
           this.df.write.format("org.apache.spark.sql.cassandra")
-            .options(Map("keyspace" -> keySpace, "table" -> tableName) ++ props.asScala)
+            .options(Map("keyspace" -> keySpace, "table" -> tableName) ++ params)
             .mode(saveMode)
             .save()
         }
     }
     logger.info(s"Write data to object ${objectName} completed with status:${SpearCommons.SuccessStatus} ")
+  }
+
+  override def targetGraphDB(objectName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = {
+    destFormat match {
+      case "neo4j" =>
+        if (is_transformed) {
+          dfTransformed.write
+            .format("org.neo4j.spark.DataSource")
+            .options(params)
+            .save()
+          is_transformed = false
+          dfTransformed = SpearConnector.spark.emptyDataFrame
+        } else {
+          this.df.write
+            .format("org.neo4j.spark.DataSource")
+            .options(params)
+            .save()
+        }
+    }
   }
 
   override def transformSql(sqlText: String): Connector = {

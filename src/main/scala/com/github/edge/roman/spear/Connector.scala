@@ -20,10 +20,9 @@
 package com.github.edge.roman.spear
 
 import com.github.edge.roman.spear.commons.SpearCommons
+import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode}
-
-import java.util.Properties
 
 trait Connector {
 
@@ -31,23 +30,27 @@ trait Connector {
 
   def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector
 
-  def sourceSql(params: Map[String, String], sqlText: String): Connector
+  def sourceSql(params: Map[String, String]=Map(), sqlText: String): Connector
 
   def transformSql(sqlText: String): Connector
 
   def executeQuery(sqlText: String): Connector
 
+  def targetFS(destinationFilePath: String, destFormat: String = SpearCommons.Parquet, saveAsTable: String = "", params: Map[String, String] = Map(), saveMode: SaveMode): Unit
+
+  def targetNoSQL(objectName: String, destFormat: String = SpearCommons.NoSql, params: Map[String, String], saveMode: SaveMode): Unit
+
+  def targetJDBC(objectName: String, destFormat: String = SpearCommons.Jdbc, params: Map[String, String], saveMode: SaveMode): Unit
+
+  def targetGraphDB(objectName: String, destFormat: String = SpearCommons.Graph, params: Map[String, String], saveMode: SaveMode): Unit
+
+  def targetSql(sqlText: String, params: Map[String, String]=Map(), saveMode: SaveMode): Unit
+
   def targets(targets: Unit*): Unit
 
-  def targetFS(destinationFilePath: String , destFormat: String = SpearCommons.Parquet, saveAsTable: String = "", saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit
-
-  def targetNoSQL(objectName: String, destFormat: String = SpearCommons.NoSql, props: Properties, saveMode: SaveMode): Unit
-
-  def targetJDBC(objectName: String, destFormat: String = SpearCommons.Jdbc, props: Properties, saveMode: SaveMode): Unit
-
-  def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit
-
   def saveAs(alias: String): Connector
+
+  def createUDF(fucntionName: String, function: UserDefinedFunction): UserDefinedFunction
 
   def branch: Connector
 

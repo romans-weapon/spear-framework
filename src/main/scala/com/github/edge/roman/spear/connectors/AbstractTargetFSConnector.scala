@@ -27,28 +27,62 @@ import java.util.Properties
 
 abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
-  override def targetFS(destinationFilePath: String , destFormat: String = destFormat, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
+  override def targetFS(destinationFilePath: String, destFormat: String = destFormat, saveAsTable: String,params: Map[String, String] = Map(), saveMode: SaveMode = SaveMode.Overwrite): Unit = {
+    val numBuckets = Integer.valueOf(params.get("num_buckets").toString)
+    val bucket_column = params.get(SpearCommons.PartitionCols).toString.split(",")(0)
+    val bucketCols = params.get(SpearCommons.PartitionCols).toString.split(",").tail
+    val partition_columns = params.get(SpearCommons.PartitionCols).toString.split(",")
     if (destinationFilePath.isEmpty) {
       if (saveAsTable.isEmpty) {
         throw new Exception("Neither file_path nor table_name is provided for landing data to destination")
       } else {
-        this.df.write.format(destFormat).mode(saveMode).saveAsTable(saveAsTable)
+        //create partitions in the default warehouse path (/user/hive/warehouse) for hive
+        if (params.contains(SpearCommons.PartitionCols)) {
+          this.df.write.format(destFormat).partitionBy(partition_columns: _*).mode(saveMode).saveAsTable(saveAsTable)
+        } else if (params.contains(SpearCommons.BucketCols)) {
+          this.df.write.format(destFormat).bucketBy(numBuckets, bucket_column, bucketCols: _*).mode(saveMode).saveAsTable(saveAsTable)
+        } else if (params.contains(SpearCommons.PartitionCols) && params.contains(SpearCommons.BucketCols)) {
+          this.df.write.format(destFormat).partitionBy(partition_columns: _*).bucketBy(numBuckets, bucket_column, bucketCols:_*).mode(saveMode).saveAsTable(saveAsTable)
+        } else {
+          this.df.write.format(destFormat).mode(saveMode).saveAsTable(saveAsTable)
+        }
         logger.info(s"Write data to default path with format: ${destFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
         show()
       }
     } else {
+      //only having table as empty but want to write to a file at destination
       if (saveAsTable.isEmpty) {
-        this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
+        if (params.contains(SpearCommons.PartitionCols)) {
+          this.df.write.format(destFormat).partitionBy(partition_columns: _*).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
+        } else if (params.contains(SpearCommons.BucketCols)) {
+          this.df.write.format(destFormat).bucketBy(numBuckets, bucket_column, bucketCols: _*).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
+        } else if (params.contains(SpearCommons.PartitionCols) && params.contains(SpearCommons.BucketCols)) {
+          this.df.write.format(destFormat).partitionBy(partition_columns: _*).bucketBy(numBuckets, bucket_column, bucketCols:_*).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
+        } else {
+          this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
+        }
         logger.info(s"Write data to target path: ${destinationFilePath} with format: ${destFormat} completed with status:${SpearCommons.SuccessStatus}")
       } else {
-        this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
+        //have both data path and also the table name to create
+        if (params.contains(SpearCommons.PartitionCols)) {
+          this.df.write.format(destFormat).partitionBy(partition_columns: _*).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
+        } else if (params.contains(SpearCommons.BucketCols)) {
+          this.df.write.format(destFormat).bucketBy(numBuckets, bucket_column, bucketCols: _*).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
+        } else if (params.contains(SpearCommons.PartitionCols) && params.contains(SpearCommons.BucketCols)) {
+          this.df.write.format(destFormat).partitionBy(partition_columns: _*).bucketBy(numBuckets, bucket_column, bucketCols:_*).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
+        } else {
+          this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
+        }
         logger.info(s"Write data to target path: ${destinationFilePath} with format: ${destFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
         show()
       }
     }
   }
 
-  override def targetJDBC(tableName: String, destFormat: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetJDBC() not compatible for given targetType FS")
+  //unsupported here
+  override def targetJDBC(tableName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetJDBC() not compatible for given targetType FS")
 
-  override def targetNoSQL(tableName: String, destFormat: String, props: Properties, saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetNoSQL() not compatible for given targetType FS")
+  override def targetNoSQL(tableName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetNoSQL() not compatible for given targetType FS")
+
+  override def targetGraphDB(objectName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit=throw new NoSuchMethodException("method targetGraphDB() not compatible for given targetType FS")
 }

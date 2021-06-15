@@ -19,19 +19,17 @@
 
 package com.github.edge.roman.spear.connectors.targetNoSQL
 
-import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
 import com.github.edge.roman.spear.connectors.AbstractTargetNoSQLConnector
 
-class NoSQLtoNoSQL(sourceFormat: String, destFormat: String) extends AbstractTargetNoSQLConnector(sourceFormat, destFormat) {
+class GraphtoNoSQL(sourceFormat: String, destFormat: String) extends AbstractTargetNoSQLConnector(sourceFormat, destFormat) {
 
-  override def source(sourceObject: String, params: Map[String, String]): Connector = {
-    logger.info(s"Connector to Target: NoSQL with Format: ${destFormat} from Source Object: ${sourceObject} with Format: ${sourceFormat} started running!!")
-    this.df = ConnectorCommon.sourceNOSQL(sourceObject = sourceObject, sourceFormat, params)
-    logger.info(s"Reading source object: ${sourceObject} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+  override def source(labelName: String, params: Map[String, String]): GraphtoNoSQL = {
+    logger.info(s"Connector to Target: NoSQL with Format: ${destFormat} from Source Object: ${labelName} with Format: ${sourceFormat} started running!!")
+    this.df = ConnectorCommon.sourceGraphDB(labelName, sourceFormat, params)
+    logger.info(s"Reading source table: ${labelName} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
     if (this.verboseLogging) this.df.show(this.numRows, false)
     this
   }
 
-  override def sourceSql(params: Map[String, String], sqlText: String): Connector =throw new NoSuchMethodException(s"method sourceSql is not supported for given sourceType nosql for connector type NoSQLtoNoSQL" )
 }

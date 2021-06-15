@@ -21,16 +21,17 @@ package com.github.edge.roman.spear
 
 import com.github.edge.roman.spear.connectors.AbstractConnector
 import com.github.edge.roman.spear.commons.SpearCommons
-import com.github.edge.roman.spear.connectors.targetAny.{FiletoAny, JDBCtoAny, NOSQLtoAny}
+import com.github.edge.roman.spear.connectors.targetAny.{FiletoAny, GraphtoAny, JDBCtoAny, NOSQLtoAny}
 import com.github.edge.roman.spear.connectors.targetFS.{FStoFS, FiletoFS, JDBCtoFS, NOSQLtoFS}
+import com.github.edge.roman.spear.connectors.targetGraphDB.{FiletoGraphDB, GraphtoGraphDB, JDBCtoGraphDB, NOSQLtoGraphDB}
 import com.github.edge.roman.spear.connectors.targetNoSQL.{FilettoNoSQL, JDBCtoNoSQL, NoSQLtoNoSQL}
-import com.github.edge.roman.spear.connectors.targetjdbc.{FiletoJDBC, JDBCtoJDBC, NOSQLtoJDBC}
+import com.github.edge.roman.spear.connectors.targetjdbc.{FiletoJDBC, GraphtoJDBC, JDBCtoJDBC, NOSQLtoJDBC}
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 
 object SpearConnector {
 
-  val sparkConf = new SparkConf
+  lazy val sparkConf = new SparkConf
   lazy val spark: SparkSession = SparkSession.builder().config(sparkConf).getOrCreate()
 
   def createConnector(name: String): SpearConnector = {
@@ -62,22 +63,39 @@ object SpearConnector {
       this
     }
 
-    //connectors for source-dest combination supported by spear
+    //connector mapping for source-dest combination which are supported by spear
     def getConnector: AbstractConnector = {
       (sourceType, destType) match {
+        //Different sources with JDBC as target
         case (SpearCommons.File, SpearCommons.Relational) => new FiletoJDBC(sourceFormat, destFormat)
         case (SpearCommons.Relational, SpearCommons.Relational) => new JDBCtoJDBC(sourceFormat, destFormat)
+        case (SpearCommons.NoSql, SpearCommons.Relational) => new NOSQLtoJDBC(sourceFormat, destFormat)
+        case (SpearCommons.Graph, SpearCommons.Relational) => new GraphtoJDBC(sourceFormat, destFormat)
+
+        //Different sources with FS(Hadoop/S3/ADLS/GCS) as target
         case (SpearCommons.File, SpearCommons.FileSystem) => new FiletoFS(sourceFormat, destFormat)
         case (SpearCommons.Relational, SpearCommons.FileSystem) => new JDBCtoFS(sourceFormat, destFormat)
         case (SpearCommons.FileSystem, SpearCommons.FileSystem) => new FStoFS(sourceFormat, destFormat)
-        case (SpearCommons.NoSql, SpearCommons.Relational) => new NOSQLtoJDBC(sourceFormat, destFormat)
         case (SpearCommons.NoSql, SpearCommons.FileSystem) => new NOSQLtoFS(sourceFormat, destFormat)
+
+        //Different sources with Nosql as target
         case (SpearCommons.File, SpearCommons.NoSql) => new FilettoNoSQL(sourceFormat, destFormat)
         case (SpearCommons.Relational, SpearCommons.NoSql) => new JDBCtoNoSQL(sourceFormat, destFormat)
         case (SpearCommons.NoSql, SpearCommons.NoSql) => new NoSQLtoNoSQL(sourceFormat, destFormat)
+
+        //Different sources with GraphDB ass target
+        case (SpearCommons.File, SpearCommons.Graph) => new FiletoGraphDB(sourceFormat, destFormat)
+        case (SpearCommons.Relational, SpearCommons.Graph) => new JDBCtoGraphDB(sourceFormat, destFormat)
+        case (SpearCommons.NoSql, SpearCommons.Graph) => new NOSQLtoGraphDB(sourceFormat, destFormat)
+        case (SpearCommons.Graph, SpearCommons.Graph) => new GraphtoGraphDB(sourceFormat, destFormat)
+
+        //Different sources with Any target
         case (SpearCommons.File, SpearCommons.Star) => new FiletoAny(sourceFormat)
         case (SpearCommons.Relational, SpearCommons.Star) => new JDBCtoAny(sourceFormat)
         case (SpearCommons.NoSql, SpearCommons.Star) => new NOSQLtoAny(sourceFormat)
+        case (SpearCommons.Graph, SpearCommons.Star) => new GraphtoAny(sourceFormat)
+
+        //throw an exception in case of invalid params
         case (_, _) => throw new Exception(SpearCommons.InvalidParams)
       }
     }

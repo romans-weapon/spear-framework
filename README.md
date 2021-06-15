@@ -1,13 +1,13 @@
 # Spear Framework
 
-[![Build Status](https://github.com/romans-weapon/spear-framework/workflows/spear-framework-build/badge.svg)](https://github.com/romans-weapon/spear-framework/actions)
+[![Build Status](https://github.com/AnudeepKonaboina/spear-framework/workflows/spear-framework-build/badge.svg)](https://github.com/AnudeepKonaboina/spear-framework/actions)
 [![Code Quality Grade](https://www.code-inspector.com/project/23492/status/svg)](https://www.code-inspector.com/project/23492/status/svg)
-[![GitHub tag](https://img.shields.io/github/v/release/romans-weapon/spear-framework)](https://github.com/romans-weapon/spear-framework/releases)
+[![GitHub tag](https://img.shields.io/github/v/release/AnudeepKonaboina/spear-framework)](https://github.com/AnudeepKonaboina/spear-framework/tags)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.romans-weapon/spear-framework_2.11.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.romans-weapon%22%20AND%20a:%22spear-framework_2.11%22)
 [![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://romans-weapon.github.io/spear-framework/)
 
-The spear-framework provides scope to write simple ETL/ELT-connectors/pipelines on Apache Spark with minimal code for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data migration. Connectors which have the ability to extract and load any kind of data from various data-sources with custom tansformations applied on them, can be written and executed seamlessly using spear connectors.
+The spear-framework provides scope to write simple ETL/ELT-connectors/pipelines for moving data from different sources to different destinations which greatly minimizes the effort of writing complex codes for data ingestion. Connectors which have the ability to extract and load (ETL or ELT) any kind of data from source with custom tansformations applied can be written and executed seamlessly using spear connectors.
 
 # Table of Contents
 - [Introduction](#introduction)
@@ -32,26 +32,24 @@ The spear-framework provides scope to write simple ETL/ELT-connectors/pipelines 
             + [kafka to Hive Connector](#kafka-to-hive-connector)
     * [Target FS (Cloud)](#target-fs-cloud)
         + [Oracle to S3 Connector](#oracle-to-s3-connector)
-    * [Target NOSQL](#target-nosql) 
-         - [File Source](#file-source)
-             + [CSV to MongoDB Connector](#csv-to-mongodb-connector)
+    * [Target NOSQL](#target-nosql)
+        - [File Source](#file-source)
+            + [CSV to MongoDB Connector](#csv-to-mongodb-connector)
 - [Other Functionalities of Spear](#other-functionalities-of-spear)
-    * [Merge using executeQuery API](#merge-using-executequery-api) 
-    * [Write to multi-targets using branch API](#write-to-multi-targets-using-branch-api) 
+    * [Merge using executeQuery API](#merge-using-executequery-api)
+    * [Write to multi-targets using branch API](#write-to-multi-targets-using-branch-api)
 - [Contributions and License](#contributions-and-license)
 - [Visit Website](#visit-website)
 
 # Introduction
 
-Spear Framework provides the developers thae ability to write connectors (ETL/ELT jobs) from various source/s to target/s,applying business logic/transformations over the soure data and writing it to the corresponding destination with very minimal code.
+Spear Framework provides the developers thae ability to write connectors (ETL/ELT jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination with very minimal code.
 
 ![image](https://user-images.githubusercontent.com/59328701/120106134-84507100-c179-11eb-9624-7a1504c8a083.png)
 
 # Design and Code Quality
 
 ![image](https://user-images.githubusercontent.com/59328701/120107447-aac4db00-c17e-11eb-815e-ff18381767ab.png)
-
-More inforrmation about the code quality of the framework is available [here](https://frontend.code-inspector.com/public/project/23492/spear-framework/dashboard).
 
 
 # Getting Started with Spear
@@ -98,6 +96,7 @@ root@hadoop # spear-shell
 Also it has a postgres database and a NO-SQL database mongodb as well which you can use it as a source or as a desination for writing and testing your connector.
 
 5. Start writing your own connectors and explore .To understand how to write a connector [click here](develop-your-first-connector-using-spear)
+
 
 # Develop your first connector using Spear
 
@@ -207,14 +206,14 @@ The input data is available in the data/us-election-2012-results-by-county.csv. 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
-import java.util.Properties
 import org.apache.spark.sql.{Column, DataFrame, SaveMode}
 
-val properties = new Properties()
-  properties.put("driver", "org.postgresql.Driver");
-  properties.put("user", "postgres_user")
-  properties.put("password", "mysecretpassword")
-  properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
+val targetParams = Map(
+  "driver" -> "org.postgresql.Driver",
+  "user" -> "postgres_user",
+  "password" -> "mysecretpassword",
+  "url" -> "jdbc:postgresql://localhost:5432/pgdb"
+)
 
 //create a connector object
 val csvJdbcConnector = SpearConnector
@@ -235,7 +234,7 @@ csvJdbcConnector
       |sum(votes) as total_votes
       |from __tmp__
       |group by state_code,party""".stripMargin)
-  .targetJDBC(objectName="mytable", props=peproperties, saveMode=SaveMode.Overwrite)
+  .targetJDBC(objectName="mytable", params=targetParams, saveMode=SaveMode.Overwrite)
 csvJdbcConnector.stop()
 ```
 
@@ -312,15 +311,15 @@ This example shows the usage of sourceSql api for reading from source with filte
 import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SaveMode
-import java.util.Properties
-
-val properties = new Properties()
-properties.put("driver", "org.postgresql.Driver");
-properties.put("user", "postgres")
-properties.put("password", "pass")
-properties.put("url", "jdbc:postgresql://localhost:5432/pgdb")
 
 Logger.getLogger("com.github").setLevel(Level.INFO)
+
+val targetParams = Map(
+  "driver" -> "org.postgresql.Driver",
+  "user" -> "postgres_user",
+  "password" -> "mysecretpassword",
+  "url" -> "jdbc:postgresql://localhost:5432/pgdb"
+)
 
 val oracleTOPostgresConnector = SpearConnector
   .createConnector(name="OracletoPostgresConnector")
@@ -364,7 +363,7 @@ oracleTOPostgresConnector
       |        TIMESTAMP8_WITH_LTZ as timestamp8_with_ltz,TIMESTAMP8_WITH_LTZ_utc as timestamp8_with_ltz_utc
       |        from __source__
       |""".stripMargin)
-  .targetJDBC(objectName = "pgdb.ora_to_postgres", props=properties, saveMode=SaveMode.Overwrite)
+  .targetJDBC(objectName = "pgdb.ora_to_postgres", params=targetParams, saveMode=SaveMode.Overwrite)
 
 oracleTOPostgresConnector.stop()
 
@@ -434,13 +433,13 @@ import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
-import java.util.Properties
 
-val properties = new Properties()
-properties.put("driver", "org.postgresql.Driver");
-properties.put("user", "postgres_user")
-properties.put("password", "mysecretpassword")
-properties.put("url", "jdbc:postgresql://postgres:5432/pgdb")
+val targetParams = Map(
+  "driver" -> "org.postgresql.Driver",
+  "user" -> "postgres_user",
+  "password" -> "mysecretpassword",
+  "url" -> "jdbc:postgresql://localhost:5432/pgdb"
+)
 
 val streamTOPostgres=SpearConnector
    .createConnector(name="StreamKafkaToPostgresconnector")
@@ -457,7 +456,7 @@ streamTOPostgres
     .source(sourceObject = "stream_topic",Map("kafka.bootstrap.servers"-> "kafka:9092","failOnDataLoss"->"true","startingOffsets"-> "earliest"),schema)
     .saveAs("__tmp2__")
     .transformSql("select cast (id as INT) as id, name from __tmp2__")
-    .targetJDBC(tableName="person", properties, SaveMode.Append)
+    .targetJDBC(objectName="person", params=targetParams, SaveMode.Append)
 
 streamTOPostgres.stop()
 ```
@@ -615,10 +614,12 @@ streamTOHdfs
   .source(sourceObject = "stream_topic",Map("kafka.bootstrap.servers"-> "kafka:9092","failOnDataLoss"->"true","startingOffsets"-> "earliest"),schema)
   .saveAs("__tmp2__")
   .transformSql("select cast (id as INT), name as __tmp2__")
-  .targetFS(destinationFilePath = "/tmp/ingest_test.db", saveAsTable = "ingest_test.ora_data", SaveMode.Append)
+  .targetFS(destinationFilePath = "/tmp/ingest_test.db", saveAsTable = "ingest_test.ora_data", saveMode=SaveMode.Append)
 
 streamTOHdfs.stop()
 ```
+
+
 
 ### Target FS (Cloud)
 
@@ -635,11 +636,12 @@ spark.sparkContext.hadoopConfiguration.set("fs.s3a.access.key", "*****")
 spark.sparkContext.hadoopConfiguration.set("fs.s3a.secret.key", "*****")
 
 
-val oracleTOS3Connector = SpearConnector.init
+val oracleTOS3Connector = SpearConnector
+  .createConnector("ORAtoS3")
   .source(sourceType = "relational", sourceFormat = "jdbc")
   .target(targetType = "FS", targetFormat = "parquet")
-  .withName(connectorName ="OracleToS3Connector" )
   .getConnector
+
 oracleTOS3Connector.setVeboseLogging(true)  
 oracleTOS3Connector
   .sourceSql(Map("driver" -> "oracle.jdbc.driver.OracleDriver", "user" -> "user", "password" -> "pass", "url" -> "jdbc:oracle:thin:@ora-host:1521:orcl"),
@@ -738,11 +740,11 @@ More connectors to target FileSystem Cloud (s3/gcs/adls..ect) are avaialable [he
 ```scala
 import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
-import java.util.Properties
 import org.apache.spark.sql.{Column, DataFrame, SaveMode}
 
-val mongoProps=new Properties()
-  mongoProps.put("uri","mongodb://mongo:27017")
+val mongoProps=Map("uri"->"mongodb://mongo:27017")
+
+Logger.getLogger("com.github").setLevel(Level.INFO)
 
 val csvMongoConnector = SpearConnector
     .createConnector("CSVTOMONGO")
@@ -758,7 +760,7 @@ csvMongoConnector.setVeboseLogging(true)
         |sum(votes) as total_votes
         |from __tmp__
         |group by state_code,party""".stripMargin)
-    .targetNoSQL(objectName="ingest.csvdata",props=mongoProps,saveMode=SaveMode.Overwrite)
+    .targetNoSQL(objectName="ingest.csvdata",params=mongoProps,saveMode=SaveMode.Overwrite)
 
 csvMongoConnector.stop()
 ```
@@ -916,7 +918,6 @@ Software Licensed under the [Apache License 2.0](LICENSE)
 Anudeep Konaboina <krantianudeep@gmail.com>
 #### Contributor
 Kayan Deshi <kalyan.mgit@gmail.com>
-
 
 ## Visit Website
 Watch example connectors from different sources to different targets, visit github page [here](https://romans-weapon.github.io/spear-framework/)
