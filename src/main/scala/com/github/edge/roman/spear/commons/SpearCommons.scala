@@ -1,7 +1,7 @@
 package com.github.edge.roman.spear.commons
 
 object SpearCommons {
-  val InvalidParams = "un-supported source and destination type provided!!"
+  val InvalidParams = "provided source and destination details are not supported by spear!!"
   val FileUploadSuccess = "File upload successful"
   val CustomSchema = "customSchema"
   val Path = "path"
@@ -30,5 +30,8 @@ object SpearCommons {
   val Mongo="mongo"
   val Cassandra="cassandra"
   val Nosql="nosql"
+  val PartitionCols="partition_columns"
+  val BucketCols="bucket_columns"
   val Star="*"
+  val Graph="graph"
 }

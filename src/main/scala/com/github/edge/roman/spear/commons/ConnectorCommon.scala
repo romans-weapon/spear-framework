@@ -54,9 +54,21 @@ object ConnectorCommon {
       case "soql" | "saql" =>
         throw new NoSuchMethodException(s"Salesforce object ${sourceObject} cannot be loaded directly.Instead use sourceSql function with soql/saql query to load the data")
       case "hive" =>
-         SpearConnector.spark.read.table(sourceObject)
+        SpearConnector.spark.read.table(sourceObject)
       case _ =>
         SpearConnector.spark.read.format(sourceFormat).option("dbtable", sourceObject).options(params).load()
+    }
+  }
+
+  def sourceGraphDB(sourceObject: String, sourceFormat: String, params: Map[String, String]): DataFrame = {
+    sourceFormat match {
+      case "neo4j" =>
+        SpearConnector.spark.read.format("org.neo4j.spark.DataSource")
+          .options(params)
+          .option("labels", sourceObject)
+          .load()
+      case _ =>
+        throw new Exception("Invalid source format for Graph Databases !!!")
     }
   }
 
@@ -70,10 +82,16 @@ object ConnectorCommon {
         }
       case "hive" =>
         SpearConnector.spark.sql(s"$sqlText")
+      case "neo4j" =>
+        SpearConnector.spark.read.format("org.neo4j.spark.DataSource")
+          .options(params)
+          .option("query", sqlText)
+          .load()
       case _ =>
         SpearConnector.spark.read.format(sourceFormat).option("dbtable", s"($sqlText)temp").options(params).load()
     }
   }
+
 
   def sourceStream(sourceTopic: String, sourceFormat: String, params: Map[String, String], schema: StructType): DataFrame = {
     sourceFormat match {
