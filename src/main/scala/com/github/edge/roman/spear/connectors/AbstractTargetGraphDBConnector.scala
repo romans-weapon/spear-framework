@@ -34,6 +34,8 @@ abstract class AbstractTargetGraphDBConnector(sourceFormat: String, destFormat: 
           .format("org.neo4j.spark.DataSource")
           .options(params)
           .save()
+      case _ =>
+        throw new Exception("Given destination format for type graph is not supported by spear!!")
     }
   }
 

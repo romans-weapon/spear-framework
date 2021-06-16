@@ -98,7 +98,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
         val props = new Properties()
         params.foreach { case (key, value) => props.setProperty(key, value) }
         if (is_transformed) {
-          dfTransformed.write.mode(saveMode).jdbc(params.getOrElse("url",throw new NullPointerException("No key 'url' found in the target properties!!")), tableName, props)
+          dfTransformed.write.mode(saveMode).jdbc(params.getOrElse("url", throw new NullPointerException("No key 'url' found in the target properties!!")), tableName, props)
           is_transformed = false
           dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
@@ -113,13 +113,13 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
       case "mongo" =>
         if (is_transformed) {
           val writeConfig = WriteConfig(
-            Map("uri" -> params.getOrElse("uri",throw new NullPointerException("No key 'uri' found in the target properties!!")).concat(s"/${objectName}")))
+            Map("uri" -> params.getOrElse("uri", throw new NullPointerException("No key 'uri' found in the target properties!!")).concat(s"/${objectName}")))
           MongoSpark.save(dfTransformed.write.format("mongo").options(params).mode(saveMode), writeConfig)
           is_transformed = false
           dfTransformed = SpearConnector.spark.emptyDataFrame
         } else {
           val writeConfig = WriteConfig(
-            Map("uri" -> params.getOrElse("uri",throw new NullPointerException("No key 'uri' found in the target properties!!")).toString.concat(s"/${objectName}")))
+            Map("uri" -> params.getOrElse("uri", throw new NullPointerException("No key 'uri' found in the target properties!!")).toString.concat(s"/${objectName}")))
           MongoSpark.save(this.df.write.format("mongo").options(params).mode(saveMode), writeConfig)
         }
       case "cassandra" =>
@@ -162,6 +162,8 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
             .options(params)
             .save()
         }
+      case _ =>
+        throw new Exception("Given destination format for type graph is not supported by spear!!")
     }
   }
 

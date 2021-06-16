@@ -14,7 +14,7 @@ class Test extends FunSuite with BeforeAndAfter {
   )
 
   SpearConnector.sparkConf.setMaster("local[*]")
-  SpearConnector.spark.sparkContext.setLogLevel("INFO")
+  SpearConnector.spark.sparkContext.setLogLevel("ERROR")
 
   //connector logic
   val csvJdbcConnector: AbstractConnector = SpearConnector
