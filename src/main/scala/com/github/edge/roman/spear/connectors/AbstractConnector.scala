@@ -34,6 +34,7 @@ abstract class AbstractConnector(sourceFormat: String) extends Connector {
   val numRows: Int = SpearCommons.ShowNumRows
   var df: DataFrame = _
   var verboseLogging: Boolean = false
+  lazy val appName: String =SpearConnector.sparkConf.get(SpearCommons.AppName)
 
   def setVeboseLogging(enable: Boolean): Unit = {
     this.verboseLogging = enable

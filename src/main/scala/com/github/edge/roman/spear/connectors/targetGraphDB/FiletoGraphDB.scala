@@ -26,7 +26,7 @@ import com.github.edge.roman.spear.connectors.AbstractTargetGraphDBConnector
 class FiletoGraphDB(sourceFormat: String, destFormat: String) extends AbstractTargetGraphDBConnector(sourceFormat, destFormat) {
 
   override def source(sourceFilePath: String, params: Map[String, String]): FiletoGraphDB = {
-    logger.info(s"Connector to Target: GraphDB with Format: ${destFormat} from Source: ${sourceFilePath} with Format: ${sourceFilePath} started running !!")
+    logger.info(s"Connector:${appName} to Target:GraphDB with Format:${destFormat} from Source:${sourceFilePath} with Format:${sourceFilePath} started running !!")
     this.df = ConnectorCommon.sourceFile(sourceFormat, sourceFilePath, params)
     logger.info(s"Reading source file: ${sourceFilePath} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
     show()

@@ -25,12 +25,12 @@ import com.github.edge.roman.spear.connectors.AbstractTargetGraphDBConnector
 class NOSQLtoGraphDB(sourceFormat: String, destFormat: String) extends AbstractTargetGraphDBConnector(sourceFormat, destFormat) {
 
   override def source(sourceObject: String, params: Map[String, String]): Connector = {
-    logger.info(s"Connector to Target: GraphDB with Format: ${destFormat} from Source Object: ${sourceObject} with Format: ${sourceFormat} started running!!")
+    logger.info(s"Connector:${appName} to Target:GraphDB with Format:${destFormat} from NoSQL Object:${sourceObject} with Format:${sourceFormat} started running!!")
     this.df = ConnectorCommon.sourceNOSQL(sourceObject = sourceObject, sourceFormat, params)
     logger.info(s"Reading source object: ${sourceObject} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
     if (this.verboseLogging) this.df.show(this.numRows, false)
     this
   }
 
-  override def sourceSql(params: Map[String, String], sqlText: String): Connector =throw new NoSuchMethodException(s"method sourceSql is not supported for given sourceType nosql for connector type NOSQLtoGraphDB" )
+  override def sourceSql(params: Map[String, String], sqlText: String): Connector = throw new NoSuchMethodException(s"method sourceSql is not supported for given sourceType nosql for connector type NOSQLtoGraphDB")
 }

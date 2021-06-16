@@ -25,7 +25,7 @@ import com.github.edge.roman.spear.connectors.AbstractTargetNoSQLConnector
 class GraphtoNoSQL(sourceFormat: String, destFormat: String) extends AbstractTargetNoSQLConnector(sourceFormat, destFormat) {
 
   override def source(labelName: String, params: Map[String, String]): GraphtoNoSQL = {
-    logger.info(s"Connector to Target: NoSQL with Format: ${destFormat} from Source Object: ${labelName} with Format: ${sourceFormat} started running!!")
+    logger.info(s"Connector:${appName} to Target: NoSQL with Format:${destFormat} from GraphDB Object:${labelName} with Format:${sourceFormat} started running!!")
     this.df = ConnectorCommon.sourceGraphDB(labelName, sourceFormat, params)
     logger.info(s"Reading source table: ${labelName} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
     if (this.verboseLogging) this.df.show(this.numRows, false)

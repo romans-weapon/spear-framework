@@ -35,4 +35,5 @@ object SpearCommons {
   val Star="*"
   val Graph="graph"
   val NumBuckets="num_buckets"
+  val AppName="spark.app.name"
 }

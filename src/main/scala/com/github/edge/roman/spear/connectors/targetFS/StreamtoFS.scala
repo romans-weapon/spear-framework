@@ -28,7 +28,7 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 class StreamtoFS(sourceFormat: String, destFormat: String) extends AbstractTargetFSConnector(sourceFormat, destFormat) {
 
   override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = {
-    logger.info(s"Real time streaming Connector to Target: File System with Format: ${destFormat} from Source object: ${sourceObject} with Format: ${sourceFormat} started running!!")
+    logger.info(s"Real time streaming Connector:${appName} to Target:File System with Format:${destFormat} from streaming source object:${sourceObject} with Format:${sourceFormat} started running!!")
     //providing schema is mandatory in case of realtime streaming
     if (schema.isEmpty) {
       throw new Exception("schema is necessary while streaming in real time")
@@ -48,7 +48,7 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends AbstractTarge
     this
   }
 
-  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String , params: Map[String, String] , saveMode: SaveMode): Unit = {
+  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, params: Map[String, String], saveMode: SaveMode): Unit = {
     this.df.writeStream
       .foreachBatch { (batchDF: DataFrame, _: Long) =>
         if (destinationFilePath.isEmpty) {

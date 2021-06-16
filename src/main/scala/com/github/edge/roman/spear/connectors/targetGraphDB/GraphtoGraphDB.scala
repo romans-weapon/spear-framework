@@ -24,7 +24,7 @@ import com.github.edge.roman.spear.connectors.AbstractTargetGraphDBConnector
 class GraphtoGraphDB(sourceFormat: String, destFormat: String) extends AbstractTargetGraphDBConnector(sourceFormat, destFormat) {
 
   override def source(labelName: String, params: Map[String, String]): GraphtoGraphDB = {
-    logger.info(s"Connector to Target: GraphDB from Graph source object: ${labelName} with Format: ${sourceFormat} started running!!")
+    logger.info(s"Connector:${appName} to Target:GraphDB from GraphDB object:${labelName} with Format:${sourceFormat} started running!!")
     this.df = ConnectorCommon.sourceGraphDB(labelName, sourceFormat, params)
     logger.info(s"Reading source table: ${labelName} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
     if (this.verboseLogging) this.df.show(this.numRows, false)

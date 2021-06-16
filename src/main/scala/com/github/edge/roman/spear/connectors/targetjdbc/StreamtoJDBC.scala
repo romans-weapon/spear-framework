@@ -29,7 +29,7 @@ import java.util.Properties
 class StreamtoJDBC(sourceFormat: String, destFormat: String) extends AbstractTargetJDBCConnector(sourceFormat, destFormat) {
 
   override def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector = {
-    logger.info(s"Real time streaming Connector to Target: JDBC with Format: ${destFormat} from Source object: ${sourceObject} with Format: ${sourceFormat} started running!!")
+    logger.info(s"Real time streaming Connector:${appName} to Target:JDBC with Format:${destFormat} from real-time streaming object:${sourceObject} with Format: ${sourceFormat} started running!!")
     if (schema.isEmpty) {
       throw new Exception("schema is necessary while streaming in real time")
     } else {

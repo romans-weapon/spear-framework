@@ -21,17 +21,17 @@ package com.github.edge.roman.spear.connectors.targetAny
 
 import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
-import com.github.edge.roman.spear.connectors.{AbstractMultiTargetConnector, AbstractTargetFSConnector}
+import com.github.edge.roman.spear.connectors.AbstractMultiTargetConnector
 
 class FiletoAny(sourceFormat: String) extends AbstractMultiTargetConnector(sourceFormat) {
 
   override def source(sourceFilePath: String, params: Map[String, String]): FiletoAny = {
-    logger.info(s"Connector to multiTargets from source:${sourceFilePath} with Format: ${sourceFormat} started running !!")
+    logger.info(s"MultiTarget connector with name:${appName} from sourceFile:${sourceFilePath} with format:${sourceFormat} started running !!")
     this.df = ConnectorCommon.sourceFile(sourceFormat, sourceFilePath, params)
     logger.info(s"Reading source file: ${sourceFilePath} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
     show()
     this
   }
 
-  override def sourceSql(params: Map[String, String], sqlText: String): Connector =throw new NoSuchMethodException(s"method sourceSql is not supported for given sourceType file for connector type FiletoAny" )
+  override def sourceSql(params: Map[String, String], sqlText: String): Connector =throw new NoSuchMethodException(s"method sourceSql is not supported for given sourceType 'file' for connector type 'FiletoAny' " )
 }

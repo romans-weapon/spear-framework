@@ -20,6 +20,7 @@
 package com.github.edge.roman.spear.connectors
 
 import com.github.edge.roman.spear.Connector
+import com.github.edge.roman.spear.commons.SpearCommons
 import org.apache.spark.sql.SaveMode
 import org.apache.spark.sql.functions.udf
 
@@ -33,10 +34,13 @@ abstract class AbstractTargetGraphDBConnector(sourceFormat: String, destFormat: 
         this.df.write
           .format("org.neo4j.spark.DataSource")
           .options(params)
+          .option("label",objectName)
           .save()
       case _ =>
         throw new Exception("Given destination format for type graph is not supported by spear!!")
     }
+    logger.info(s"Write data to object:${objectName} completed with status:${SpearCommons.SuccessStatus} ")
+    show()
   }
 
   //unsupported

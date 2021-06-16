@@ -25,6 +25,7 @@ class Test extends FunSuite with BeforeAndAfter {
 
   csvJdbcConnector.setVeboseLogging(true)
 
+
   csvJdbcConnector
     .source(sourceObject = "data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
     .saveAs("__tmp__")

@@ -165,6 +165,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
       case _ =>
         throw new Exception("Given destination format for type graph is not supported by spear!!")
     }
+    logger.info(s"Write data to object:${objectName} completed with status:${SpearCommons.SuccessStatus} ")
   }
 
   override def transformSql(sqlText: String): Connector = {
