@@ -42,6 +42,7 @@ abstract class AbstractTargetJDBCConnector(sourceFormat: String, destFormat: Str
       case _ =>
         val props = new Properties()
         props.putAll(params.mapValues(_.toString).asJava)
+        println(props)
         this.df.write.mode(saveMode).jdbc(params.get("url").toString, tableName, props)
     }
     logger.info(s"Write data to table/object ${tableName} completed with status:${SpearCommons.SuccessStatus} ")
