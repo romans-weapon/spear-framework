@@ -48,7 +48,7 @@ class StreamtoFS(sourceFormat: String, destFormat: String) extends AbstractTarge
     this
   }
 
-  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, saveMode: SaveMode = SaveMode.Overwrite, params: Map[String, String] = Map()): Unit = {
+  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String , params: Map[String, String] , saveMode: SaveMode): Unit = {
     this.df.writeStream
       .foreachBatch { (batchDF: DataFrame, _: Long) =>
         if (destinationFilePath.isEmpty) {

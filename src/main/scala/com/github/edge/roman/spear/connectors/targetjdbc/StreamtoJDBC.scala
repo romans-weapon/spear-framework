@@ -24,6 +24,7 @@ import com.github.edge.roman.spear.connectors.AbstractTargetJDBCConnector
 import com.github.edge.roman.spear.{Connector, SpearConnector}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode}
+import scala.collection.JavaConverters._
 
 import java.util.Properties
 
@@ -50,17 +51,19 @@ class StreamtoJDBC(sourceFormat: String, destFormat: String) extends AbstractTar
   }
 
 
-  override def targetJDBC(tableName: String,destFormat: String, props: Properties, saveMode: SaveMode): Unit = {
+  override def targetJDBC(tableName: String,destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = {
+    val props = new Properties()
+    props.putAll(params.mapValues(_.toString).asJava)
     this.df.writeStream
       .foreachBatch { (batchDF: DataFrame, _: Long) =>
         batchDF.write
           .mode(saveMode)
-          .jdbc(props.get("url").toString, tableName, props)
+          .jdbc(params.get("url").toString, tableName, props)
       }.start()
       .awaitTermination()
   }
 
-  override def targetSql(sqlText: String, props: Properties, saveMode: SaveMode): Unit = {
+  override def targetSql(sqlText: String, params: Map[String, String], saveMode: SaveMode): Unit = {
     this.df.writeStream
       .foreachBatch { (batchDF: DataFrame, _: Long) =>
         batchDF.sqlContext.sql(sqlText)
