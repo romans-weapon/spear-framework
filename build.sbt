@@ -2,6 +2,7 @@ ThisBuild / organizationName := "Romans Weapon"
 ThisBuild / organization := "io.github.romans-weapon"
 ThisBuild / organizationHomepage := Some(url("https://github.com/romans-weapon"))
 ThisBuild / name := "spear-framework"
+
 ThisBuild / version := "2.4-3.0"
 
 lazy val scala212 = "2.12.12"
