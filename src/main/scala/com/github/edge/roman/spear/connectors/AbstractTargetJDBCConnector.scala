@@ -22,10 +22,8 @@ package com.github.edge.roman.spear.connectors
 import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.commons.SpearCommons
 import org.apache.spark.sql.SaveMode
-import scala.collection.JavaConverters._
 
 import java.util.Properties
-
 
 abstract class AbstractTargetJDBCConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
@@ -41,8 +39,7 @@ abstract class AbstractTargetJDBCConnector(sourceFormat: String, destFormat: Str
           .option("datasetName", tableName).save()
       case _ =>
         val props = new Properties()
-        props.putAll(params.mapValues(_.toString).asJava)
-        println(props)
+        params.foreach { case (key, value) => props.setProperty(key, value.toString) }
         this.df.write.mode(saveMode).jdbc(params.get("url").toString, tableName, props)
     }
     logger.info(s"Write data to table/object ${tableName} completed with status:${SpearCommons.SuccessStatus} ")

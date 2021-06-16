@@ -24,8 +24,6 @@ import com.github.edge.roman.spear.connectors.AbstractTargetJDBCConnector
 import com.github.edge.roman.spear.{Connector, SpearConnector}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode}
-import scala.collection.JavaConverters._
-
 import java.util.Properties
 
 class StreamtoJDBC(sourceFormat: String, destFormat: String) extends AbstractTargetJDBCConnector(sourceFormat, destFormat) {
@@ -53,7 +51,7 @@ class StreamtoJDBC(sourceFormat: String, destFormat: String) extends AbstractTar
 
   override def targetJDBC(tableName: String,destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = {
     val props = new Properties()
-    props.putAll(params.mapValues(_.toString).asJava)
+    params.foreach { case (key, value) => props.setProperty(key, value.toString) }
     this.df.writeStream
       .foreachBatch { (batchDF: DataFrame, _: Long) =>
         batchDF.write

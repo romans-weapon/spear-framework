@@ -24,7 +24,6 @@ import com.mongodb.spark.MongoSpark
 import com.mongodb.spark.config.WriteConfig
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-import scala.collection.JavaConverters._
 import java.util.Properties
 
 abstract class AbstractMultiTargetConnector(sourceFormat: String) extends AbstractConnector(sourceFormat: String) {
@@ -97,7 +96,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
         }
       case _ =>
         val props = new Properties()
-        props.putAll(params.mapValues(_.toString).asJava)
+        params.foreach { case (key, value) => props.setProperty(key, value.toString) }
         if (is_transformed) {
           dfTransformed.write.mode(saveMode).jdbc(params.get("url").toString, tableName, props)
           is_transformed = false
