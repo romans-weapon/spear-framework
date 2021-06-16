@@ -39,8 +39,8 @@ abstract class AbstractTargetJDBCConnector(sourceFormat: String, destFormat: Str
           .option("datasetName", tableName).save()
       case _ =>
         val props = new Properties()
-        params.foreach { case (key, value) => props.setProperty(key, value.toString) }
-        this.df.write.mode(saveMode).jdbc(params.get("url").toString, tableName, props)
+        params.foreach { case (key, value) => props.setProperty(key, value) }
+        this.df.write.mode(saveMode).jdbc(params.getOrElse("url",throw new NullPointerException("No key 'url' found in the target properties!!")).toString, tableName, props)
     }
     logger.info(s"Write data to table/object ${tableName} completed with status:${SpearCommons.SuccessStatus} ")
     show()

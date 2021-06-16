@@ -23,18 +23,16 @@ import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.commons.SpearCommons
 import org.apache.spark.sql.SaveMode
 
-import java.util.Properties
-
 abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
-  override def targetFS(destinationFilePath: String, destFormat: String = destFormat, saveAsTable: String,params: Map[String, String] = Map(), saveMode: SaveMode = SaveMode.Overwrite): Unit = {
-    val numBuckets = Integer.valueOf(params.get("num_buckets").toString)
-    val bucket_column = params.get(SpearCommons.PartitionCols).toString.split(",")(0)
-    val bucketCols = params.get(SpearCommons.PartitionCols).toString.split(",").tail
-    val partition_columns = params.get(SpearCommons.PartitionCols).toString.split(",")
+  override def targetFS(destinationFilePath: String, destFormat: String = destFormat, saveAsTable: String, params: Map[String, String] = Map(), saveMode: SaveMode = SaveMode.Overwrite): Unit = {
+    val numBuckets = Integer.valueOf(params.getOrElse(SpearCommons.NumBuckets, ""))
+    val bucket_column = params.getOrElse(SpearCommons.BucketCols, "").split(",")(0)
+    val bucketCols = params.getOrElse(SpearCommons.BucketCols, "").split(",").tail
+    val partition_columns = params.getOrElse(SpearCommons.PartitionCols, "").split(",")
     if (destinationFilePath.isEmpty) {
       if (saveAsTable.isEmpty) {
-        throw new Exception("Neither file_path nor table_name is provided for landing data to destination")
+        throw new Exception("Neither file_path nor table_name is provided for writing data to destination")
       } else {
         //create partitions in the default warehouse path (/user/hive/warehouse) for hive
         if (params.contains(SpearCommons.PartitionCols)) {
@@ -42,7 +40,7 @@ abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: Strin
         } else if (params.contains(SpearCommons.BucketCols)) {
           this.df.write.format(destFormat).bucketBy(numBuckets, bucket_column, bucketCols: _*).mode(saveMode).saveAsTable(saveAsTable)
         } else if (params.contains(SpearCommons.PartitionCols) && params.contains(SpearCommons.BucketCols)) {
-          this.df.write.format(destFormat).partitionBy(partition_columns: _*).bucketBy(numBuckets, bucket_column, bucketCols:_*).mode(saveMode).saveAsTable(saveAsTable)
+          this.df.write.format(destFormat).partitionBy(partition_columns: _*).bucketBy(numBuckets, bucket_column, bucketCols: _*).mode(saveMode).saveAsTable(saveAsTable)
         } else {
           this.df.write.format(destFormat).mode(saveMode).saveAsTable(saveAsTable)
         }
@@ -57,7 +55,7 @@ abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: Strin
         } else if (params.contains(SpearCommons.BucketCols)) {
           this.df.write.format(destFormat).bucketBy(numBuckets, bucket_column, bucketCols: _*).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
         } else if (params.contains(SpearCommons.PartitionCols) && params.contains(SpearCommons.BucketCols)) {
-          this.df.write.format(destFormat).partitionBy(partition_columns: _*).bucketBy(numBuckets, bucket_column, bucketCols:_*).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
+          this.df.write.format(destFormat).partitionBy(partition_columns: _*).bucketBy(numBuckets, bucket_column, bucketCols: _*).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
         } else {
           this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
         }
@@ -69,7 +67,7 @@ abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: Strin
         } else if (params.contains(SpearCommons.BucketCols)) {
           this.df.write.format(destFormat).bucketBy(numBuckets, bucket_column, bucketCols: _*).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
         } else if (params.contains(SpearCommons.PartitionCols) && params.contains(SpearCommons.BucketCols)) {
-          this.df.write.format(destFormat).partitionBy(partition_columns: _*).bucketBy(numBuckets, bucket_column, bucketCols:_*).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
+          this.df.write.format(destFormat).partitionBy(partition_columns: _*).bucketBy(numBuckets, bucket_column, bucketCols: _*).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
         } else {
           this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
         }
@@ -84,5 +82,5 @@ abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: Strin
 
   override def targetNoSQL(tableName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetNoSQL() not compatible for given targetType FS")
 
-  override def targetGraphDB(objectName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit=throw new NoSuchMethodException("method targetGraphDB() not compatible for given targetType FS")
+  override def targetGraphDB(objectName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetGraphDB() not compatible for given targetType FS")
 }

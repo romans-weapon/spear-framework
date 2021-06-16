@@ -25,7 +25,6 @@ import com.mongodb.spark.MongoSpark
 import com.mongodb.spark.config.WriteConfig
 import org.apache.spark.sql.SaveMode
 
-import java.util.Properties
 
 abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
@@ -33,7 +32,7 @@ abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: St
     destFormat match {
       case "mongo" =>
         val writeConfig = WriteConfig(
-          Map("uri" -> props.get("uri").toString.concat(s"/${objectName}")))
+          Map("uri" -> props.getOrElse("uri",throw new NullPointerException("No key 'uri' found in the target properties!!")).concat(s"/${objectName}")))
         MongoSpark.save(this.df.write.format("mongo").options(props).mode(saveMode), writeConfig)
       case "cassandra" =>
         val destdetailsArr = objectName.split("\\.")

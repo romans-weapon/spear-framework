@@ -118,7 +118,7 @@ object ConnectorCommon {
   def sourceNOSQL(sourceObject: String, sourceFormat: String, params: Map[String, String]): DataFrame = {
     sourceFormat match {
       case "mongo" =>
-        SparkSessionFunctions(SpearConnector.spark).loadFromMongoDB(ReadConfig(Map("uri" -> params.get("uri").orNull.concat(s"/$sourceObject"))))
+        SparkSessionFunctions(SpearConnector.spark).loadFromMongoDB(ReadConfig(Map("uri" -> params.getOrElse("uri",throw new NullPointerException("No key 'uri' found in the target properties!!")).concat(s"/$sourceObject"))))
       case "cassandra" =>
         val sourceObj = sourceObject.split("\\.")
         val keySpace = sourceObj(0)

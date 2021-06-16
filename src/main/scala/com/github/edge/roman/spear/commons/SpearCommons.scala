@@ -34,4 +34,5 @@ object SpearCommons {
   val BucketCols="bucket_columns"
   val Star="*"
   val Graph="graph"
+  val NumBuckets="num_buckets"
 }
