@@ -1,8 +1,8 @@
 # Spear Framework
 
-[![Build Status](https://github.com/AnudeepKonaboina/spear-framework/workflows/spear-framework-build/badge.svg)](https://github.com/AnudeepKonaboina/spear-framework/actions)
+[![Build Status](https://github.com/romans-weapon/spear-framework/workflows/spear-framework-build/badge.svg)](https://github.com/romans-weapon/spear-framework/actions)
 [![Code Quality Grade](https://www.code-inspector.com/project/23492/status/svg)](https://www.code-inspector.com/project/23492/status/svg)
-[![GitHub tag](https://img.shields.io/github/v/release/AnudeepKonaboina/spear-framework)](https://github.com/AnudeepKonaboina/spear-framework/tags)
+[![GitHub tag](https://img.shields.io/github/v/release/romans-weapon/spear-framework)](https://github.com/romans-weapon/spear-framework/tags)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.romans-weapon/spear-framework_2.11.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.romans-weapon%22%20AND%20a:%22spear-framework_2.11%22)
 [![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](https://romans-weapon.github.io/spear-framework/)
