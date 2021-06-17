@@ -126,7 +126,7 @@ root@hadoop # spear-shell
 **NOTE**: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source and write it to HDFS so that it gives you complete environment to play with spear-framework.
 Also it has a postgres database and a NO-SQL database mongodb as well which you can use it as a source or as a desination for writing and testing your connector.
 
-5. Start writing your own connectors and explore .To understand how to write a connector [click here](https://github.com/romans-weapon/spear-framework#develop-your-first-connector-using-spear)
+Start writing your own connectors and explore .To understand how to write a connector [click here](https://github.com/romans-weapon/spear-framework#develop-your-first-connector-using-spear)
 
 # Connectors built using Spear
 Connector is basically the logic/code which allows you to create a pipeline from source to target using the spear framework using which you can ingest data from any source to any destination.
