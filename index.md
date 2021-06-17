@@ -2295,7 +2295,7 @@ only showing top 10 rows
 only showing top 10 rows
 ````
 # Target GraphDB
-Spear framework is also provisioned to write connectors with graph databases as targets from different sources.
+Spear framework is also provisioned to write connectors with graph databases as targets from different sources.Spear framework is also provisioned to write connectors with graph databases as targets from different sources.This section has the example connectors form different source to graph databases.The target properties or options for writing to graph databas as target can be refered from [here](https://neo4j.com/developer/spark/writing/).
 
 ## File Source
 ![image](https://user-images.githubusercontent.com/59328701/122415096-3e7f0f80-cfa5-11eb-95ba-9e993b9069e7.png)
