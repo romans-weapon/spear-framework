@@ -13,6 +13,7 @@ The spear-framework provides scope to write simple ETL/ELT-connectors/pipelines 
 - [Introduction](#introduction)
 - [Design and Code Quality](#design-and-code-quality)
 - [Getting started with Spear](#getting-started-with-spear)
+    * [SBT dependency for Spear](#sbt-dependency-for-spear)
     * [Maven dependency for Spear](#maven-dependency-for-spear)
     * [Spark shell package for Spear](#spark-shell-package-for-spear)
     * [Docker container setup for Spear](#docker-container-setup-for-spear)
@@ -35,6 +36,9 @@ The spear-framework provides scope to write simple ETL/ELT-connectors/pipelines 
     * [Target NOSQL](#target-nosql)
         - [File Source](#file-source)
             + [CSV to MongoDB Connector](#csv-to-mongodb-connector)
+    * [Target GraphDB](#target-graphdb)
+        - [File Source](#file-source)
+            + [CSV to neo4j Connector](#csv-to-neo4j-connector)
 - [Other Functionalities of Spear](#other-functionalities-of-spear)
     * [Merge using executeQuery API](#merge-using-executequery-api)
     * [Write to multi-targets using branch API](#write-to-multi-targets-using-branch-api)
@@ -45,28 +49,38 @@ The spear-framework provides scope to write simple ETL/ELT-connectors/pipelines 
 
 Spear Framework provides the developers thae ability to write connectors (ETL/ELT jobs) from a source to a target,applying business logic/transformations over the soure data and ingesting it to the corresponding destination with very minimal code.
 
-![image](https://user-images.githubusercontent.com/59328701/120106134-84507100-c179-11eb-9624-7a1504c8a083.png)
+![image](https://user-images.githubusercontent.com/59328701/122396653-d412a300-cf95-11eb-8bd5-bef400c07de8.png)
 
 # Design and Code Quality
 
-![image](https://user-images.githubusercontent.com/59328701/120107447-aac4db00-c17e-11eb-815e-ff18381767ab.png)
+![image](https://user-images.githubusercontent.com/59328701/122229966-d661f800-ced6-11eb-839a-c77ca7cca610.png)
 
 
 # Getting Started with Spear
 You can get started with spear using any of the below methods:
 
-### Maven dependency for Spear
+### SBT dependency for Spear
 
-You can add spear-framework as maven dependency in your projects build.sbt file as show below
+You can add spear-framework as dependency in your projects build.sbt file as show below
 ```commandline
-libraryDependencies += "io.github.romans-weapon" %% "spear-framework" % "2.4-2.0"
+libraryDependencies += "io.github.romans-weapon" %% "spear-framework" % "2.4-3.0"
+```
+
+### Maven dependency for Spear
+Maven dependency for spear is shown below:
+```commandline
+<dependency>
+  <groupId>io.github.romans-weapon</groupId>
+  <artifactId>spear-framework_2.11</artifactId>
+  <version>2.4-3.0</version>
+</dependency>
 ```
 
 ### Spark shell package for Spear
 
 You can also add it as a package while staring spark-shell along with other packages.
 ```commandline
-spark-shell --packages "io.github.romans-weapon:spear-framework_2.11:2.4-2.0"
+spark-shell --packages "io.github.romans-weapon:spear-framework_2.11:2.4-3.0"
 ```
 
 ### Docker container setup for Spear
@@ -125,20 +139,30 @@ val multiTargetConnector = SpearConnector
 ```
 
 2. Below are the source and destination type combinations that spear-framework supports:
-```commandline
+
+#### Connector types suppoeted by spear:
+
 |source type  | dest. type    | description                                                | 
 |------------ |:-------------:|:-----------------------------------------------------------:
 | file        |  relational   |connector object with file source and database as dest.     |
 | relational  |  relational   |connector object with database source and database as dest. |
 | stream      |  relational   |connector object with stream source and database as dest.   |
+| nosql       |  relational   |connector object with nosql  source and relational as dest. |
+| graph       |  relational   |connector object with graph source and database as dest.    |
 | file        |  FS           |connector object with file source and FileSystem as dest.   |
 | relational  |  FS           |connector object with database source and FileSystem as dest|
 | stream      |  FS           |connector object with stream source and FileSystem as dest. |
 | FS          |  FS           |connector object with FileS  source and FileSystem as dest. |
-| nosql       |  relational   |connector object with nosql  source and relational as dest. |
+| graph       |  FS           |connector object with graph  source and FileSystem as dest. |
 | nosql       |  FS           |connector object with nosql  source and FileSystem as dest. |
+| file        |  nosql        |connector object with nosql  source and nosql      as dest. |
+| relational  |  nosql        |connector object with nosql  source and nosql      as dest. |
 | nosql       |  nosql        |connector object with nosql  source and nosql      as dest. |
-```
+| graph       |  nosql        |connector object with graph  source and nosql      as dest. |
+| file        |  graph        |connector object with file  source and  Graph      as dest. |
+| relational  |  graph        |connector object with relational  source and Graph as dest. |
+| nosql       |  graph        |connector object with nosql  source and Graph      as dest. |
+
 
 
 3. Write the connector logic using the connector object in step 1.
@@ -206,26 +230,23 @@ The input data is available in the data/us-election-2012-results-by-county.csv. 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.{Column, DataFrame, SaveMode}
+import org.apache.spark.sql.SaveMode
 
-val targetParams = Map(
-  "driver" -> "org.postgresql.Driver",
-  "user" -> "postgres_user",
-  "password" -> "mysecretpassword",
-  "url" -> "jdbc:postgresql://localhost:5432/pgdb"
-)
+Logger.getLogger("com.github").setLevel(Level.INFO)
+val targetProps = Map(
+    "driver" -> "org.postgresql.Driver",
+    "user" -> "postgres_user",
+    "password" -> "mysecretpassword",
+    "url" -> "jdbc:postgresql://postgres:5432/pgdb"
+  )
 
-//create a connector object
 val csvJdbcConnector = SpearConnector
     .createConnector(name="CSVtoPostgresConnector")
     .source(sourceType = "file", sourceFormat = "csv")
     .target(targetType = "relational", targetFormat = "jdbc")
-    .getConnector
-    
-//enable verbose logging i.e.., the output after every stage is displayed in the console
+    .getConnector   
+ 
 csvJdbcConnector.setVeboseLogging(true)
-
-//connector logic
 csvJdbcConnector
   .source(sourceObject="file:///opt/spear-framework/data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
   .saveAs("__tmp__")
@@ -234,16 +255,15 @@ csvJdbcConnector
       |sum(votes) as total_votes
       |from __tmp__
       |group by state_code,party""".stripMargin)
-  .targetJDBC(objectName="mytable", params=targetParams, saveMode=SaveMode.Overwrite)
+  .targetJDBC(objectName="mytable", props=targetProps, saveMode=SaveMode.Overwrite)
 csvJdbcConnector.stop()
 ```
 
 ##### Output:
 
 ```
-
-21/05/30 09:56:27 INFO targetjdbc.FiletoJDBC: Connector to Target: JDBC with Format: jdbc from Source: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with Format: csv started running !!
-21/05/30 09:56:28 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with format: csv status:success
+21/06/17 08:04:03 INFO targetjdbc.FiletoJDBC: Connector:CSVtoPostgresConnector to Target:JDBC with Format:jdbc from Source:file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with Format:csv started running !!
+21/06/17 08:04:09 INFO targetjdbc.FiletoJDBC: Reading source file: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with format: csv status:success
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
 |country_id|state_code|country_name|country_total_votes|party|first_name|last_name|votes|
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
@@ -260,8 +280,8 @@ csvJdbcConnector.stop()
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
 only showing top 10 rows
 
-21/05/30 09:56:29 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmp__ success
-21/05/30 09:56:29 INFO targetjdbc.FiletoJDBC: Executing tranformation sql: select state_code,party,
+21/06/17 08:04:10 INFO targetjdbc.FiletoJDBC: Saving data as temporary table:__tmp__ success
+21/06/17 08:04:12 INFO targetjdbc.FiletoJDBC: Executing transformation sql: select state_code,party,
 sum(votes) as total_votes
 from __tmp__
 group by state_code,party status :success
@@ -281,7 +301,7 @@ group by state_code,party status :success
 +----------+-----+-----------+
 only showing top 10 rows
 
-21/05/30 09:56:32 INFO targetjdbc.FiletoJDBC: Write data to table/object mytable completed with status:success
+21/06/17 08:04:17 INFO targetjdbc.FiletoJDBC: Write data to table/object:mytable completed with status:success
 +----------+-----+-----------+
 |state_code|party|total_votes|
 +----------+-----+-----------+
@@ -740,28 +760,28 @@ More connectors to target FileSystem Cloud (s3/gcs/adls..ect) are avaialable [he
 ```scala
 import com.github.edge.roman.spear.SpearConnector
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.{Column, DataFrame, SaveMode}
-
-val mongoProps=Map("uri"->"mongodb://mongo:27017")
+import org.apache.spark.sql.SaveMode
 
 Logger.getLogger("com.github").setLevel(Level.INFO)
+val mongoProps = Map(
+  "uri" -> "mongodb://mongo:27017"
+)
 
 val csvMongoConnector = SpearConnector
-    .createConnector("CSVTOMONGO")
-    .source(sourceType = "file", sourceFormat = "csv")
-    .target(targetType = "nosql", targetFormat = "mongo")
-    .getConnector
+  .createConnector("csv-mongo")
+  .source(sourceType = "file", sourceFormat = "csv")
+  .target(targetType = "nosql", targetFormat = "mongo")
+  .getConnector
 csvMongoConnector.setVeboseLogging(true)
-  csvMongoConnector
-    .source(sourceObject = "file:///opt/spear-framework/data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
-    .saveAs("__tmp__")
-    .transformSql(
-      """select state_code,party,
-        |sum(votes) as total_votes
-        |from __tmp__
-        |group by state_code,party""".stripMargin)
-    .targetNoSQL(objectName="ingest.csvdata",params=mongoProps,saveMode=SaveMode.Overwrite)
-
+csvMongoConnector
+  .source(sourceObject = "file:///opt/spear-framework/data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))
+  .saveAs("__tmp__")
+  .transformSql(
+    """select state_code,party,
+      |sum(votes) as total_votes
+      |from __tmp__
+      |group by state_code,party""".stripMargin)
+  .targetNoSQL(objectName = "ingest.csvdata", props = mongoProps, saveMode = SaveMode.Overwrite)
 csvMongoConnector.stop()
 ```
 
@@ -770,7 +790,7 @@ csvMongoConnector.stop()
 
 ````commandline
 
-21/05/30 11:18:02 INFO targetNoSQL.FilettoNoSQL: Connector to Target: NoSQL DB with Format: mongo from Source: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with Format: csv started running !!
+21/05/30 11:18:02 INFO targetNoSQL.FilettoNoSQL: Connector:csv-mongo to Target:NoSQL DB with Format:mongo from Source:file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with Format:csv started running !!
 21/05/30 11:18:04 INFO targetNoSQL.FilettoNoSQL: Reading source file: file:///opt/spear-framework/data/us-election-2012-results-by-county.csv with format: csv status:success
 +----------+----------+------------+-------------------+-----+----------+---------+-----+
 |country_id|state_code|country_name|country_total_votes|party|first_name|last_name|votes|
@@ -829,6 +849,107 @@ only showing top 10 rows
 ````
 Other connectors with NO-SQL as destination are avaialble [here](https://romans-weapon.github.io/spear-framework/#target-nosql).
 
+
+
+## Target GraphDB
+Spear framework is also provisioned to write connectors with graph databases as targets from different sources.This section has the example connectors form different source to graph databases.The target properties or options for writing to graph databas as target can be refered from [here](https://neo4j.com/developer/spark/writing/)
+
+### File Source
+
+#### CSV to Neo4j Connector
+
+```scala
+import com.github.edge.roman.spear.SpearConnector
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.sql.{Column, DataFrame, SaveMode}
+
+Logger.getLogger("com.github").setLevel(Level.INFO)
+
+val neo4jParams = Map("url" -> "bolt://host:7687",
+    "authentication.basic.username" -> "neo4j",
+    "authentication.basic.password" -> "****"
+  )
+
+val csvtoNeo4j = SpearConnector
+    .createConnector("CSV-to-Neo4j")
+    .source("file", "csv")
+    .target("graph", "neo4j")
+    .getConnector
+csvtoNeo4j.setVeboseLogging(true)
+
+csvtoNeo4j
+    .source(sourceObject = "file:///opt/spear-framework/data/FinancialSample.csv", Map("header" -> "true", "inferSchema" -> "true"))
+    .saveAs("__STAGE__")
+    .transformSql(
+      """
+        |select Segment,Country,Product
+        |`Units Sold`,`Manufacturing Price`
+        |from __STAGE__""".stripMargin)
+    .targetGraphDB(objectName = "finance", props = neo4jParams, saveMode = SaveMode.Overwrite)
+csvtoNeo4j.stop()    
+```
+
+##### Output
+```commandline
+21/06/17 13:03:51 INFO targetGraphDB.FiletoGraphDB: Connector:CSV-to-Neo4j to Target:GraphDB with Format:neo4j from Source:file:///opt/spear-framework/data/FinancialSample.csv with Format:csv started running !!
+21/06/17 13:03:51 INFO targetGraphDB.FiletoGraphDB: Reading source file: file:///opt/spear-framework/data/FinancialSample.csv with format: csv status:success
++----------------+-------+-----------+-------------+----------+-------------------+----------+------------+---------+------------+------------+------------+---------+------------+------------+----+
+|Segment         |Country|Product    |Discount Band|Units Sold|Manufacturing Price|Sale Price|Gross Sales |Discounts|Sales       |COGS        |Profit      |Date     |Month Number| Month Name |Year|
++----------------+-------+-----------+-------------+----------+-------------------+----------+------------+---------+------------+------------+------------+---------+------------+------------+----+
+|Government      |Canada | Carretera | None        | 1,618.50 |3.0                |20.0      | 32,370.00  | -       | 32,370.00  | 16,185.00  | 16,185.00  |1/1/2014 |1           | January    |2014|
+|Government      |Germany| Carretera | None        | 1,321.00 |3.0                |20.0      | 26,420.00  | -       | 26,420.00  | 13,210.00  | 13,210.00  |1/1/2014 |1           | January    |2014|
+|Midmarket       |France | Carretera | None        | 2,178.00 |3.0                |15.0      | 32,670.00  | -       | 32,670.00  | 21,780.00  | 10,890.00  |6/1/2014 |6           | June       |2014|
+|Midmarket       |Germany| Carretera | None        | 888.00   |3.0                |15.0      | 13,320.00  | -       | 13,320.00  | 8,880.00   | 4,440.00   |6/1/2014 |6           | June       |2014|
+|Midmarket       |Mexico | Carretera | None        | 2,470.00 |3.0                |15.0      | 37,050.00  | -       | 37,050.00  | 24,700.00  | 12,350.00  |6/1/2014 |6           | June       |2014|
+|Government      |Germany| Carretera | None        | 1,513.00 |3.0                |350.0     | 529,550.00 | -       | 529,550.00 | 393,380.00 | 136,170.00 |12/1/2014|12          | December   |2014|
+|Midmarket       |Germany| Montana   | None        | 921.00   |5.0                |15.0      | 13,815.00  | -       | 13,815.00  | 9,210.00   | 4,605.00   |3/1/2014 |3           | March      |2014|
+|Channel Partners|Canada | Montana   | None        | 2,518.00 |5.0                |12.0      | 30,216.00  | -       | 30,216.00  | 7,554.00   | 22,662.00  |6/1/2014 |6           | June       |2014|
+|Government      |France | Montana   | None        | 1,899.00 |5.0                |20.0      | 37,980.00  | -       | 37,980.00  | 18,990.00  | 18,990.00  |6/1/2014 |6           | June       |2014|
+|Channel Partners|Germany| Montana   | None        | 1,545.00 |5.0                |12.0      | 18,540.00  | -       | 18,540.00  | 4,635.00   | 13,905.00  |6/1/2014 |6           | June       |2014|
++----------------+-------+-----------+-------------+----------+-------------------+----------+------------+---------+------------+------------+------------+---------+------------+------------+----+
+only showing top 10 rows
+
+21/06/17 13:03:51 INFO targetGraphDB.FiletoGraphDB: Saving data as temporary table:__STAGE__ success
+21/06/17 13:03:51 INFO targetGraphDB.FiletoGraphDB: Executing transformation sql:
+select Segment,Country,Product
+`Units Sold`,`Manufacturing Price`
+from __STAGE__ status :success
++----------------+-------+-----------+-------------------+
+|Segment         |Country|Units Sold |Manufacturing Price|
++----------------+-------+-----------+-------------------+
+|Government      |Canada | Carretera |3.0                |
+|Government      |Germany| Carretera |3.0                |
+|Midmarket       |France | Carretera |3.0                |
+|Midmarket       |Germany| Carretera |3.0                |
+|Midmarket       |Mexico | Carretera |3.0                |
+|Government      |Germany| Carretera |3.0                |
+|Midmarket       |Germany| Montana   |5.0                |
+|Channel Partners|Canada | Montana   |5.0                |
+|Government      |France | Montana   |5.0                |
+|Channel Partners|Germany| Montana   |5.0                |
++----------------+-------+-----------+-------------------+
+only showing top 10 rows
+
+21/06/17 13:03:52 INFO targetGraphDB.FiletoGraphDB: Write data to object:finance completed with status:success
++----------------+-------+-----------+-------------------+
+|Segment         |Country|Units Sold |Manufacturing Price|
++----------------+-------+-----------+-------------------+
+|Government      |Canada | Carretera |3.0                |
+|Government      |Germany| Carretera |3.0                |
+|Midmarket       |France | Carretera |3.0                |
+|Midmarket       |Germany| Carretera |3.0                |
+|Midmarket       |Mexico | Carretera |3.0                |
+|Government      |Germany| Carretera |3.0                |
+|Midmarket       |Germany| Montana   |5.0                |
+|Channel Partners|Canada | Montana   |5.0                |
+|Government      |France | Montana   |5.0                |
+|Channel Partners|Germany| Montana   |5.0                |
++----------------+-------+-----------+-------------------+
+only showing top 10 rows
+```
+Other connectors with graph db as destination are avaialble [here](https://romans-weapon.github.io/spear-framework/#target-graphdb).
+
+
 ## Other Functionalities of Spear
 This section describes other functionalities which you can use with spear
 
@@ -866,11 +987,12 @@ postgresToHiveConnector.executeQuery(
     """
     //tranform sql
     """.stripMargin)
-  .targetFS(destinationFilePath = "/tmp/ingest", destFormat = "parquet", saveAsTable = "target", saveMode = SaveMode.Overwrite)
+  .targetFS(destinationFilePath = "/tmp/ingest", saveAsTable = "target", saveMode = SaveMode.Overwrite)
 ```
 See more detailed explanation about executeQuery AP1 with diagrams [here](https://romans-weapon.github.io/spear-framework/#merge-using-executequery-api)
 
 ### Write to multi-targets using branch API
+While using multitarget api make sure you are specifying thet target type while defining destination.
 
 ```scala
 import com.github.edge.roman.spear.SpearConnector
