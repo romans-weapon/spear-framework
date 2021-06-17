@@ -26,7 +26,7 @@ class JDBCtoGraphDB(sourceFormat: String, destFormat: String) extends AbstractTa
   override def source(tableName: String, params: Map[String, String]): JDBCtoGraphDB = {
     logger.info(s"Connector:${appName} to Target:GraphB with Format:${destFormat} from Source table/Object:${tableName} with Format:${sourceFormat} started running!!")
     this.df = ConnectorCommon.sourceJDBC(tableName, sourceFormat, params)
-    logger.info(s"Reading source table: ${tableName} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+    logger.info(s"Reading source table:${tableName} with format:${sourceFormat} status:${SpearCommons.SuccessStatus}")
     if (this.verboseLogging) this.df.show(this.numRows, false)
     this
   }

@@ -26,7 +26,7 @@ class GraphtoGraphDB(sourceFormat: String, destFormat: String) extends AbstractT
   override def source(labelName: String, params: Map[String, String]): GraphtoGraphDB = {
     logger.info(s"Connector:${appName} to Target:GraphDB from GraphDB object:${labelName} with Format:${sourceFormat} started running!!")
     this.df = ConnectorCommon.sourceGraphDB(labelName, sourceFormat, params)
-    logger.info(s"Reading source table: ${labelName} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+    logger.info(s"Reading source table:${labelName} with format:${sourceFormat} status:${SpearCommons.SuccessStatus}")
     if (this.verboseLogging) this.df.show(this.numRows, false)
     this
   }

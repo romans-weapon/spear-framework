@@ -28,7 +28,7 @@ class FilettoNoSQL(sourceFormat: String, destFormat: String) extends AbstractTar
   override def source(sourceFilePath: String, params: Map[String, String]): FilettoNoSQL = {
     logger.info(s"Connector:${appName} to Target:NoSQL with Format:${destFormat} from Source:${sourceFilePath} with Format:${sourceFilePath} started running !!")
     this.df = ConnectorCommon.sourceFile(sourceFormat, sourceFilePath, params)
-    logger.info(s"Reading source file: ${sourceFilePath} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+    logger.info(s"Reading source file:${sourceFilePath} with format:${sourceFormat} status:${SpearCommons.SuccessStatus}")
     show()
     this
   }

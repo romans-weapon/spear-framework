@@ -25,9 +25,9 @@ import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
 class JDBCtoJDBC(sourceFormat: String, destFormat: String) extends AbstractTargetJDBCConnector(sourceFormat,destFormat)  {
 
   override def source(tableName: String, params: Map[String, String]): JDBCtoJDBC = {
-    logger.info(s"Connector:${appName} to Target:JDBC with Format:${destFormat} from Source table/Object: ${tableName} with Format:${sourceFormat} started running!!")
+    logger.info(s"Connector:${appName} to Target:JDBC with Format:${destFormat} from Source table/object:${tableName} with Format:${sourceFormat} started running!!")
     this.df = ConnectorCommon.sourceJDBC(tableName, sourceFormat, params)
-    logger.info(s"Reading source table: ${tableName} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+    logger.info(s"Reading source table:${tableName} with format:${sourceFormat} status:${SpearCommons.SuccessStatus}")
     if (this.verboseLogging) this.df.show(this.numRows, false)
     this
   }

@@ -28,7 +28,7 @@ class FiletoGraphDB(sourceFormat: String, destFormat: String) extends AbstractTa
   override def source(sourceFilePath: String, params: Map[String, String]): FiletoGraphDB = {
     logger.info(s"Connector:${appName} to Target:GraphDB with Format:${destFormat} from Source:${sourceFilePath} with Format:${sourceFilePath} started running !!")
     this.df = ConnectorCommon.sourceFile(sourceFormat, sourceFilePath, params)
-    logger.info(s"Reading source file: ${sourceFilePath} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+    logger.info(s"Reading source file:${sourceFilePath} with format:${sourceFormat} status:${SpearCommons.SuccessStatus}")
     show()
     this
   }

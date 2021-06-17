@@ -43,7 +43,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
         } else {
           this.df.write.format(destFormat).mode(saveMode).saveAsTable(saveAsTable)
         }
-        logger.info(s"Write data to default path with format: ${sourceFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
+        logger.info(s"Write data to default path with format:${sourceFormat} and saved as table:${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
       }
     } else {
       if (saveAsTable.isEmpty) {
@@ -54,7 +54,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
         } else {
           this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).save()
         }
-        logger.info(s"Write data to target path: ${destinationFilePath} with format: ${destFormat} completed with status:${SpearCommons.SuccessStatus}")
+        logger.info(s"Write data to target path:${destinationFilePath} with format:${destFormat} completed with status:${SpearCommons.SuccessStatus}")
       } else {
         if (is_transformed) {
           dfTransformed.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
@@ -63,7 +63,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
         } else {
           this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
         }
-        logger.info(s"Write data to target path: ${destinationFilePath} with format: ${destFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
+        logger.info(s"Write data to target path:${destinationFilePath} with format:${destFormat} and is saved as table:${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
       }
     }
   }
@@ -105,7 +105,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
           this.df.write.mode(saveMode).jdbc(props.get("url").toString, tableName, props)
         }
     }
-    logger.info(s"Write data to table/object ${tableName} completed with status:${SpearCommons.SuccessStatus} ")
+    logger.info(s"Write data to table/object:${tableName} completed with status:${SpearCommons.SuccessStatus} ")
   }
 
   override def targetNoSQL(objectName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = {
@@ -143,7 +143,7 @@ abstract class AbstractMultiTargetConnector(sourceFormat: String) extends Abstra
             .save()
         }
     }
-    logger.info(s"Write data to object ${objectName} completed with status:${SpearCommons.SuccessStatus} ")
+    logger.info(s"Write data to object:${objectName} completed with status:${SpearCommons.SuccessStatus} ")
   }
 
   override def targetGraphDB(objectName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = {

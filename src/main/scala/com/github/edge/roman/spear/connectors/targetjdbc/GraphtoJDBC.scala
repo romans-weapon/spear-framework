@@ -26,7 +26,7 @@ class GraphtoJDBC(sourceFormat: String, destFormat: String) extends AbstractTarg
   override def source(labelName: String, params: Map[String, String]): GraphtoJDBC = {
     logger.info(s"Connector:${appName} to Target:JDBC with Format:${destFormat} from GraphDB Object:${labelName} with Format:${sourceFormat} started running!!")
     this.df = ConnectorCommon.sourceGraphDB(labelName, sourceFormat, params)
-    logger.info(s"Reading source table: ${labelName} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+    logger.info(s"Reading source table:${labelName} with format:${sourceFormat} status:${SpearCommons.SuccessStatus}")
     if (this.verboseLogging) this.df.show(this.numRows, false)
     this
   }

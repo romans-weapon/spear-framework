@@ -28,7 +28,7 @@ class FiletoAny(sourceFormat: String) extends AbstractMultiTargetConnector(sourc
   override def source(sourceFilePath: String, params: Map[String, String]): FiletoAny = {
     logger.info(s"MultiTarget connector with name:${appName} from sourceFile:${sourceFilePath} with format:${sourceFormat} started running !!")
     this.df = ConnectorCommon.sourceFile(sourceFormat, sourceFilePath, params)
-    logger.info(s"Reading source file: ${sourceFilePath} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+    logger.info(s"Reading source file:${sourceFilePath} with format:${sourceFormat} status:${SpearCommons.SuccessStatus}")
     show()
     this
   }

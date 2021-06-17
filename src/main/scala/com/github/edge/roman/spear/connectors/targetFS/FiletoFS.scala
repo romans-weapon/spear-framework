@@ -28,7 +28,7 @@ class FiletoFS(sourceFormat: String, destFormat: String) extends AbstractTargetF
   override def source(sourceFilePath: String, params: Map[String, String]): FiletoFS = {
     logger.info(s"Connector:${appName} to Target:File System with Format:${destFormat} from Source:${sourceFilePath} with Format:${sourceFormat} started running !!")
     this.df = ConnectorCommon.sourceFile(sourceFormat, sourceFilePath, params)
-    logger.info(s"Reading source file: ${sourceFilePath} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+    logger.info(s"Reading source file:${sourceFilePath} with format:${sourceFormat} status:${SpearCommons.SuccessStatus}")
     show()
     this
   }

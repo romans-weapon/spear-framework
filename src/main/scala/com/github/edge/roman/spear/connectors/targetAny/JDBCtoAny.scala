@@ -25,9 +25,9 @@ import com.github.edge.roman.spear.connectors.AbstractMultiTargetConnector
 class JDBCtoAny(sourceFormat: String) extends AbstractMultiTargetConnector(sourceFormat) {
 
   override def source(tableName: String, params: Map[String, String]): JDBCtoAny = {
-    logger.info(s"MultiTarget connector with name:${appName} from table/object:${tableName} with format:${sourceFormat} started running !!")
+    logger.info(s"MultiTarget connector with name:${appName} from source table/object:${tableName} with format:${sourceFormat} started running !!")
     this.df = ConnectorCommon.sourceJDBC(tableName, sourceFormat, params)
-    logger.info(s"Reading source table: ${tableName} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+    logger.info(s"Reading source table:${tableName} with format:${sourceFormat} status:${SpearCommons.SuccessStatus}")
     if (this.verboseLogging) this.df.show(this.numRows, false)
     this
   }

@@ -28,7 +28,7 @@ class NOSQLtoAny(sourceFormat: String) extends AbstractMultiTargetConnector(sour
   override def source(objectName: String, params: Map[String, String]): NOSQLtoAny = {
     logger.info(s"MultiTarget connector with name:${appName} from NoSQL Object:${objectName} with format:${sourceFormat} started running !!")
     this.df = ConnectorCommon.sourceNOSQL(sourceObject = objectName, sourceFormat, params)
-    logger.info(s"Reading source object: ${objectName} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+    logger.info(s"Reading source object:${objectName} with format:${sourceFormat} status:${SpearCommons.SuccessStatus}")
     if (this.verboseLogging) this.df.show(this.numRows, false)
     this
   }

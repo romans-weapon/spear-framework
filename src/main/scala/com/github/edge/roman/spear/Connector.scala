@@ -28,23 +28,23 @@ trait Connector {
 
   def source(sourceObject: String, params: Map[String, String] = Map()): Connector
 
-  def source(sourceObject: String, params: Map[String, String], schema: StructType): Connector
+  def source(sourceObject: String, params: Map[String, String] = Map(), schema: StructType): Connector
 
-  def sourceSql(params: Map[String, String]=Map(), sqlText: String): Connector
+  def sourceSql(params: Map[String, String] = Map(), sqlText: String): Connector
 
   def transformSql(sqlText: String): Connector
 
   def executeQuery(sqlText: String): Connector
 
-  def targetFS(destinationFilePath: String, destFormat: String = SpearCommons.Parquet, saveAsTable: String = "", params: Map[String, String] = Map(), saveMode: SaveMode): Unit
+  def targetFS(destinationFilePath: String, destFormat: String = SpearCommons.Parquet, saveAsTable: String = "", props: Map[String, String] = Map(), saveMode: SaveMode): Unit
 
-  def targetNoSQL(objectName: String, destFormat: String = SpearCommons.NoSql, params: Map[String, String], saveMode: SaveMode): Unit
+  def targetNoSQL(objectName: String, destFormat: String = SpearCommons.NoSql, props: Map[String, String], saveMode: SaveMode): Unit
 
-  def targetJDBC(objectName: String, destFormat: String = SpearCommons.Jdbc, params: Map[String, String], saveMode: SaveMode): Unit
+  def targetJDBC(objectName: String, destFormat: String = SpearCommons.Jdbc, props: Map[String, String], saveMode: SaveMode): Unit
 
-  def targetGraphDB(objectName: String, destFormat: String = SpearCommons.Graph, params: Map[String, String], saveMode: SaveMode): Unit
+  def targetGraphDB(objectName: String, destFormat: String = SpearCommons.Graph, props: Map[String, String], saveMode: SaveMode): Unit
 
-  def targetSql(sqlText: String, params: Map[String, String]=Map(), saveMode: SaveMode): Unit
+  def targetSql(sqlText: String, props: Map[String, String] = Map(), saveMode: SaveMode): Unit
 
   def targets(targets: Unit*): Unit
 

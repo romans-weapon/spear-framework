@@ -43,7 +43,7 @@ abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: St
           .mode(saveMode)
           .save()
     }
-    logger.info(s"Write data to destination: ${destFormat} for object: ${objectName} completed with status:${SpearCommons.SuccessStatus} ")
+    logger.info(s"Write data to destination:${destFormat} object: ${objectName} completed with status:${SpearCommons.SuccessStatus} ")
     show()
   }
 

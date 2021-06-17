@@ -34,7 +34,7 @@ abstract class AbstractConnector(sourceFormat: String) extends Connector {
   val numRows: Int = SpearCommons.ShowNumRows
   var df: DataFrame = _
   var verboseLogging: Boolean = false
-  lazy val appName: String =SpearConnector.sparkConf.get(SpearCommons.AppName)
+  lazy val appName: String = SpearConnector.sparkConf.get(SpearCommons.AppName)
 
   def setVeboseLogging(enable: Boolean): Unit = {
     this.verboseLogging = enable
@@ -70,9 +70,9 @@ abstract class AbstractConnector(sourceFormat: String) extends Connector {
   }
 
   override def sourceSql(params: Map[String, String], sqlText: String): Connector = {
-    logger.info(s"Connector from Source sql: ${sqlText} with Format: ${sourceFormat} started running!!")
+    logger.info(s"Connector:${appName} with Source sql: ${sqlText} with Format: ${sourceFormat} started running!!")
     this.df = ConnectorCommon.sourceSQL(sqlText, sourceFormat, params)
-    logger.info(s"Executing source sql query: ${sqlText} with format: ${sourceFormat} status:${SpearCommons.SuccessStatus}")
+    logger.info(s"Executing source sql query: ${sqlText} with format: ${sourceFormat} completed with status:${SpearCommons.SuccessStatus}")
     show()
     this
   }

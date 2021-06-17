@@ -26,7 +26,7 @@ import org.apache.spark.sql.SaveMode
 abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
   override def targetFS(destinationFilePath: String, destFormat: String = destFormat, saveAsTable: String, params: Map[String, String] = Map(), saveMode: SaveMode = SaveMode.Overwrite): Unit = {
-    val numBuckets = Integer.valueOf(params.getOrElse(SpearCommons.NumBuckets, ""))
+    val numBuckets = Integer.valueOf(params.getOrElse(SpearCommons.NumBuckets, "0"))
     val bucket_column = params.getOrElse(SpearCommons.BucketCols, "").split(",")(0)
     val bucketCols = params.getOrElse(SpearCommons.BucketCols, "").split(",").tail
     val partition_columns = params.getOrElse(SpearCommons.PartitionCols, "").split(",")
@@ -44,7 +44,7 @@ abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: Strin
         } else {
           this.df.write.format(destFormat).mode(saveMode).saveAsTable(saveAsTable)
         }
-        logger.info(s"Write data to default path with format: ${destFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
+        logger.info(s"Write data to default path with format: ${destFormat} and saved as table:${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
         show()
       }
     } else {
@@ -71,7 +71,7 @@ abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: Strin
         } else {
           this.df.write.format(destFormat).mode(saveMode).option(SpearCommons.Path, destinationFilePath).option(SpearCommons.Path, destinationFilePath).saveAsTable(saveAsTable)
         }
-        logger.info(s"Write data to target path: ${destinationFilePath} with format: ${destFormat} and saved as table ${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
+        logger.info(s"Write data to target path: ${destinationFilePath} with format: ${destFormat} and is saved as table:${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
         show()
       }
     }

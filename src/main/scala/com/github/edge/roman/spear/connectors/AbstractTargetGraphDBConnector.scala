@@ -22,9 +22,6 @@ package com.github.edge.roman.spear.connectors
 import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.commons.SpearCommons
 import org.apache.spark.sql.SaveMode
-import org.apache.spark.sql.functions.udf
-
-import java.util.Properties
 
 abstract class AbstractTargetGraphDBConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
