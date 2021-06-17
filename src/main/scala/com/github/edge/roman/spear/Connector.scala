@@ -28,7 +28,7 @@ trait Connector {
 
   def source(sourceObject: String, params: Map[String, String] = Map()): Connector
 
-  def source(sourceObject: String, params: Map[String, String] = Map(), schema: StructType): Connector
+  def source(sourceObject: String, params: Map[String, String] , schema: StructType): Connector
 
   def sourceSql(params: Map[String, String] = Map(), sqlText: String): Connector
 
