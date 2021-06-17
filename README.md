@@ -140,7 +140,7 @@ val multiTargetConnector = SpearConnector
 
 2. Below are the source and destination type combinations that spear-framework supports:
 
-#### Connector types suppoeted by spear:
+#### Connector types (source and dest.) supported by spear:
 
 |source type  | dest. type    | description                                                | 
 |------------ |:-------------:|:-----------------------------------------------------------:
