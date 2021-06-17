@@ -183,9 +183,9 @@ connector
 ->target details where you want to load the data.
   .targetFS(destinationFilePath = "<hdfs /s3/gcs file path>", saveAsTable = "<tablename>", <Savemode can be overwrite/append/ignore>) 
   (or)
-  .targetJDBC(tableName=<table_name>, properties, <Savemode can be overwrite/append/ignore>)
+  .targetJDBC(tableName=<table_name>, targetProperties, <Savemode can be overwrite/append/ignore>)
   (or)
-  .targetNoSQL(<nosql_obj_name>,properties,<Savemode can be overwrite/append/ignore>)
+  .targetNoSQL(<nosql_obj_name>,targetProperties,<Savemode can be overwrite/append/ignore>)
   
  ->for multitarget use the branch api.The dest format will be given whithin the target which will be shown in the examples below.
    .branch
