@@ -2298,7 +2298,7 @@ only showing top 10 rows
 Spear framework is also provisioned to write connectors with graph databases as targets from different sources.
 
 ## File Source
-![image](https://user-images.githubusercontent.com/59328701/122400799-ac253e80-cf99-11eb-823e-973b081d7c31.png)
+![image](https://user-images.githubusercontent.com/59328701/122415096-3e7f0f80-cfa5-11eb-95ba-9e993b9069e7.png)
 
 #### CSV to Neo4j Connector
 
