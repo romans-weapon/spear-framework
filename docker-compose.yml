@@ -30,7 +30,7 @@ services:
     volumes:
       - postgres-vol:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD","pg_isready","-U","postgres_user" ]
+      test: ["CMD", "pg_isready", "-U", "postgres_user"]
       interval: 5s
       retries: 5
     restart: always
@@ -47,7 +47,7 @@ services:
       - 27017:27017
     restart: always
     healthcheck:
-      test: [ "CMD","mongo","--eval","db.adminCommand('ping')" ]
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -74,7 +74,7 @@ services:
     depends_on:
       - zookeeper
     healthcheck:
-      test: ["CMD","kafka-topics.sh","--list","--zookeeper","zookeeper:2181"]
+      test: ["CMD", "kafka-topics.sh", "--list", "--zookeeper", "zookeeper:2181"]
       interval: 30s
       timeout: 10s
       retries: 4
@@ -104,7 +104,7 @@ services:
     privileged: true
     command: "/usr/sbin/init"
     healthcheck:
-      test: ["CMD-SHELL","hive -e 'select 1'"]
+      test: ["CMD-SHELL", "hive -e 'select 1'"]
       interval: 30s
       timeout: 10s
       retries: 4
