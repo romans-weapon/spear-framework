@@ -80,7 +80,7 @@ services:
       retries: 4
   #hive metastore
   hive-metastore:
-    image: spearframework/hive-metastore:v4.0
+    image: spearframework/hive-metastore:3.1-v1.0
     restart: always
     hostname: metastore.hive
     container_name: hive-metastore
@@ -88,7 +88,7 @@ services:
       POSTGRES_PASSWORD: hive
   #spear-container
   spear:
-    image: spearframework/spark-hadoop-hive:v4.0
+    image: spearframework/spark-hadoop-hive:3.1.1-v1.0
     container_name: spear
     hostname: hadoop.spark
     restart: always
