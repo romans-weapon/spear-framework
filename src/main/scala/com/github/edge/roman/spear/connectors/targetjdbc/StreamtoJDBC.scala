@@ -49,7 +49,7 @@ class StreamtoJDBC(sourceFormat: String, destFormat: String) extends AbstractTar
   }
 
 
-  override def targetJDBC(tableName: String,destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = {
+  override def targetJDBC(tableName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = {
     val props = new Properties()
     params.foreach { case (key, value) => props.setProperty(key, value.toString) }
     this.df.writeStream
@@ -62,10 +62,12 @@ class StreamtoJDBC(sourceFormat: String, destFormat: String) extends AbstractTar
   }
 
   override def targetSql(sqlText: String, params: Map[String, String], saveMode: SaveMode): Unit = {
+    def batFunc(batchDF: DataFrame, batchID: Long): Unit = {
+      batchDF.sqlContext.sql(sqlText)
+    }
+
     this.df.writeStream
-      .foreachBatch { (batchDF: DataFrame, _: Long) =>
-        batchDF.sqlContext.sql(sqlText)
-      }.start()
+      .foreachBatch(batFunc _).start()
       .awaitTermination()
   }
 }
