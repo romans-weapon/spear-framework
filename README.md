@@ -57,7 +57,7 @@ Spear Framework provides the developers thae ability to write connectors (ETL/EL
 
 
 # Getting Started with Spear
-The master version of the framework has the support for **spark-3.x** with **scala 2.12.x** 
+This branch(spark-3.1.1) for the framework has support for **spark-3.x** with **scala 2.12.x** 
 
 You can get started with spear using any of the below methods:
 
