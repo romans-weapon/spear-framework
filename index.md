@@ -13,6 +13,7 @@ Below is the code and design quality score for Spear framework given by Code Ins
 
 
 # Table Of Contents
+- [Version Support](#version-support)
 - [How to use Spear](#how-to-use-spear)
     * [SBT dependency for Spear](#sbt-dependency-for-spear)
     * [Maven dependency for Spear](#maven-dependency-for-spear)
@@ -74,17 +75,35 @@ Below is the code and design quality score for Spear framework given by Code Ins
     * [Merge and batch API combination](#merge-and-batch-api-combination) 
          - [Multi-source to Multi-Target Connector](#multi-source-to-multi-target-connector)
 
+# Version Support
+Below are the stable releases and their respective versions supported by spear-framework:
+
+| stable-version               | spark-version    | scala-version  | maven-release-version            |
+| ---------------------------  | ---------------- |--------------- |----------------------------------|
+| v0.9-2.4.7-2.11              | 2.4.7,2.4.x      | 2.11           | 3.0.1                            |
+| v0.1-3.1.1-2.12              | 3.1.1,3.1.x      | 2.12           | 1.0                              |
+
 # How to use Spear
 
 ### SBT dependency for Spear
 
-You can add spear-framework as dependency in your projects build.sbt file as show below
+You can add spear-framework as dependency in your projects **build.sbt** file as show below
+
+#### For spark-2.4.7
 ```commandline
 libraryDependencies += "io.github.romans-weapon" %% "spear-framework" % "2.4-3.0.1"
 ```
 
+#### For spark-3.1.1
+```commandline
+libraryDependencies += "io.github.romans-weapon" % "spear-framework_2.12" % "3.1.1-1.0"
+
+```
+
+
 ### Maven dependency for Spear
-Maven dependency for spear is shown below:
+
+#### For spark-2.4.7
 ```commandline
 <dependency>
   <groupId>io.github.romans-weapon</groupId>
@@ -93,19 +112,44 @@ Maven dependency for spear is shown below:
 </dependency>
 ```
 
+#### For spark-3.1.1
+```commandline
+<dependency>
+  <groupId>io.github.romans-weapon</groupId>
+  <artifactId>spear-framework_2.12</artifactId>
+  <version>3.1.1-1.0</version>
+</dependency>
+
+```
+
 ### Spark shell package for Spear
 
-You can also add it as a package while staring spark-shell along with other packages.
+You can also add it as a maven package while starting spark-shell .
+
+#### For spark-2.4.7
 ```commandline
 spark-shell --packages "io.github.romans-weapon:spear-framework_2.11:2.4-3.0.1"
 ```
+
+#### For spark-3.1.1
+```commandline
+spark-shell --packages "io.github.romans-weapon:spear-framework_2.12:3.1.1-1.0"
+
+```
+
+
 
 ### Docker container setup for Spear
 Below are the simple steps to setup spear on any machine having docker and docker-compose pre-installed :
 
 1. Clone the repository from git and navigate to project directory
+#### For spark-2.4.7:
 ```commandline
-git clone https://github.com/AnudeepKonaboina/spear-framework.git && cd spear-framework
+git clone -b main https://github.com/AnudeepKonaboina/spear-framework.git && cd spear-framework
+```
+#### For spark-3.1.1:
+```commandline
+git clone -b spark-3.1.1 https://github.com/AnudeepKonaboina/spear-framework.git && cd spear-framework
 ```
 
 2. Run setup.sh script using the command
@@ -118,15 +162,31 @@ sh setup.sh
 user@node~$ docker exec -it spear bash
 ```
 
-4. Run `spear-shell` inside the conatiner to start the shell
+4. Run `spear-shell` inside the conatiner to start spark shell integrated with spear .
 ```
 root@hadoop # spear-shell
 ```
+5. Once you enter into the conatiner you will get default hadoop/hive environment readily available to read data from any source and write it to HDFS so that it gives you complete environment to create your own data-pipelines using spear-framework.
+### Services and their corresponding versions available within the container are shown below:
+#### For spark-2.4.7 
 
-**NOTE**: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source and write it to HDFS so that it gives you complete environment to play with spear-framework.
+| Service      | Version     |
+| -----------  | ----------- |
+| Spark        | 2.4.7       |
+| Hadoop       | 2.10.1      |
+| Hive         | 2.1.1       |
+
+#### For spark-3.1.1
+
+| Service      | Version     |
+| -----------  | ----------- |
+| Spark        | 3.1.1       |
+| Hadoop       | 3.2.0       |
+| Hive         | 3.1.1       |
+
 Also it has a postgres database and a NO-SQL database mongodb as well which you can use it as a source or as a desination for writing and testing your connector.
 
-Start writing your own connectors and explore .To understand how to write a connector [click here](https://github.com/romans-weapon/spear-framework#develop-your-first-connector-using-spear)
+6. Start writing your own connectors and explore .To understand how to write a connector [click here](develop-your-first-connector-using-spear)
 
 # Connectors built using Spear
 Connector is basically the logic/code which allows you to create a pipeline from source to target using the spear framework using which you can ingest data from any source to any destination.
