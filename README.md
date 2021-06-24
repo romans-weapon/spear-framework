@@ -64,7 +64,8 @@ You can get started with spear using any of the below methods:
 
 You can add spear-framework as dependency in your projects build.sbt file as show below
 ```commandline
-libraryDependencies += "io.github.romans-weapon" %% "spear-framework" % "2.4-3.0.1"
+libraryDependencies += "io.github.romans-weapon" % "spear-framework_2.12" % "3.1.1-1.0"
+
 ```
 
 ### Maven dependency for Spear
