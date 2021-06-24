@@ -57,6 +57,8 @@ Spear Framework provides the developers thae ability to write connectors (ETL/EL
 
 
 # Getting Started with Spear
+The master version of the framework has the support for **spark-2.4.x** with **scala 2.11.x** 
+
 You can get started with spear using any of the below methods:
 
 ### SBT dependency for Spear
@@ -96,17 +98,24 @@ git clone https://github.com/AnudeepKonaboina/spear-framework.git && cd spear-fr
 sh setup.sh
 ```
 
-3. Once the setup is completed run the below command for entering into the container
+3. Once the setup is completed run the below command for entering into the container containing spear
 ```commandline
 user@node~$ docker exec -it spear bash
 ```
 
-4. Run `spear-shell` inside the conatiner to start the shell
+4. Run `spear-shell` inside the conatiner to start spark shell integrated with spear .
 ```
 root@hadoop # spear-shell
 ```
+5. Once you enter into the conatiner you will get default hadoop/hive environment readily available to read data from any source and write it to HDFS so that it gives you complete environment to create your own data-pipelines using spear-framework.\
+Services and their corresponding versions available within the container are shown below:
 
-**NOTE**: This spark shell is encpsulated with default hadoop/hive environment readily availble to read data from any source and write it to HDFS so that it gives you complete environment to play with spear-framework.
+| Service      | Version     |
+| -----------  | ----------- |
+| Spark        | 2.4.7       |
+| Hadoop       | 2.10.1      |
+| Hive         | 2.1.1       |
+
 Also it has a postgres database and a NO-SQL database mongodb as well which you can use it as a source or as a desination for writing and testing your connector.
 
 5. Start writing your own connectors and explore .To understand how to write a connector [click here](develop-your-first-connector-using-spear)
