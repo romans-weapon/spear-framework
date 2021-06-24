@@ -97,7 +97,6 @@ libraryDependencies += "io.github.romans-weapon" %% "spear-framework" % "2.4-3.0
 #### For spark-3.1.1
 ```commandline
 libraryDependencies += "io.github.romans-weapon" % "spear-framework_2.12" % "3.1.1-1.0"
-
 ```
 
 
@@ -119,7 +118,6 @@ libraryDependencies += "io.github.romans-weapon" % "spear-framework_2.12" % "3.1
   <artifactId>spear-framework_2.12</artifactId>
   <version>3.1.1-1.0</version>
 </dependency>
-
 ```
 
 ### Spark shell package for Spear
