@@ -57,10 +57,9 @@ Spear Framework provides the developers thae ability to write connectors (ETL/EL
 
 
 # Getting Started with Spear
-The master version of the framework has the support for **spark-2.4.x** with **scala 2.11.x** 
+The master version of the framework has the support for **spark-2.4.x** with **scala 2.11.x** .For spear-framework with **spark 3.x** support [click here](https://github.com/romans-weapon/spear-framework/blob/spark-3.1.1/README.md#getting-started-with-spear)
 
 You can get started with spear using any of the below methods:
-
 ### SBT dependency for Spear
 
 You can add spear-framework as dependency in your projects build.sbt file as show below
