@@ -78,7 +78,7 @@ abstract class AbstractConnector(sourceFormat: String) extends Connector {
   }
 
   override def transformSql(sqlText: String): Connector = {
-    this.df = this.df.sqlContext.sql(sqlText)
+    this.df = SpearConnector.spark.sql(sqlText)
     logger.info(s"Executing transformation sql: ${sqlText} status :${SpearCommons.SuccessStatus}")
     show()
     this
@@ -110,7 +110,7 @@ abstract class AbstractConnector(sourceFormat: String) extends Connector {
   }
 
   override def createUDF(fucntionName: String, function: UserDefinedFunction): UserDefinedFunction = {
-    SpearConnector.spark.sqlContext.udf.register(fucntionName, function)
+    SpearConnector.spark.udf.register(fucntionName, function)
   }
 
   override def toDF: DataFrame = this.df
