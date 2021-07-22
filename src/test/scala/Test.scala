@@ -1,5 +1,4 @@
 import com.github.edge.roman.spear.SpearConnector
-import com.github.edge.roman.spear.connectors.AbstractConnector
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.{Column, DataFrame, SaveMode}
 import org.scalatest._
@@ -17,7 +16,7 @@ class Test extends FunSuite with BeforeAndAfter {
   SpearConnector.spark.sparkContext.setLogLevel("ERROR")
 
   //connector logic
-  val csvJdbcConnector: AbstractConnector = SpearConnector
+  val csvJdbcConnector = SpearConnector
     .createConnector("CSVTOPOSTGRES")
     .source(sourceType = "file", sourceFormat = "csv")
     .target(targetType = "relational", targetFormat = "jdbc")
