@@ -36,4 +36,5 @@ object SpearCommons {
   val Graph="graph"
   val NumBuckets="num_buckets"
   val AppName="spark.app.name"
+  val DefaultFSPath=""
 }

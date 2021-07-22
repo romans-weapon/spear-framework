@@ -23,7 +23,7 @@ import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.commons.SpearCommons
 import org.apache.spark.sql.SaveMode
 
-abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
+private[spear] abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
   override def targetFS(destinationFilePath: String, destFormat: String = destFormat, saveAsTable: String, params: Map[String, String] = Map(), saveMode: SaveMode = SaveMode.Overwrite): Unit = {
     val numBuckets = Integer.valueOf(params.getOrElse(SpearCommons.NumBuckets, "0"))

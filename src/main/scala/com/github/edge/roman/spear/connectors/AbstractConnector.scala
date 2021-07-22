@@ -27,7 +27,7 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
 
-abstract class AbstractConnector(sourceFormat: String) extends Connector {
+private[spear] abstract class AbstractConnector(sourceFormat: String) extends Connector {
   @transient lazy val logger: Logger = Logger.getLogger(this.getClass.getName)
 
   //variables for spear
@@ -78,7 +78,7 @@ abstract class AbstractConnector(sourceFormat: String) extends Connector {
   }
 
   override def transformSql(sqlText: String): Connector = {
-    this.df = SpearConnector.spark.sql(sqlText)
+    this.df =  this.df.sqlContext.sql(sqlText)
     logger.info(s"Executing transformation sql: ${sqlText} status :${SpearCommons.SuccessStatus}")
     show()
     this

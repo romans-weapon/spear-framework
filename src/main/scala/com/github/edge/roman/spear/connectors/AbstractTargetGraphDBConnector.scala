@@ -23,7 +23,7 @@ import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.commons.SpearCommons
 import org.apache.spark.sql.SaveMode
 
-abstract class AbstractTargetGraphDBConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
+private[spear] abstract class AbstractTargetGraphDBConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
   override def targetGraphDB(objectName: String, destFormat: String = destFormat, params: Map[String, String], saveMode: SaveMode): Unit = {
     destFormat match {
