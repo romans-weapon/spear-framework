@@ -26,7 +26,7 @@ import com.mongodb.spark.config.WriteConfig
 import org.apache.spark.sql.SaveMode
 
 
-abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
+private [spear] abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
   override def targetNoSQL(objectName: String, destFormat: String = destFormat, props: Map[String, String], saveMode: SaveMode): Unit = {
     destFormat match {

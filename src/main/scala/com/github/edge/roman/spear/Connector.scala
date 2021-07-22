@@ -24,7 +24,7 @@ import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-trait Connector {
+private [spear] trait Connector {
 
   def source(sourceObject: String, params: Map[String, String] = Map()): Connector
 
@@ -36,7 +36,7 @@ trait Connector {
 
   def executeQuery(sqlText: String): Connector
 
-  def targetFS(destinationFilePath: String, destFormat: String = SpearCommons.Parquet, saveAsTable: String = "", props: Map[String, String] = Map(), saveMode: SaveMode): Unit
+  def targetFS(destinationFilePath: String=SpearCommons.DefaultFSPath, destFormat: String = SpearCommons.Parquet, saveAsTable: String = "", props: Map[String, String] = Map(), saveMode: SaveMode): Unit
 
   def targetNoSQL(objectName: String, destFormat: String = SpearCommons.NoSql, props: Map[String, String], saveMode: SaveMode): Unit
 

@@ -25,7 +25,7 @@ import org.apache.spark.sql.SaveMode
 
 import java.util.Properties
 
-abstract class AbstractTargetJDBCConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
+private [spear] abstract class AbstractTargetJDBCConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
   override def targetJDBC(tableName: String, destFormat: String = destFormat, params: Map[String, String], saveMode: SaveMode): Unit = {
     destFormat match {
