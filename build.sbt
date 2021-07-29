@@ -3,7 +3,7 @@ ThisBuild / organization := "io.github.romans-weapon"
 ThisBuild / organizationHomepage := Some(url("https://github.com/romans-weapon"))
 ThisBuild / name := "spear-framework"
 
-ThisBuild / version := "2.4-3.0.1"
+ThisBuild / version := "2.4-3.0.2"
 
 lazy val scala212 = "2.12.12"
 lazy val scala211 = "2.11.12"
@@ -37,7 +37,7 @@ assemblyMergeStrategy in assembly := {
   case PathList("META-INF", xs @ _*) => MergeStrategy.discard
   case x => MergeStrategy.first
 }
-assemblyJarName in assembly := "spear-framework-1.0.jar"
+assemblyJarName in assembly := "spear-framework.jar"
 
 resolvers +=
   "Sonatype OSS Snapshots" at "https://s01.oss.sonatype.org/service/local/repositories/releases/content"
@@ -56,7 +56,6 @@ ThisBuild / developers := List(
     url   = url("https://github.com/romans-weapon")
   )
 )
-
 ThisBuild / description := "Rapid ETL-connectors/pipeline development with minimal code leveraged on top of Apache Spark"
 ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / homepage := Some(url("https://github.com/romans-weapon/spear-framework"))
