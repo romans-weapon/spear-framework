@@ -26,7 +26,7 @@ import com.mongodb.spark.config.WriteConfig
 import org.apache.spark.sql.SaveMode
 
 
-private [spear] abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
+private[spear] abstract class AbstractTargetNoSQLConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
   override def targetNoSQL(objectName: String, destFormat: String = destFormat, props: Map[String, String], saveMode: SaveMode): Unit = {
     destFormat match {
@@ -49,6 +49,8 @@ private [spear] abstract class AbstractTargetNoSQLConnector(sourceFormat: String
 
   //unsupported here
   override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType 'nosql' ")
+
+  override def targetFS(insertIntoTable: String,destFormat: String,params: Map[String, String], saveMode: SaveMode): Unit= throw new NoSuchMethodException("method targetFS() not supported for given targetType 'nosql'")
 
   override def targetJDBC(tableName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetJDBC() not compatible for given targetType 'nosql' ")
 

@@ -22,12 +22,11 @@ package com.github.edge.roman.spear.connectors
 import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
 import com.github.edge.roman.spear.{Connector, SpearConnector}
 import org.apache.log4j.Logger
-import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
 
-private [spear] abstract class AbstractConnector(sourceFormat: String) extends Connector {
+private[spear] abstract class AbstractConnector(sourceFormat: String) extends Connector {
   @transient lazy val logger: Logger = Logger.getLogger(this.getClass.getName)
 
   //variables for spear
@@ -107,10 +106,6 @@ private [spear] abstract class AbstractConnector(sourceFormat: String) extends C
      * to target these will be executed one after the other form left to right as per the scala rules.
      */
 
-  }
-
-  override def createUDF(fucntionName: String, function: UserDefinedFunction): UserDefinedFunction = {
-    SpearConnector.spark.udf.register(fucntionName, function)
   }
 
   override def toDF: DataFrame = this.df

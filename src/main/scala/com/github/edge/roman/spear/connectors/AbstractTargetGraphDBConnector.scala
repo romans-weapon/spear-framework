@@ -23,7 +23,7 @@ import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.commons.SpearCommons
 import org.apache.spark.sql.SaveMode
 
-private [spear] abstract class AbstractTargetGraphDBConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
+private[spear] abstract class AbstractTargetGraphDBConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
   override def targetGraphDB(objectName: String, destFormat: String = destFormat, params: Map[String, String], saveMode: SaveMode): Unit = {
     destFormat match {
@@ -43,8 +43,10 @@ private [spear] abstract class AbstractTargetGraphDBConnector(sourceFormat: Stri
   //unsupported
   override def targetJDBC(tableName: String, destFormat: String = destFormat, params: Map[String, String], saveMode: SaveMode): Unit = throw new Exception("method targetJDBC() is not applicable for dest type graph ")
 
-  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType 'relational'")
+  override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetFS() not supported for dest type graph")
 
-  override def targetNoSQL(tableName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetNoSQL() not compatible for given targetType FS")
+  override def targetFS(insertIntoTable: String,destFormat: String ,params: Map[String, String], saveMode: SaveMode): Unit= throw new NoSuchMethodException("method targetFS() not supported for dest type graph")
+
+  override def targetNoSQL(tableName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetNoSQL() not compatible for dest type graph")
 
 }

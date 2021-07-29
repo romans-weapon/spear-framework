@@ -1,5 +1,4 @@
 import com.github.edge.roman.spear.SpearConnector
-import com.github.edge.roman.spear.connectors.AbstractConnector
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.{Column, DataFrame, SaveMode}
 import org.scalatest._
@@ -22,9 +21,6 @@ class Test extends FunSuite with BeforeAndAfter {
     .source(sourceType = "file", sourceFormat = "csv")
     .target(targetType = "relational", targetFormat = "jdbc")
     .getConnector
-
-  csvJdbcConnector.setVeboseLogging(true)
-
 
   csvJdbcConnector
     .source(sourceObject = "data/us-election-2012-results-by-county.csv", Map("header" -> "true", "inferSchema" -> "true"))

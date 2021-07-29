@@ -26,7 +26,7 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 
 import java.util.Properties
 
-private [spear] abstract class AbstractMultiTargetConnector(sourceFormat: String) extends AbstractConnector(sourceFormat: String) {
+private[spear] abstract class AbstractMultiTargetConnector(sourceFormat: String) extends AbstractConnector(sourceFormat: String) {
   var dfTransformed: DataFrame = SpearConnector.spark.emptyDataFrame
   var is_transformed: Boolean = false
 
@@ -65,6 +65,15 @@ private [spear] abstract class AbstractMultiTargetConnector(sourceFormat: String
         }
         logger.info(s"Write data to target path:${destinationFilePath} with format:${destFormat} and is saved as table:${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
       }
+    }
+  }
+
+  def targetFS(insertIntoTable: String,destFormat: String ,params: Map[String, String], saveMode: SaveMode): Unit={
+
+    if(insertIntoTable.isEmpty){
+      throw new NullPointerException("Table name for inserting data is not specified...!!")
+    }else{
+      this.df.write.format(destFormat).mode(saveMode).options(params).insertInto(insertIntoTable)
     }
   }
 

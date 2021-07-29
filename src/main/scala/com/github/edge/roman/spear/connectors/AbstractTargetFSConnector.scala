@@ -23,9 +23,9 @@ import com.github.edge.roman.spear.Connector
 import com.github.edge.roman.spear.commons.SpearCommons
 import org.apache.spark.sql.SaveMode
 
-private [spear] abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
+private[spear] abstract class AbstractTargetFSConnector(sourceFormat: String, destFormat: String) extends AbstractConnector(sourceFormat: String) with Connector {
 
-  override def targetFS(destinationFilePath: String, destFormat: String = destFormat, saveAsTable: String, params: Map[String, String] = Map(), saveMode: SaveMode = SaveMode.Overwrite): Unit = {
+  override def targetFS(destinationFilePath: String, destFormat: String = destFormat, saveAsTable: String, params: Map[String, String], saveMode: SaveMode = SaveMode.Overwrite): Unit = {
     val numBuckets = Integer.valueOf(params.getOrElse(SpearCommons.NumBuckets, "0"))
     val bucket_column = params.getOrElse(SpearCommons.BucketCols, "").split(",")(0)
     val bucketCols = params.getOrElse(SpearCommons.BucketCols, "").split(",").tail
@@ -74,6 +74,15 @@ private [spear] abstract class AbstractTargetFSConnector(sourceFormat: String, d
         logger.info(s"Write data to target path: ${destinationFilePath} with format: ${destFormat} and is saved as table:${saveAsTable} completed with status:${SpearCommons.SuccessStatus}")
         show()
       }
+    }
+  }
+
+  def targetFS(insertIntoTable: String,destFormat: String ,params: Map[String, String], saveMode: SaveMode): Unit={
+
+    if(insertIntoTable.isEmpty){
+      throw new NullPointerException("Table name for inserting data is not specified...!!")
+    }else{
+      this.df.write.format(destFormat).mode(saveMode).options(params).insertInto(insertIntoTable)
     }
   }
 
