@@ -109,10 +109,6 @@ private[spear] abstract class AbstractConnector(sourceFormat: String) extends Co
 
   }
 
-  override def createUDF(fucntionName: String, function: UserDefinedFunction): UserDefinedFunction = {
-    SpearConnector.spark.udf.register(fucntionName, function)
-  }
-
   override def toDF: DataFrame = this.df
 
   override def stop(): Unit = SpearConnector.spark.stop()

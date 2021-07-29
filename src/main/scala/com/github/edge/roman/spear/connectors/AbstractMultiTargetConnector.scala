@@ -68,6 +68,14 @@ private[spear] abstract class AbstractMultiTargetConnector(sourceFormat: String)
     }
   }
 
+  def targetFS(insertIntoTable: String,destFormat: String ,params: Map[String, String], saveMode: SaveMode): Unit={
+    if(insertIntoTable.isEmpty){
+      throw new NullPointerException("Table name for inserting data is not specified...!!")
+    }else{
+      this.df.write.format(destFormat).mode(saveMode).options(params).insertInto(insertIntoTable)
+    }
+  }
+
   override def targetJDBC(tableName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = {
     destFormat match {
       case "soql" =>

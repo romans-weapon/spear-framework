@@ -38,6 +38,8 @@ private[spear] trait Connector {
 
   def targetFS(destinationFilePath: String=SpearCommons.DefaultFSPath, destFormat: String = SpearCommons.Parquet, saveAsTable: String = "", props: Map[String, String] = Map(), saveMode: SaveMode): Unit
 
+  def targetFS(insertIntoTable: String,destFormat: String , props: Map[String, String] , saveMode: SaveMode): Unit
+
   def targetNoSQL(objectName: String, destFormat: String = SpearCommons.NoSql, props: Map[String, String], saveMode: SaveMode): Unit
 
   def targetJDBC(objectName: String, destFormat: String = SpearCommons.Jdbc, props: Map[String, String], saveMode: SaveMode): Unit
@@ -49,8 +51,6 @@ private[spear] trait Connector {
   def targets(targets: Unit*): Unit
 
   def saveAs(alias: String): Connector
-
-  def createUDF(fucntionName: String, function: UserDefinedFunction): UserDefinedFunction
 
   def branch: Connector
 

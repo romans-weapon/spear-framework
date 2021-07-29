@@ -32,7 +32,7 @@ private[spear] abstract class AbstractTargetNoSQLConnector(sourceFormat: String,
     destFormat match {
       case "mongo" =>
         val writeConfig = WriteConfig(
-          Map("uri" -> props.getOrElse("uri",throw new NullPointerException("No key 'uri' found in the target properties!!")).concat(s"/${objectName}")))
+          Map("uri" -> props.getOrElse("uri", throw new NullPointerException("No key 'uri' found in the target properties!!")).concat(s"/${objectName}")))
         MongoSpark.save(this.df.write.format("mongo").options(props).mode(saveMode), writeConfig)
       case "cassandra" =>
         val destdetailsArr = objectName.split("\\.")
@@ -49,6 +49,8 @@ private[spear] abstract class AbstractTargetNoSQLConnector(sourceFormat: String,
 
   //unsupported here
   override def targetFS(destinationFilePath: String, destFormat: String, saveAsTable: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType 'nosql' ")
+
+  def targetFS(insertIntoTable: String, destFormat: String, props: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetFS() not supported for given targetType 'nosql' ")
 
   override def targetJDBC(tableName: String, destFormat: String, params: Map[String, String], saveMode: SaveMode): Unit = throw new NoSuchMethodException("method targetJDBC() not compatible for given targetType 'nosql' ")
 
