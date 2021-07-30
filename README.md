@@ -63,7 +63,7 @@ You can get started with spear using any of the below methods:
 
 You can add spear-framework as dependency in your projects build.sbt file as show below
 ```commandline
-libraryDependencies += "io.github.romans-weapon" %% "spear-framework" % "2.4-3.0.1"
+libraryDependencies += "io.github.romans-weapon" %% "spear-framework" % "2.4-3.0.3"
 ```
 
 ### Maven dependency for Spear
@@ -72,7 +72,7 @@ Maven dependency for spear is shown below:
 <dependency>
   <groupId>io.github.romans-weapon</groupId>
   <artifactId>spear-framework_2.11</artifactId>
-  <version>2.4-3.0.1</version>
+  <version>2.4-3.0.3</version>
 </dependency>
 ```
 
@@ -80,7 +80,7 @@ Maven dependency for spear is shown below:
 
 You can also add it as a package while staring spark-shell along with other packages.
 ```commandline
-spark-shell --packages "io.github.romans-weapon:spear-framework_2.11:2.4-3.0.1"
+spark-shell --packages "io.github.romans-weapon:spear-framework_2.11:2.4-3.0.3"
 ```
 
 ### Docker container setup for Spear
