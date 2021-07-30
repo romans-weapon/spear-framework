@@ -26,7 +26,7 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
 
-private[spear] abstract class AbstractConnector(sourceFormat: String) extends Connector {
+abstract class AbstractConnector(sourceFormat: String) extends Connector {
   @transient lazy val logger: Logger = Logger.getLogger(this.getClass.getName)
 
   //variables for spear

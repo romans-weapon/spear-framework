@@ -24,7 +24,7 @@ import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-private[spear] trait Connector {
+trait Connector {
 
   def source(sourceObject: String, params: Map[String, String] = Map()): Connector
 
