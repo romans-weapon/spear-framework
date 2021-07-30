@@ -22,12 +22,11 @@ package com.github.edge.roman.spear.connectors
 import com.github.edge.roman.spear.commons.{ConnectorCommon, SpearCommons}
 import com.github.edge.roman.spear.{Connector, SpearConnector}
 import org.apache.log4j.Logger
-import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
 
-private[spear] abstract class AbstractConnector(sourceFormat: String) extends Connector {
+abstract class AbstractConnector(sourceFormat: String) extends Connector {
   @transient lazy val logger: Logger = Logger.getLogger(this.getClass.getName)
 
   //variables for spear

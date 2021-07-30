@@ -37,4 +37,5 @@ object SpearCommons {
   val NumBuckets="num_buckets"
   val AppName="spark.app.name"
   val DefaultFSPath=""
+  val EmptyTable=""
 }

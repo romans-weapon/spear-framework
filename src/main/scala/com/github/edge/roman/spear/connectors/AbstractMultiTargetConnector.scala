@@ -26,7 +26,7 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 
 import java.util.Properties
 
-private[spear] abstract class AbstractMultiTargetConnector(sourceFormat: String) extends AbstractConnector(sourceFormat: String) {
+abstract class AbstractMultiTargetConnector(sourceFormat: String) extends AbstractConnector(sourceFormat: String) {
   var dfTransformed: DataFrame = SpearConnector.spark.emptyDataFrame
   var is_transformed: Boolean = false
 
