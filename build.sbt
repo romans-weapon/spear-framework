@@ -4,7 +4,7 @@ ThisBuild / organizationHomepage := Some(url("https://github.com/romans-weapon")
 ThisBuild / name := "spear-framework"
 
 //spear-framework version 1.0 for spark 3.1.1
-ThisBuild / version := "3.1.1-2.0"
+ThisBuild / version := "3.1.1-3.0"
 
 lazy val scala212 = "2.12.10"
 
